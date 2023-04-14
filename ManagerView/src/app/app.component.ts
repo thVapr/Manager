@@ -1,23 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { UsersService } from './users.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  template: `
-    <ul>
-      <li *ngFor="let user of users">{{ user.name }}</li>
-    </ul>
-  `,
+  templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-  users: any[] = [];
-
-  constructor(private usersService: UsersService) {}
-
-  ngOnInit() {
-    this.usersService.getUsers().subscribe(users => {
-      this.users = users;
-    });
-  }
+export class AppComponent {
+  title = 'angular';
 }

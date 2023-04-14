@@ -1,0 +1,23 @@
+﻿
+using ManagerData.DataModels;
+
+namespace ManagerData.Authentication;
+
+public interface IAuthenticationRepository
+{
+    Task<UserDataModel> GetUser(Guid id);
+    Task<UserDataModel> GetUser(string email);
+    Task<string> GetUserRole(string email);
+
+    Task<RefreshTokenDataModel?> GetToken(Guid UserId); 
+    Task<RefreshTokenDataModel?> GetToken(string token); 
+    Task<bool> AddToken(RefreshTokenDataModel token);
+    Task<bool> UpdateToken(RefreshTokenDataModel tokenModel, string token);
+    Task<bool> DeleteToken(string token);
+
+    Task<bool> AddRole(string name);
+    
+    Task<bool> AddUser(UserDataModel user);
+    Task<bool> UpdateUser(Guid id);
+    Task<bool> DeleteUser(Guid id);
+}
