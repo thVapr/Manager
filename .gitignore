@@ -132,6 +132,12 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 
+# Ide settings
+.idea/
+
+#angular cache
+.angular/
+
 # TeamCity is a build add-in
 _TeamCity*
 
