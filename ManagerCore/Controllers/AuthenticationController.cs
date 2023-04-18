@@ -3,6 +3,7 @@ using ManagerData.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using ManagerData.Authentication;
 using ManagerLogic.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCore.Controllers;
 
@@ -18,15 +19,18 @@ public class AuthenticationController : ControllerBase
     }
 
     //TODO: delete this method
+    //[Authorize]
     [HttpGet]
-    public async Task<IActionResult> GetUser(string email)
+    [Route("data")]
+    public async Task<IActionResult> GetUser(string email = "vaprmail@gmail.com")
     {
+        var secontext = new ManagerDbContext();
         var context = new AuthenticationDbContext();
         var data = new AuthenticationRepository(context);
 
         var user = await data.GetUser(email);
-                    
-        return Ok(user);
+        
+        return Ok(new {email = user.Email});
     }
 
     [HttpPost]
@@ -38,8 +42,12 @@ public class AuthenticationController : ControllerBase
             return BadRequest();
         }
 
-        await _authentication.CreateUser(user);
-        return await Login(user);
+        if (await _authentication.CreateUser(user))
+        {
+            return await Login(user);
+        }
+        
+        return BadRequest();
     }
                 
     [HttpPost("login")]
@@ -53,12 +61,11 @@ public class AuthenticationController : ControllerBase
         return Ok(await _authentication.Authenticate(user));
     }
 
+    [Authorize]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout(string token)
+    public async Task<IActionResult> Logout(RefreshTokenModel model)
     {
-        var qToken = await _authentication.Logout(token);
-
-        return Ok();
+        return await _authentication.Logout(model.RefreshToken) ? Ok() : BadRequest();
     }
 
     [HttpPost("refresh")]

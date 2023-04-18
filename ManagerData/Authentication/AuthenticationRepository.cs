@@ -1,6 +1,7 @@
 ﻿
 using ManagerData.Contexts;
 using ManagerData.DataModels;
+using ManagerData.DataModels.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Authentication;
@@ -138,7 +139,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
             var userRole = new UserRoleDataModel
             {
                 UserId = user.Id,
-                RoleId = role.Id
+                RoleId = role!.Id
             };
 
             _context.Users.Add(user);
@@ -147,7 +148,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
             await _context.SaveChangesAsync();
             return true;
         }
-        catch (NullReferenceException ex)
+        catch
         {
             return false;
         }

@@ -22,7 +22,7 @@ namespace ManagerData.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ManagerData.DataModels.RefreshTokenDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.RefreshTokenDataModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +48,7 @@ namespace ManagerData.Migrations
                     b.ToTable("Tokens", (string)null);
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.RoleDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.RoleDataModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -64,7 +64,7 @@ namespace ManagerData.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.UserDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.UserDataModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -91,7 +91,7 @@ namespace ManagerData.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.UserRoleDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.UserRoleDataModel", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -106,9 +106,9 @@ namespace ManagerData.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.RefreshTokenDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.RefreshTokenDataModel", b =>
                 {
-                    b.HasOne("ManagerData.DataModels.UserDataModel", "User")
+                    b.HasOne("ManagerData.DataModels.Authentication.UserDataModel", "User")
                         .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -117,15 +117,15 @@ namespace ManagerData.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.UserRoleDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.UserRoleDataModel", b =>
                 {
-                    b.HasOne("ManagerData.DataModels.RoleDataModel", "Role")
+                    b.HasOne("ManagerData.DataModels.Authentication.RoleDataModel", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ManagerData.DataModels.UserDataModel", "User")
+                    b.HasOne("ManagerData.DataModels.Authentication.UserDataModel", "User")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -136,12 +136,12 @@ namespace ManagerData.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.RoleDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.RoleDataModel", b =>
                 {
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.UserDataModel", b =>
+            modelBuilder.Entity("ManagerData.DataModels.Authentication.UserDataModel", b =>
                 {
                     b.Navigation("Roles");
 

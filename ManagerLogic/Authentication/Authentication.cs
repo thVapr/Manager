@@ -1,16 +1,14 @@
 ﻿
-
 using System.IdentityModel.Tokens.Jwt;
 using ManagerData.Authentication;
-using ManagerData.DataModels;
 using System.Security.Claims;
+using ManagerData.DataModels.Authentication;
 using ManagerLogic.Models;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ManagerLogic.Authentication;
 
-public class Authentication : IAuthentication
-{
+public class Authentication : IAuthentication {
     private readonly IEncrypt _encrypt;
     private readonly IAuthenticationRepository _authenticationData;
     private readonly IJwtCreator _jwtCreator;
@@ -21,24 +19,24 @@ public class Authentication : IAuthentication
         _authenticationData = authenticationData;
         _jwtCreator = jwtCreator;
     }
-
+    //TODO: add server validation
     public async Task<Tuple<string,string>> Authenticate(LoginModel user)
     {
-        var qUser = await _authenticationData.GetUser(user.Email!);
-        var passwordHash = _encrypt.HashPassword(user.Password!, qUser.Salt);
+        var userFromQuery = await _authenticationData.GetUser(user.Email!);
+        var passwordHash = _encrypt.HashPassword(user.Password!, userFromQuery.Salt);
 
-        if (qUser.Email == string.Empty ||
-            qUser.PasswordHash != passwordHash) 
+        if (userFromQuery.Email == string.Empty ||
+            userFromQuery.PasswordHash != passwordHash) 
             return new Tuple<string, string>(string.Empty, string.Empty);
 
-        var role = await _authenticationData.GetUserRole(qUser.Email);
+        var role = await _authenticationData.GetUserRole(userFromQuery.Email);
 
         var claims = new List<Claim>
         {
-            new (ClaimTypes.Email, qUser.Email),
+            new (ClaimTypes.Email, userFromQuery.Email),
             new (ClaimTypes.Role, role)
         };
-
+        //TODO: refactor this shit
         var token = _jwtCreator.GenerateToken
         (
             claims,
@@ -52,10 +50,9 @@ public class Authentication : IAuthentication
 
         var tokenModel = new RefreshTokenDataModel
         {
-            Id = Guid.NewGuid(),
             Token = _jwtCreator.GenerateRefreshToken(),
-            ExpireTime = DateTime.UtcNow.AddMinutes(Constants.ExpiryMinutes),
-            UserId = qUser.Id,
+            ExpireTime = DateTime.UtcNow.AddDays(Constants.ExpiryMinutes),
+            UserId = userFromQuery.Id,
         };
 
         await _authenticationData.AddToken(tokenModel);
@@ -99,9 +96,8 @@ public class Authentication : IAuthentication
 
         var tokenModel = new RefreshTokenDataModel
         {
-            Id = Guid.NewGuid(),
             Token = _jwtCreator.GenerateRefreshToken(),
-            ExpireTime = DateTime.UtcNow.AddMinutes(Constants.ExpiryMinutes),
+            ExpireTime = DateTime.UtcNow.AddDays(Constants.ExpiryMinutes),
             UserId = user.Id,
         };
 
@@ -119,6 +115,10 @@ public class Authentication : IAuthentication
 
     public async Task<bool> CreateUser(LoginModel user)
     {
+        var userCheck = await _authenticationData.GetUser(user.Email);
+
+        if (!userCheck.Email.IsNullOrEmpty()) return false;
+
         var salt = Guid.NewGuid().ToString();
         var hashPassword = _encrypt.HashPassword(user.Password, salt);
 
@@ -131,7 +131,6 @@ public class Authentication : IAuthentication
 
         var newUser = new UserDataModel
         {
-            Id = Guid.NewGuid(),
             Email = user.Email,
             PasswordHash = hashPassword,
             Salt = salt

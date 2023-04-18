@@ -1,5 +1,5 @@
 ﻿using ManagerData.Constants;
-using ManagerData.DataModels;
+using ManagerData.DataModels.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Contexts;
@@ -19,7 +19,6 @@ public sealed class AuthenticationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //TODO: put in separate classes
         modelBuilder.Entity<UserRoleDataModel>()
             .HasKey(ur => new { ur.UserId, ur.RoleId });
 
@@ -43,7 +42,6 @@ public sealed class AuthenticationDbContext : DbContext
             .HasForeignKey(t => t.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
-
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
