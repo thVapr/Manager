@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ManagerData.DataModels;
 
-public class BaseDataModel
+public abstract class BaseDataModel
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();

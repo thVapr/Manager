@@ -1,6 +1,5 @@
 ﻿
 using ManagerData.Contexts;
-using ManagerData.DataModels;
 using ManagerData.DataModels.Authentication;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +12,6 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
     public AuthenticationRepository(AuthenticationDbContext context)
     {
         _context = context;
-        SeedRoles().Wait();
     }
 
     public async Task<UserDataModel> GetUser(Guid id)
@@ -47,6 +45,8 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
             var user = await GetUser(email);
             var userRoles = await _context.UserRoles.Where(u => u.UserId == user.Id).FirstOrDefaultAsync();
             var role = await _context.Roles.Where(r => r.Id == userRoles!.RoleId).FirstOrDefaultAsync();
+
+            if (role == null) await SeedRoles();
 
             return role!.Name;
         }
@@ -135,6 +135,12 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
             if (existingUser != null) return false;
 
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == Constants.RoleConstants.Default);
+
+            if (role == null)
+            {
+                await SeedRoles();
+                role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == Constants.RoleConstants.Default);
+            }
 
             var userRole = new UserRoleDataModel
             {

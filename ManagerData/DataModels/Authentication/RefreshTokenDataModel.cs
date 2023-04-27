@@ -7,11 +7,9 @@ namespace ManagerData.DataModels.Authentication;
 [Table("Tokens")]
 public class RefreshTokenDataModel : BaseDataModel
 {
-    [Required]
-    public string Token { get; set; } = null!;
+    [Required] public string Token { get; set; } = null!;
 
-    [Required]
-    public DateTime Created { get; set; } = DateTime.UtcNow;
+    [Required] public DateTime Created { get; set; } = DateTime.UtcNow;
     public DateTime ExpireTime { get; set; }
 
     public Guid UserId { get; set; }

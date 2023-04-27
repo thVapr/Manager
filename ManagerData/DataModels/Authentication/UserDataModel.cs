@@ -7,11 +7,10 @@ namespace ManagerData.DataModels.Authentication;
 [Table("Users")]
 public class UserDataModel : BaseDataModel
 {
-    [EmailAddress, Required, MaxLength(40)]
+    [EmailAddress, Required, MaxLength(40)] 
     public string Email { get; set; } = null!;
 
-    [Required]
-    public string PasswordHash { get; set; } = null!;
+    [Required] public string PasswordHash { get; set; } = null!;
     public string Salt { get; set; } = null!;
 
     public int Status { get; set; } = 0;

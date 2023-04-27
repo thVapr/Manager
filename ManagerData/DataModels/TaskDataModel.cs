@@ -6,18 +6,7 @@ namespace ManagerData.DataModels;
 [Table("Tasks")]
 public class TaskDataModel : BaseDataModel
 {
-    public TaskDataModel()
-    {
-
-    }
-
-    public TaskDataModel(ProjectDataModel? project, EmployeeDataModel? employee)
-    {
-        Project = project;
-        Employee = employee;
-    }
-
-    public Guid CreatorId { get; set; }
+    public Guid CreatorId { get; init; }
     public Guid ProjectId { get; set; }
     public Guid EmployeeId { get; set; }
     
@@ -25,8 +14,7 @@ public class TaskDataModel : BaseDataModel
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public int Level { get; set; } = 0;
-    
-    public ProjectDataModel? Project { get; set; }
-    public EmployeeDataModel? Employee { get; set; }
 
+    public EmployeeLinksDataModel EmployeeLinks { get; set; } = null!;
+    public ProjectTasksDataModel ProjectTasks { get; set; } = null!;
 }
