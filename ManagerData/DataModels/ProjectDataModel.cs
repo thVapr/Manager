@@ -10,7 +10,7 @@ public class ProjectDataModel : BaseDataModel
     public string Description { get; set; } = string.Empty;
 
     public Guid TaskId { get; set; }
-
+    
     public IEnumerable<ProjectTasksDataModel>? ProjectTasks { get; set; }
     public IEnumerable<EmployeeLinksDataModel>? EmployeeLinks { get; set; }
 }

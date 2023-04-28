@@ -1,7 +1,5 @@
 ﻿using ManagerLogic.Models;
-using ManagerData.Contexts;
 using Microsoft.AspNetCore.Mvc;
-using ManagerData.Authentication;
 using ManagerLogic.Authentication;
 using Microsoft.AspNetCore.Authorization;
 
@@ -16,21 +14,6 @@ public class AuthenticationController : ControllerBase
     public AuthenticationController(IAuthentication authentication)
     {
         _authentication = authentication;
-    }
-
-    //TODO: delete this method
-    //[Authorize]
-    [HttpGet]
-    [Route("data")]
-    public async Task<IActionResult> GetUser(string email = "vaprmail@gmail.com")
-    {
-        var secontext = new ManagerDbContext();
-        var context = new AuthenticationDbContext();
-        var data = new AuthenticationRepository(context);
-
-        var user = await data.GetUser(email);
-        
-        return Ok(new {email = user.Email});
     }
 
     [HttpPost]

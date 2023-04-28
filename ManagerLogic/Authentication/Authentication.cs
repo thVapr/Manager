@@ -1,10 +1,10 @@
 ﻿
-using System.IdentityModel.Tokens.Jwt;
-using ManagerData.Authentication;
-using System.Security.Claims;
-using ManagerData.DataModels.Authentication;
 using ManagerLogic.Models;
+using System.Security.Claims;
+using ManagerData.Authentication;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using ManagerData.DataModels.Authentication;
 
 namespace ManagerLogic.Authentication;
 

@@ -7,18 +7,13 @@ namespace ManagerData.Authentication;
 
 public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 {
-    private readonly AuthenticationDbContext _context;
-
-    public AuthenticationRepository(AuthenticationDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<UserDataModel> GetUser(Guid id)
     {
+        await using var database = new AuthenticationDbContext();
+        
         try
         {
-            return await _context.Users.FindAsync(id) ?? new UserDataModel();
+            return await database.Users.FindAsync(id) ?? new UserDataModel();
         }
         catch (NullReferenceException ex)
         {
@@ -28,9 +23,11 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<UserDataModel> GetUser(string email)
     {
+        await using var database = new AuthenticationDbContext();
+
         try
         {
-            return await _context.Users.Where(o => o.Email == email).FirstOrDefaultAsync() ?? new UserDataModel();
+            return await database.Users.Where(o => o.Email == email).FirstOrDefaultAsync() ?? new UserDataModel();
         }
         catch (NullReferenceException ex)
         {
@@ -40,11 +37,13 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<string> GetUserRole(string email)
     {
+        await using var database = new AuthenticationDbContext();
+
         try
         {
             var user = await GetUser(email);
-            var userRoles = await _context.UserRoles.Where(u => u.UserId == user.Id).FirstOrDefaultAsync();
-            var role = await _context.Roles.Where(r => r.Id == userRoles!.RoleId).FirstOrDefaultAsync();
+            var userRoles = await database.UserRoles.Where(u => u.UserId == user.Id).FirstOrDefaultAsync();
+            var role = await database.Roles.Where(r => r.Id == userRoles!.RoleId).FirstOrDefaultAsync();
 
             if (role == null) await SeedRoles();
 
@@ -59,9 +58,11 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<RefreshTokenDataModel?> GetToken(Guid UserId)
     {
+        await using var database = new AuthenticationDbContext();
+
         try
         {
-            return await _context.Tokens.FirstOrDefaultAsync(u => u.UserId == UserId) ?? new RefreshTokenDataModel();
+            return await database.Tokens.FirstOrDefaultAsync(u => u.UserId == UserId) ?? new RefreshTokenDataModel();
         }
         catch (Exception e)
         {
@@ -72,9 +73,11 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<RefreshTokenDataModel?> GetToken(string token)
     {
+        await using var database = new AuthenticationDbContext();
+
         try
         {
-            return await _context.Tokens.FirstOrDefaultAsync(u => u.Token == token) ?? new RefreshTokenDataModel();
+            return await database.Tokens.FirstOrDefaultAsync(u => u.Token == token) ?? new RefreshTokenDataModel();
         }
         catch (Exception e)
         {
@@ -85,23 +88,27 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<bool> AddToken(RefreshTokenDataModel token)
     {
-        var existingToken = await _context.Tokens.FirstOrDefaultAsync(t => t.UserId == token.UserId);
+        await using var database = new AuthenticationDbContext();
+
+        var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.UserId == token.UserId);
 
         if (existingToken != null)
         {
-            _context.Tokens.Remove(existingToken);
-            await _context.SaveChangesAsync();
+            database.Tokens.Remove(existingToken);
+            await database.SaveChangesAsync();
         }
 
-        await _context.Tokens.AddAsync(token);
-        await _context.SaveChangesAsync();
+        await database.Tokens.AddAsync(token);
+        await database.SaveChangesAsync();
 
         return true;
     }
 
     public async Task<bool> UpdateToken(RefreshTokenDataModel tokenModel, string token)
     {
-        var existingToken = _context.Tokens.FirstOrDefault(t => t.Token == token);
+        await using var database = new AuthenticationDbContext();
+
+        var existingToken = database.Tokens.FirstOrDefault(t => t.Token == token);
 
         if (existingToken is null) return false;
 
@@ -113,12 +120,14 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<bool> DeleteToken(string token)
     {
-        var existingToken = await _context.Tokens.FirstOrDefaultAsync(t => t.Token == token);
+        await using var database = new AuthenticationDbContext();
+
+        var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.Token == token);
 
         if (existingToken != null)
         {
-            _context.Tokens.Remove(existingToken);
-            await _context.SaveChangesAsync();
+            database.Tokens.Remove(existingToken);
+            await database.SaveChangesAsync();
             return true;
         }
 
@@ -128,18 +137,20 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<bool> AddUser(UserDataModel user)
     {
+        await using var database = new AuthenticationDbContext();
+
         try
         {
-            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+            var existingUser = await database.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
 
             if (existingUser != null) return false;
 
-            var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == Constants.RoleConstants.Default);
+            var role = await database.Roles.FirstOrDefaultAsync(r => r.Name == Constants.RoleConstants.Default);
 
             if (role == null)
             {
                 await SeedRoles();
-                role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == Constants.RoleConstants.Default);
+                role = await database.Roles.FirstOrDefaultAsync(r => r.Name == Constants.RoleConstants.Default);
             }
 
             var userRole = new UserRoleDataModel
@@ -148,10 +159,10 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
                 RoleId = role!.Id
             };
 
-            _context.Users.Add(user);
-            _context.UserRoles.Add(userRole);
+            database.Users.Add(user);
+            database.UserRoles.Add(userRole);
             
-            await _context.SaveChangesAsync();
+            await database.SaveChangesAsync();
             return true;
         }
         catch
@@ -162,6 +173,8 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     public async Task<bool> AddRole(string name)
     {
+        await using var database = new AuthenticationDbContext();
+
         try
         {
             var role = new RoleDataModel
@@ -170,13 +183,13 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
                 Name = name
             };
 
-            var roles = await _context.Roles.FirstOrDefaultAsync(r => r.Name == name);
+            var roles = await database.Roles.FirstOrDefaultAsync(r => r.Name == name);
 
             //TODO: change this shit
             if (roles != null) return false;
 
-            await _context.Roles.AddAsync(role);
-            await _context.SaveChangesAsync();
+            await database.Roles.AddAsync(role);
+            await database.SaveChangesAsync();
 
             return true;
         }
@@ -186,32 +199,42 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
     }
 
-    public async Task<bool> UpdateUser(Guid id)
+    public async Task<bool> UpdateUser(UserDataModel model)
     {
-        var user = await _context.Users.FindAsync(id);
+        await using var database = new AuthenticationDbContext();
+
+        var user = await database.Users.FindAsync(model.Id);
 
         if (user == null) return false;
 
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-        return true;
+        user.Email = model.Email;
+        user.Roles = model.Roles;
+        user.PasswordHash = model.PasswordHash;
+        user.Salt = model.Salt;
+        user.Status = model.Status;
 
+        await database.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteUser(Guid id)
     {
-        var user = await _context.Users.FindAsync(id);
+        await using var database = new AuthenticationDbContext();
+
+        var user = await database.Users.FindAsync(id);
 
         if (user == null) return false;
 
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        database.Users.Remove(user);
+        await database.SaveChangesAsync();
         return true;
 
     }
 
-    public async Task SeedRoles()
+    private async Task SeedRoles()
     {
+        await using var database = new AuthenticationDbContext();
+
         await AddRole(Constants.RoleConstants.Moderator);
         await AddRole(Constants.RoleConstants.Default);
         await AddRole(Constants.RoleConstants.Admin);

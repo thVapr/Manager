@@ -4,7 +4,6 @@ namespace ManagerData.Authentication;
 
 public interface IAuthenticationRepository
 {
-    Task<UserDataModel> GetUser(Guid id);
     Task<UserDataModel> GetUser(string email);
     Task<string> GetUserRole(string email);
 
@@ -17,6 +16,6 @@ public interface IAuthenticationRepository
     Task<bool> AddRole(string name);
     
     Task<bool> AddUser(UserDataModel user);
-    Task<bool> UpdateUser(Guid id);
+    Task<bool> UpdateUser(UserDataModel user);
     Task<bool> DeleteUser(Guid id);
 }
