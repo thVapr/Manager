@@ -1,23 +1,24 @@
 ﻿
+
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class CompanyRepository : IManagementRepository<CompanyDataModel>
+public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 {
-    public async Task<bool> CreateEntity(CompanyDataModel model)
+    public async Task<bool> CreateEntity(DepartmentDataModel model)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var existingCompany = await database.Companies.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
+            var existingDepartment = await database.Departments.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
+            
+            if (existingDepartment != null) return false;
 
-            if (existingCompany != null) return false;
-
-            await database.Companies.AddAsync(model);
+            await database.Departments.AddAsync(model);
 
             return true;
         }
@@ -27,32 +28,32 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         }
     }
 
-    public async Task<CompanyDataModel> GetEntityById(Guid id)
+    public async Task<DepartmentDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            return await database.Companies.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new CompanyDataModel();
+            return await database.Departments.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new DepartmentDataModel();
         }
-        catch 
+        catch
         {
-            return new CompanyDataModel();
+            return new DepartmentDataModel();
         }
     }
 
-    public async Task<bool> UpdateEntity(CompanyDataModel model)
+    public async Task<bool> UpdateEntity(DepartmentDataModel model)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var company = await database.Companies.FindAsync(model.Id);
+            var department = await database.Companies.FindAsync(model.Id);
 
-            if (company == null) return false;
-            
-            company.Name = model.Name;
-            company.Description = model.Description;
+            if (department == null) return false;
+
+            department.Name = model.Name;
+            department.Description = model.Description;
 
             await database.SaveChangesAsync();
 
@@ -76,6 +77,7 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
 
             database.Companies.Remove(existingCompany);
             await database.SaveChangesAsync();
+
             return true;
         }
         catch
