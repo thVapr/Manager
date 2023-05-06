@@ -136,7 +136,7 @@ _ReSharper*/
 .idea/
 
 #angular cache
-.angular/
+*.angular/
 
 # TeamCity is a build add-in
 _TeamCity*
