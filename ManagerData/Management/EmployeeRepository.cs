@@ -1,5 +1,4 @@
 ﻿
-
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +50,10 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
             var employee = await database.Employees.FindAsync(model.Id);
 
             if (employee == null) return false;
+
+            employee.FirstName = model.FirstName;
+            employee.LastName = model.LastName;
+            employee.Patronymic = model.Patronymic;
 
             await database.SaveChangesAsync();
 

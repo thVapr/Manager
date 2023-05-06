@@ -6,7 +6,7 @@ namespace ManagerLogic.Authentication;
 
 public interface IJwtCreator
 {
-    JwtSecurityToken GenerateToken(List<Claim> claims, string issuer, string audience, string secretKey, int expiryMinutes);
+    JwtSecurityToken GenerateToken(IEnumerable<Claim> claims, string issuer, string audience, string secretKey, int expiryMinutes);
     string GenerateRefreshToken();
     string GetEmailFromToken(string? token);
 }

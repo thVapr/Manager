@@ -51,6 +51,9 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
 
             if (project == null) return false;
 
+            project.Name = model.Name;
+            project.Description = model.Description;
+
             await database.SaveChangesAsync();
 
             return true;
@@ -67,11 +70,11 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
 
         try
         {
-            var existingProject = await database.Employees.FindAsync(id);
+            var existingProject = await database.Projects.FindAsync(id);
 
             if (existingProject == null) return false;
 
-            database.Employees.Remove(existingProject);
+            database.Projects.Remove(existingProject);
             await database.SaveChangesAsync();
 
             return true;

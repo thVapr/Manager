@@ -33,10 +33,11 @@ public class Authentication : IAuthentication {
 
         var claims = new List<Claim>
         {
+            new (ClaimTypes.PrimarySid, userFromQuery.Id.ToString()),
             new (ClaimTypes.Email, userFromQuery.Email),
             new (ClaimTypes.Role, role)
         };
-        //TODO: refactor this shit
+
         var token = _jwtCreator.GenerateToken
         (
             claims,

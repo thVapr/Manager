@@ -8,7 +8,11 @@ namespace ManagerLogic.Authentication;
 
 public class JwtCreator : IJwtCreator
 {
-    public JwtSecurityToken GenerateToken(List<Claim> claims, string issuer, string audience, string secretKey, int expiryMinutes = 60)
+    public JwtSecurityToken GenerateToken(IEnumerable<Claim> claims,
+                                          string issuer,
+                                          string audience,
+                                          string secretKey,
+                                          int expiryMinutes = 60)
     {
         var signCredentials = CreateSigningCredentials(secretKey);
 
@@ -37,7 +41,7 @@ public class JwtCreator : IJwtCreator
         return tokenData.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)!.Value;
     }
 
-    public static SigningCredentials CreateSigningCredentials(string secretKey)
+    private static SigningCredentials CreateSigningCredentials(string secretKey)
     {
         return new SigningCredentials(
             new SymmetricSecurityKey(
