@@ -76,6 +76,22 @@ namespace ManagerData.Migrations.ManagerDb
                     b.ToTable("Department");
                 });
 
+            modelBuilder.Entity("ManagerData.DataModels.DepartmentProjectsDataModel", b =>
+                {
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("DepartmentId", "ProjectId");
+
+                    b.HasIndex("ProjectId")
+                        .IsUnique();
+
+                    b.ToTable("DepartmentProjects");
+                });
+
             modelBuilder.Entity("ManagerData.DataModels.EmployeeDataModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -136,6 +152,9 @@ namespace ManagerData.Migrations.ManagerDb
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -222,6 +241,25 @@ namespace ManagerData.Migrations.ManagerDb
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("ManagerData.DataModels.DepartmentProjectsDataModel", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.DepartmentDataModel", "Department")
+                        .WithMany("DepartmentProjects")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ManagerData.DataModels.ProjectDataModel", "Project")
+                        .WithOne("DepartmentProjects")
+                        .HasForeignKey("ManagerData.DataModels.DepartmentProjectsDataModel", "ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("ManagerData.DataModels.EmployeeLinksDataModel", b =>
                 {
                     b.HasOne("ManagerData.DataModels.DepartmentDataModel", "Department")
@@ -285,6 +323,8 @@ namespace ManagerData.Migrations.ManagerDb
                 {
                     b.Navigation("CompanyDepartments");
 
+                    b.Navigation("DepartmentProjects");
+
                     b.Navigation("EmployeeLinks");
                 });
 
@@ -295,6 +335,8 @@ namespace ManagerData.Migrations.ManagerDb
 
             modelBuilder.Entity("ManagerData.DataModels.ProjectDataModel", b =>
                 {
+                    b.Navigation("DepartmentProjects");
+
                     b.Navigation("EmployeeLinks");
 
                     b.Navigation("ProjectTasks");

@@ -27,6 +27,11 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
         }
     }
 
+    public Task<bool> CreateEntity(Guid id, TaskDataModel model)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<TaskDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
@@ -85,5 +90,9 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
         {
             return false;
         }
+    }
+
+    public void Dispose()
+    {
     }
 }

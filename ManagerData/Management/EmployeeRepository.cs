@@ -27,6 +27,11 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
         }
     }
 
+    public Task<bool> CreateEntity(Guid id, EmployeeDataModel model)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<EmployeeDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
@@ -84,5 +89,9 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
         {
             return false;
         }
+    }
+
+    public void Dispose()
+    {
     }
 }

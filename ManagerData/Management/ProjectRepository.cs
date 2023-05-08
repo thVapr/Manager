@@ -27,6 +27,26 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
         }
     }
 
+    public async Task<bool> CreateEntity(Guid id, ProjectDataModel model)
+    {
+        await CreateEntity(model);
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var department = await database.Departments.Where(e => e.Id == id).FirstOrDefaultAsync();
+            
+            if (department == null) return false;
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+
     public async Task<ProjectDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
@@ -83,5 +103,9 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
         {
             return false;
         }
+    }
+
+    public void Dispose()
+    {
     }
 }

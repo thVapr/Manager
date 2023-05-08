@@ -1,11 +1,11 @@
 ﻿
 namespace ManagerData.DataModels;
 
-public class CompanyDepartmentsDataModel
+public class DepartmentProjectsDataModel
 {
-    public Guid CompanyId { get; set; }
     public Guid DepartmentId { get; set; }
+    public Guid ProjectId { get; set; }
 
-    public CompanyDataModel Company { get; set; } = null!;
     public DepartmentDataModel Department { get; set; } = null!;
+    public ProjectDataModel Project { get; set; } = null!;
 }

@@ -19,11 +19,39 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
             if (existingDepartment != null) return false;
 
             await database.Departments.AddAsync(model);
+            await database.SaveChangesAsync();
 
             return true;
         }
         catch
         {
+            return false;
+        }
+    }
+
+    public async Task<bool> CreateEntity(Guid companyId, DepartmentDataModel model)
+    {
+        await CreateEntity(model);
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var company = await database.Companies.Where(e => e.Id == companyId).FirstOrDefaultAsync();
+
+            if (company == null) return false;
+
+            await database.CompanyDepartments.AddAsync(
+                new CompanyDepartmentsDataModel
+                {
+                    CompanyId = companyId, DepartmentId = model.Id
+                });
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch(Exception ex) 
+        {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }
@@ -84,5 +112,9 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
         {
             return false;
         }
+    }
+
+    public void Dispose()
+    {
     }
 }

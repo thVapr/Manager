@@ -11,5 +11,6 @@ public class DepartmentDataModel: BaseDataModel
     [Required] public string Description { get; set; } = null!;
 
     public CompanyDepartmentsDataModel? CompanyDepartments { get; set; }
+    public IEnumerable<DepartmentProjectsDataModel>? DepartmentProjects { get; set; }
     public IEnumerable<EmployeeLinksDataModel>? EmployeeLinks { get; set; }
 }

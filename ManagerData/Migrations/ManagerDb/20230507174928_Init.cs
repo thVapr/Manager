@@ -60,6 +60,7 @@ namespace ManagerData.Migrations.ManagerDb
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TaskId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
@@ -105,6 +106,30 @@ namespace ManagerData.Migrations.ManagerDb
                         name: "FK_CompanyDepartments_Department_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Department",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DepartmentProjects",
+                columns: table => new
+                {
+                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DepartmentProjects", x => new { x.DepartmentId, x.ProjectId });
+                    table.ForeignKey(
+                        name: "FK_DepartmentProjects_Department_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Department",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DepartmentProjects_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -178,6 +203,12 @@ namespace ManagerData.Migrations.ManagerDb
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_DepartmentProjects_ProjectId",
+                table: "DepartmentProjects",
+                column: "ProjectId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EmployeeLinks_DepartmentId",
                 table: "EmployeeLinks",
                 column: "DepartmentId");
@@ -205,6 +236,9 @@ namespace ManagerData.Migrations.ManagerDb
         {
             migrationBuilder.DropTable(
                 name: "CompanyDepartments");
+
+            migrationBuilder.DropTable(
+                name: "DepartmentProjects");
 
             migrationBuilder.DropTable(
                 name: "EmployeeLinks");

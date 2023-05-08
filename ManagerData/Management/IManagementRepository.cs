@@ -1,11 +1,11 @@
-﻿using ManagerData.DataModels;
-
+﻿
 namespace ManagerData.Management;
 
-public interface IManagementRepository<T>
+public interface IManagementRepository<T> : IDisposable
 {
-    public Task<bool> CreateEntity(T model);
-    public Task<T> GetEntityById(Guid id);
-    public Task<bool> UpdateEntity(T model);
-    public Task<bool> DeleteEntity(Guid id);
+    Task<bool> CreateEntity(T model);
+    Task<bool> CreateEntity(Guid id, T model);
+    Task<T> GetEntityById(Guid id);
+    Task<bool> UpdateEntity(T model);
+    Task<bool> DeleteEntity(Guid id);
 }

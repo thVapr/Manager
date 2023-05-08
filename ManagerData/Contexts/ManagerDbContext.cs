@@ -19,6 +19,7 @@ public sealed class ManagerDbContext : DbContext
     public DbSet<DepartmentDataModel> Departments { get; set; } = null!;
 
     public DbSet<CompanyDepartmentsDataModel> CompanyDepartments { get; set; } = null!;
+    public DbSet<DepartmentProjectsDataModel> DepartmentProjects { get; set; } = null!;
     public DbSet<EmployeeLinksDataModel> EmployeeLinks { get; set; } = null!;
     public DbSet<ProjectTasksDataModel> ProjectTasks { get; set; } = null!;
 
@@ -32,6 +33,13 @@ public sealed class ManagerDbContext : DbContext
             .WithMany(e => e.CompanyDepartments)
             .HasForeignKey(fk => fk.CompanyId);
 
+        modelBuilder.Entity<DepartmentProjectsDataModel>()
+            .HasKey(k => new { k.DepartmentId, k.ProjectId });
+
+        modelBuilder.Entity<DepartmentProjectsDataModel>()
+            .HasOne(e => e.Department)
+            .WithMany(e => e.DepartmentProjects)
+            .HasForeignKey(fk => fk.DepartmentId);
 
         modelBuilder.Entity<EmployeeLinksDataModel>()
             .HasKey(k => new {k.EmployeeId, k.DepartmentId, k.ProjectId, k.TaskId});
@@ -50,7 +58,6 @@ public sealed class ManagerDbContext : DbContext
             .HasOne(e => e.Project)
             .WithMany(e => e.EmployeeLinks)
             .HasForeignKey(fk => fk.ProjectId);
-
 
         modelBuilder.Entity<ProjectTasksDataModel>()
             .HasKey(k => new {k.ProjectId, k.TaskId});

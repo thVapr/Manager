@@ -2,7 +2,11 @@
 using System.Text;
 using ManagerData.Authentication;
 using ManagerData.Contexts;
+using ManagerData.DataModels;
+using ManagerData.Management;
 using ManagerLogic.Authentication;
+using ManagerLogic.Management;
+using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Constants = ManagerCore.Constants;
@@ -54,6 +58,18 @@ builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
 builder.Services.AddScoped<IAuthenticationRepository,AuthenticationRepository>();
 builder.Services.AddScoped<IAuthentication,Authentication>();
 builder.Services.AddScoped<IEncrypt,Encrypt>();
+
+builder.Services.AddSingleton<IManagementRepository<CompanyDataModel>, CompanyRepository>();
+builder.Services.AddSingleton<IManagementLogic<CompanyModel>, CompanyLogic>();
+
+builder.Services.AddSingleton<IManagementRepository<DepartmentDataModel>, DepartmentRepository>();
+builder.Services.AddSingleton<IManagementLogic<DepartmentModel>, DepartmentLogic>();
+
+builder.Services.AddSingleton<IManagementRepository<ProjectDataModel>, ProjectRepository>();
+
+builder.Services.AddSingleton<IManagementRepository<EmployeeDataModel>, EmployeeRepository>();
+
+builder.Services.AddSingleton<IManagementRepository<TaskDataModel>, TaskRepository>();
 
 var app = builder.Build();
 

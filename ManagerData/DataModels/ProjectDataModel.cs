@@ -12,6 +12,7 @@ public class ProjectDataModel : BaseDataModel
 
     public Guid TaskId { get; set; }
     
+    public DepartmentProjectsDataModel? DepartmentProjects { get; set; }
     public IEnumerable<ProjectTasksDataModel>? ProjectTasks { get; set; }
     public IEnumerable<EmployeeLinksDataModel>? EmployeeLinks { get; set; }
 }

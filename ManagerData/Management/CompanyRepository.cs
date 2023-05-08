@@ -18,13 +18,19 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
             if (existingCompany != null) return false;
 
             await database.Companies.AddAsync(model);
+            await database.SaveChangesAsync();
 
             return true;
         }
-        catch
+        catch(Exception ex) 
         {
             return false;
         }
+    }
+
+    public Task<bool> CreateEntity(Guid id, CompanyDataModel model)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<CompanyDataModel> GetEntityById(Guid id)
@@ -82,5 +88,9 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         {
             return false;
         }
+    }
+
+    public void Dispose()
+    {
     }
 }
