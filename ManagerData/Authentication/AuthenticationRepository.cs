@@ -95,7 +95,6 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         if (existingToken != null)
         {
             database.Tokens.Remove(existingToken);
-            await database.SaveChangesAsync();
         }
 
         await database.Tokens.AddAsync(token);

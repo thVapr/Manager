@@ -24,11 +24,17 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         }
         catch(Exception ex) 
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }
 
     public Task<bool> CreateEntity(Guid id, CompanyDataModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> LinkEntities(Guid firstId, Guid secondId)
     {
         throw new NotImplementedException();
     }

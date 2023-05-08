@@ -33,9 +33,9 @@ public class Authentication : IAuthentication {
 
         var claims = new List<Claim>
         {
-            new (ClaimTypes.PrimarySid, userFromQuery.Id.ToString()),
-            new (ClaimTypes.Email, userFromQuery.Email),
-            new (ClaimTypes.Role, role)
+            new (PublicConstants.Id, userFromQuery.Id.ToString()),
+            new (PublicConstants.Email, userFromQuery.Email),
+            new (PublicConstants.Role, role)
         };
 
         var token = _jwtCreator.GenerateToken
@@ -80,8 +80,9 @@ public class Authentication : IAuthentication {
         //TODO:Refactor this
         var claims = new List<Claim>
         {
-            new (ClaimTypes.Email, user.Email),
-            new (ClaimTypes.Role, role)
+            new (PublicConstants.Id, user.Id.ToString()),
+            new (PublicConstants.Email, user.Email),
+            new (PublicConstants.Role, role)
         };
 
         var newAccessToken = _jwtCreator.GenerateToken

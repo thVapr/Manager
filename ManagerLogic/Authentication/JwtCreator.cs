@@ -38,7 +38,7 @@ public class JwtCreator : IJwtCreator
 
         var tokenData = tokenHandler.ReadJwtToken(token);
 
-        return tokenData.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)!.Value;
+        return tokenData.Claims.FirstOrDefault(c => c.Type == PublicConstants.Email)!.Value;
     }
 
     private static SigningCredentials CreateSigningCredentials(string secretKey)

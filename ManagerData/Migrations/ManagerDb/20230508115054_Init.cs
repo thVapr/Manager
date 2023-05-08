@@ -42,7 +42,7 @@ namespace ManagerData.Migrations.ManagerDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     Patronymic = table.Column<string>(type: "text", nullable: false),
@@ -111,6 +111,30 @@ namespace ManagerData.Migrations.ManagerDb
                 });
 
             migrationBuilder.CreateTable(
+                name: "DepartmentEmployees",
+                columns: table => new
+                {
+                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DepartmentEmployees", x => new { x.DepartmentId, x.EmployeeId });
+                    table.ForeignKey(
+                        name: "FK_DepartmentEmployees_Department_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Department",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DepartmentEmployees_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DepartmentProjects",
                 columns: table => new
                 {
@@ -135,37 +159,47 @@ namespace ManagerData.Migrations.ManagerDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmployeeLinks",
+                name: "ProjectEmployees",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TaskId = table.Column<Guid>(type: "uuid", nullable: false)
+                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EmployeeLinks", x => new { x.EmployeeId, x.DepartmentId, x.ProjectId, x.TaskId });
+                    table.PrimaryKey("PK_ProjectEmployees", x => new { x.ProjectId, x.EmployeeId });
                     table.ForeignKey(
-                        name: "FK_EmployeeLinks_Department_DepartmentId",
-                        column: x => x.DepartmentId,
-                        principalTable: "Department",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EmployeeLinks_Employees_EmployeeId",
+                        name: "FK_ProjectEmployees_Employees_EmployeeId",
                         column: x => x.EmployeeId,
                         principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EmployeeLinks_Projects_ProjectId",
+                        name: "FK_ProjectEmployees_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmployeeTasks",
+                columns: table => new
+                {
+                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TaskId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeTasks", x => new { x.EmployeeId, x.TaskId });
                     table.ForeignKey(
-                        name: "FK_EmployeeLinks_Tasks_TaskId",
+                        name: "FK_EmployeeTasks_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EmployeeTasks_Tasks_TaskId",
                         column: x => x.TaskId,
                         principalTable: "Tasks",
                         principalColumn: "Id",
@@ -203,25 +237,27 @@ namespace ManagerData.Migrations.ManagerDb
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_DepartmentEmployees_EmployeeId",
+                table: "DepartmentEmployees",
+                column: "EmployeeId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DepartmentProjects_ProjectId",
                 table: "DepartmentProjects",
                 column: "ProjectId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmployeeLinks_DepartmentId",
-                table: "EmployeeLinks",
-                column: "DepartmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EmployeeLinks_ProjectId",
-                table: "EmployeeLinks",
-                column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EmployeeLinks_TaskId",
-                table: "EmployeeLinks",
+                name: "IX_EmployeeTasks_TaskId",
+                table: "EmployeeTasks",
                 column: "TaskId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectEmployees_EmployeeId",
+                table: "ProjectEmployees",
+                column: "EmployeeId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -238,10 +274,16 @@ namespace ManagerData.Migrations.ManagerDb
                 name: "CompanyDepartments");
 
             migrationBuilder.DropTable(
+                name: "DepartmentEmployees");
+
+            migrationBuilder.DropTable(
                 name: "DepartmentProjects");
 
             migrationBuilder.DropTable(
-                name: "EmployeeLinks");
+                name: "EmployeeTasks");
+
+            migrationBuilder.DropTable(
+                name: "ProjectEmployees");
 
             migrationBuilder.DropTable(
                 name: "ProjectTasks");

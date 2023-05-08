@@ -52,6 +52,26 @@ export class AuthService {
     localStorage.setItem('refresh_token', refreshToken);
   }
 
+  getRole() : string {
+    const token = this.getAccessToken();
+    const decoded : any = jwt_decode(token!);
+
+    return decoded.role;
+  }
+
+  isAdmin() : boolean {
+    const role = this.getRole();
+
+    return role === 'Admin';
+  }
+
+  isAuthenticated(): boolean {
+    const access_token = this.getAccessToken();
+    const refresh_token = this.getRefreshToken();
+
+    return access_token != null && refresh_token != null;
+  }
+
   getTokenExpiration(): Date {
     const token = this.getAccessToken();
 

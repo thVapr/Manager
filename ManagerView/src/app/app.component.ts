@@ -9,7 +9,7 @@ import { AuthService } from './auth/auth.service';
 export class AppComponent {
   title = 'angular';
 
-  constructor (private authService: AuthService) {}
+  constructor (public authService: AuthService) {}
 
   async logout() {
     await this.authService.logout();

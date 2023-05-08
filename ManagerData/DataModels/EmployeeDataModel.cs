@@ -7,7 +7,7 @@ namespace ManagerData.DataModels;
 [Table("Employees")]
 public class EmployeeDataModel : BaseDataModel
 {
-    public int UserId { get; set; }
+    [Required] public Guid UserId { get; set; }
 
     [Required] public string LastName { get; set; } = null!;
     [Required] public string FirstName { get; set; } = null!;
@@ -15,5 +15,7 @@ public class EmployeeDataModel : BaseDataModel
 
     public DateTime Created { get; set; } = DateTime.UtcNow;
 
-    public IEnumerable<EmployeeLinksDataModel>? EmployeeLink { get; set; }
+    public ProjectEmployeesDataModel? ProjectEmployees { get; set; }
+    public IEnumerable<EmployeeTasksDataModel>? EmployeeTasks { get; set; }
+    public DepartmentEmployeesDataModel? DepartmentEmployees { get; set; }
 }

@@ -66,10 +66,13 @@ builder.Services.AddSingleton<IManagementRepository<DepartmentDataModel>, Depart
 builder.Services.AddSingleton<IManagementLogic<DepartmentModel>, DepartmentLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<ProjectDataModel>, ProjectRepository>();
+builder.Services.AddSingleton<IProjectLogic, ProjectLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<EmployeeDataModel>, EmployeeRepository>();
+builder.Services.AddSingleton<IManagementLogic<EmployeeModel>, EmployeeLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<TaskDataModel>, TaskRepository>();
+builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
 
 var app = builder.Build();
 

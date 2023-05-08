@@ -2,6 +2,7 @@
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 
 namespace ManagerData.Management;
 
@@ -18,6 +19,7 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
             if (existingEmployee != null) return false;
 
             await database.Employees.AddAsync(model);
+            await database.SaveChangesAsync();
 
             return true;
         }
@@ -27,7 +29,35 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
         }
     }
 
-    public Task<bool> CreateEntity(Guid id, EmployeeDataModel model)
+    public async Task<bool> CreateEntity(Guid id, EmployeeDataModel model)
+    {
+        await CreateEntity(model);
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var department = await database.Departments.Where(e => e.Id == id).FirstOrDefaultAsync();
+
+            if (department == null) return false;
+
+            await database.DepartmentEmployees.AddAsync(
+                new DepartmentEmployeesDataModel
+                {
+                    DepartmentId = id,
+                    EmployeeId = model.Id,
+                });
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public Task<bool> LinkEntities(Guid firstId, Guid secondId)
     {
         throw new NotImplementedException();
     }

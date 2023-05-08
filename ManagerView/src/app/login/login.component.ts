@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
+import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -13,14 +14,17 @@ export class LoginComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(8)])
   });
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   OnSubmit() {
     const email = this.loginForm.value.email;
     const password = this.loginForm.value.password;
     this.authService.login(email!, password!)
       .subscribe({
-       next: () => console.log('Login successful'),
+       next: () => {
+        console.log('Login successful')
+        this.router.navigate(['/home'])
+       },
        error: (error) => console.error('Login failed', error)
       });
   }

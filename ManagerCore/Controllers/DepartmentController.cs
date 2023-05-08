@@ -10,9 +10,9 @@ public class DepartmentController : ControllerBase
 {
     private readonly IManagementLogic<DepartmentModel> _departmentLogic;
 
-    public DepartmentController(IManagementLogic<DepartmentModel> depatmentLogic)
+    public DepartmentController(IManagementLogic<DepartmentModel> departmentLogic)
     {
-        _departmentLogic = depatmentLogic;
+        _departmentLogic = departmentLogic;
     }
 
     [HttpGet]

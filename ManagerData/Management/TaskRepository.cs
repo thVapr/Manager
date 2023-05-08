@@ -19,17 +19,66 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
 
             await database.Tasks.AddAsync(model);
 
+            await database.SaveChangesAsync();
+
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }
 
-    public Task<bool> CreateEntity(Guid id, TaskDataModel model)
+    public async Task<bool> CreateEntity(Guid id, TaskDataModel model)
     {
-        throw new NotImplementedException();
+        if (!await CreateEntity(model)) return false;
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var project = database.Projects.FirstOrDefault(p => p.Id == id);
+
+            if (project == null) return false;
+
+            await database.ProjectTasks.AddAsync(new ProjectTasksDataModel()
+            {
+                ProjectId = id,
+                TaskId = model.Id,
+            });
+
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            await database.EmployeeTasks.AddAsync(new EmployeeTasksDataModel()
+            {
+                EmployeeId = firstId,
+                TaskId = secondId,
+            });
+            
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<TaskDataModel> GetEntityById(Guid id)

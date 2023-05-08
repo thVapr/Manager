@@ -56,6 +56,11 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
         }
     }
 
+    public Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<DepartmentDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();

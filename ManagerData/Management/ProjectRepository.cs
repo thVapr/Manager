@@ -18,6 +18,7 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
             if (existingProject != null) return false;
 
             await database.Projects.AddAsync(model);
+            await database.SaveChangesAsync();
 
             return true;
         }
@@ -37,6 +38,40 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
             var department = await database.Departments.Where(e => e.Id == id).FirstOrDefaultAsync();
             
             if (department == null) return false;
+
+            await database.DepartmentProjects.AddAsync(
+                new DepartmentProjectsDataModel
+                {
+                    DepartmentId = id,
+                    ProjectId = model.Id,
+                });
+            
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            await database.ProjectEmployees.AddAsync(
+                new ProjectEmployeesDataModel
+                {
+                    ProjectId = firstId,
+                    EmployeeId = secondId,
+                }
+            );
+
+            await database.SaveChangesAsync();
 
             return true;
         }

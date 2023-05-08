@@ -12,5 +12,5 @@ public class DepartmentDataModel: BaseDataModel
 
     public CompanyDepartmentsDataModel? CompanyDepartments { get; set; }
     public IEnumerable<DepartmentProjectsDataModel>? DepartmentProjects { get; set; }
-    public IEnumerable<EmployeeLinksDataModel>? EmployeeLinks { get; set; }
+    public IEnumerable<DepartmentEmployeesDataModel>? DepartmentEmployees { get; set; }
 }
