@@ -2,6 +2,7 @@
 
 using ManagerData.Contexts;
 using ManagerData.DataModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
@@ -14,10 +15,6 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 
         try
         {
-            var existingDepartment = await database.Departments.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
-            
-            if (existingDepartment != null) return false;
-
             await database.Departments.AddAsync(model);
             await database.SaveChangesAsync();
 
@@ -31,11 +28,17 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 
     public async Task<bool> CreateEntity(Guid companyId, DepartmentDataModel model)
     {
-        await CreateEntity(model);
         await using var database = new ManagerDbContext();
 
         try
         {
+            var existingDepartment = await database.Departments.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
+            var existingLink = await database.CompanyDepartments.Where(m => m.CompanyId == companyId).FirstOrDefaultAsync();
+
+            if (existingDepartment != null && existingLink != null) return false;
+
+            await CreateEntity(model);
+
             var company = await database.Companies.Where(e => e.Id == companyId).FirstOrDefaultAsync();
 
             if (company == null) return false;
@@ -72,6 +75,36 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
         catch
         {
             return new DepartmentDataModel();
+        }
+    }
+
+    public Task<IEnumerable<DepartmentDataModel>?> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<DepartmentDataModel>?> GetEntitiesById(Guid id)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var departments = await database.CompanyDepartments.Where(c => c.CompanyId == id).ToListAsync();
+            List<DepartmentDataModel?> result = new();
+
+            if (result == null) throw new ArgumentNullException(nameof(result));
+
+            foreach (var v in departments)
+            {
+                result.Add(await database.Departments.Where(d => d.Id == v.DepartmentId).FirstOrDefaultAsync());
+            }
+
+            return result!;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<DepartmentDataModel>();
         }
     }
 

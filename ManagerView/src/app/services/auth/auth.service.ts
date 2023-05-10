@@ -59,6 +59,13 @@ export class AuthService {
     return decoded.role;
   }
 
+  getId() : string {
+    const token = this.getAccessToken();
+    const decoded : any = jwt_decode(token!);
+
+    return decoded.id;
+  }
+
   isAdmin() : boolean {
     const role = this.getRole();
 

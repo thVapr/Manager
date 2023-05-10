@@ -5,7 +5,7 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class EmployeeLogic : IManagementLogic<EmployeeModel>
+public class EmployeeLogic : IEmployeeLogic
 {
     private readonly IManagementRepository<EmployeeDataModel> _repository;
 
@@ -18,26 +18,38 @@ public class EmployeeLogic : IManagementLogic<EmployeeModel>
     {
         var entity = await _repository.GetEntityById(id);
 
-        var department = new EmployeeModel
+        var employee = new EmployeeModel
         {
+            UserId = entity.UserId.ToString(),
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             Patronymic = entity.Patronymic,
         };
         
-        return department;
+        return employee;
+    }
+
+    public Task<IEnumerable<EmployeeModel>> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<EmployeeModel>> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<bool> CreateEntity(EmployeeModel model)
     {
         var entity = new EmployeeDataModel
         {
+            UserId = Guid.Parse(model.UserId),
             FirstName = model.FirstName,
             LastName = model.LastName,
             Patronymic = model.Patronymic,
         };
 
-        return await _repository.CreateEntity(model.DepartmentId, entity);
+        return await _repository.CreateEntity(entity);
     }
 
     public Task<bool> UpdateEntity(EmployeeModel model)
@@ -48,5 +60,19 @@ public class EmployeeLogic : IManagementLogic<EmployeeModel>
     public Task<bool> DeleteEntity(Guid id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId)
+    {
+        try
+        {
+            await _repository.LinkEntities(departmentId, employeeId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 }

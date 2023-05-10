@@ -20,6 +20,7 @@ public class ProjectLogic : IProjectLogic
 
         var department = new ProjectModel
         {
+            Id = entity.Id,
             Name = entity.Name,
             Description = entity.Description,
         };
@@ -27,10 +28,21 @@ public class ProjectLogic : IProjectLogic
         return department;
     }
 
+    public Task<IEnumerable<ProjectModel>> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<ProjectModel>> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> CreateEntity(ProjectModel model)
     {
         var entity = new ProjectDataModel
         {
+            Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description
         };

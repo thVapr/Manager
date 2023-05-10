@@ -16,6 +16,13 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpGet]
+    [Route("all")]
+    public async Task<IActionResult> GetAll(string id)
+    {
+        return Ok(await _departmentLogic.GetEntitiesById(Guid.Parse(id)));
+    }
+
+    [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetModel(string id)
     {

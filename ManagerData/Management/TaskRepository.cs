@@ -95,6 +95,16 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
         }
     }
 
+    public Task<IEnumerable<TaskDataModel>?> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> UpdateEntity(TaskDataModel model)
     {
         await using var database = new ManagerDbContext();

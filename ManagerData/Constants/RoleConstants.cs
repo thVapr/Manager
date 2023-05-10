@@ -1,10 +1,9 @@
 ﻿
-namespace ManagerData.Constants
+namespace ManagerData.Constants;
+
+public abstract class RoleConstants
 {
-    public class RoleConstants
-    {
-        public static string Moderator = "Moderator";
-        public static string Default = "Default";
-        public static string Admin = "Admin";
-    }
+    public const string Moderator = "Moderator";
+    public const string Default = "Default";
+    public const string Admin = "Admin";
 }

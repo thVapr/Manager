@@ -53,6 +53,26 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         }
     }
 
+    public async Task<IEnumerable<CompanyDataModel>?> GetEntities()
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            return await database.Companies.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return null;
+        }
+    }
+
+    public Task<IEnumerable<CompanyDataModel>?> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> UpdateEntity(CompanyDataModel model)
     {
         await using var database = new ManagerDbContext();

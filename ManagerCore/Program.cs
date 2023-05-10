@@ -4,6 +4,7 @@ using ManagerData.Authentication;
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using ManagerData.Management;
+using ManagerLogic;
 using ManagerLogic.Authentication;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
@@ -46,8 +47,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Constants.SecureKey)),
-        ClockSkew = TimeSpan.Zero
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Constants.SecureKey)), 
     };
 });
 
@@ -69,7 +69,7 @@ builder.Services.AddSingleton<IManagementRepository<ProjectDataModel>, ProjectRe
 builder.Services.AddSingleton<IProjectLogic, ProjectLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<EmployeeDataModel>, EmployeeRepository>();
-builder.Services.AddSingleton<IManagementLogic<EmployeeModel>, EmployeeLogic>();
+builder.Services.AddSingleton<IEmployeeLogic, EmployeeLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<TaskDataModel>, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();

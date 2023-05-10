@@ -2,7 +2,6 @@
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.Design;
 
 namespace ManagerData.Management;
 
@@ -36,18 +35,7 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
 
         try
         {
-            var department = await database.Departments.Where(e => e.Id == id).FirstOrDefaultAsync();
-
-            if (department == null) return false;
-
-            await database.DepartmentEmployees.AddAsync(
-                new DepartmentEmployeesDataModel
-                {
-                    DepartmentId = id,
-                    EmployeeId = model.Id,
-                });
-            await database.SaveChangesAsync();
-
+            await LinkEntities(id, model.Id);
             return true;
         }
         catch (Exception ex)
@@ -57,9 +45,33 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
         }
     }
 
-    public Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
     {
-        throw new NotImplementedException();
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var department = await database.Departments.Where(e => e.Id == firstId).FirstOrDefaultAsync();
+
+            if (department == null) return false;
+
+            await database.DepartmentEmployees.AddAsync(
+                new DepartmentEmployeesDataModel()
+                {
+                    DepartmentId = firstId,
+                    EmployeeId = secondId,
+                }
+            );
+
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<EmployeeDataModel> GetEntityById(Guid id)
@@ -68,12 +80,22 @@ public class EmployeeRepository : IManagementRepository<EmployeeDataModel>
 
         try
         {
-            return await database.Employees.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new EmployeeDataModel();
+            return await database.Employees.Where(m => m.UserId == id).FirstOrDefaultAsync() ?? new EmployeeDataModel();
         }
         catch
         {
             return new EmployeeDataModel();
         }
+    }
+
+    public Task<IEnumerable<EmployeeDataModel>?> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<EmployeeDataModel>?> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<bool> UpdateEntity(EmployeeDataModel model)

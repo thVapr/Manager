@@ -23,6 +23,7 @@ public class DepartmentLogic : IManagementLogic<DepartmentModel>
 
         var department = new DepartmentModel
         {
+            Id = entity.Id,
             Name = entity.Name,
             Description = entity.Description,
         };
@@ -30,10 +31,33 @@ public class DepartmentLogic : IManagementLogic<DepartmentModel>
         return department;
     }
 
+    public Task<IEnumerable<DepartmentModel>> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<IEnumerable<DepartmentModel>> GetEntitiesById(Guid id)
+    {
+        var entities = await _repository.GetEntitiesById(id);
+        var result = new List<DepartmentModel>();
+
+        if (entities == null) return result;
+
+        result.AddRange(entities.Select(e => new DepartmentModel
+        {
+            Id = e.Id,
+            Name = e.Name,
+            Description = e.Description,
+        }));
+
+        return result;
+    }
+
     public async Task<bool> CreateEntity(DepartmentModel model)
     {
         var entity = new DepartmentDataModel
         {
+            Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description
         };

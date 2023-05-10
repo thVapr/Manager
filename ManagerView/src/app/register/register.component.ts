@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../services/auth/auth.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -13,16 +14,18 @@ export class RegisterComponent {
     password: new FormControl('', [Validators.required, Validators.minLength(8)])
   });
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   OnSubmit() {
     const email = this.registrationForm.value.email;
     const password = this.registrationForm.value.password;
     this.authService.register(email!, password!)
-      .subscribe(response => {
-        console.log('Registration successful');
-      }, error => {
-        console.error('Registration failed', error);
-      });
+    .subscribe({
+      next: () => {
+       console.log('Register successful')
+       this.router.navigate(['/home'])
+      },
+      error: (error) => console.error('Register failed', error)
+     });
   }
 }

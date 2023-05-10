@@ -19,17 +19,31 @@ public class TaskLogic : ITaskLogic
 
         var task = new TaskModel
         {
+            Id = entity.Id,
             Name = entity.Name,
             Description = entity.Description,
+            CreatorId = entity.CreatorId,
+            ProjectId = entity.ProjectId,
         };
 
         return task;
+    }
+
+    public Task<IEnumerable<TaskModel>> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<TaskModel>> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<bool> CreateEntity(TaskModel model)
     {
         var entity = new TaskDataModel
         {
+            Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description,
             CreatorId = model.CreatorId,

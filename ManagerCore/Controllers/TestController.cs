@@ -1,6 +1,7 @@
 ﻿using ManagerData.Authentication;
 using ManagerData.Contexts;
 using ManagerLogic.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,10 +18,10 @@ public class TestController : ControllerBase
         _authentication = authentication;
     }
 
-    [HttpGet]
+/*    [HttpGet]
     [Route("data")]
     public async Task<IActionResult> GetUser(string email = "vaprmail@gmail.com")
     {
         return Ok();
-    }
+    }*/
 }

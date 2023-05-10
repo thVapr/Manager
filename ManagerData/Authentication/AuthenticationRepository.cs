@@ -79,10 +79,10 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         {
             return await database.Tokens.FirstOrDefaultAsync(u => u.Token == token) ?? new RefreshTokenDataModel();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            Console.WriteLine(ex);
+            return new RefreshTokenDataModel();
         }
     }
 

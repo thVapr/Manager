@@ -96,6 +96,16 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
         }
     }
 
+    public Task<IEnumerable<ProjectDataModel>?> GetEntities()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<ProjectDataModel>?> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> UpdateEntity(ProjectDataModel model)
     {
         await using var database = new ManagerDbContext();

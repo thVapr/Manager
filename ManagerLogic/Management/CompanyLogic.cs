@@ -20,6 +20,7 @@ public class CompanyLogic : IManagementLogic<CompanyModel>
 
         var company = new CompanyModel
         {
+            Id = entity.Id,
             Name = entity.Name,
             Description = entity.Description
         };
@@ -27,10 +28,35 @@ public class CompanyLogic : IManagementLogic<CompanyModel>
         return company;
     }
 
+    public async Task<IEnumerable<CompanyModel>> GetEntities()
+    {
+        var entities = await _repository.GetEntities();
+        List<CompanyModel> result = new();
+
+        if (entities == null) return result;
+
+        result.AddRange(
+            entities.Select(
+                v => new CompanyModel
+                {
+                    Id = v.Id,
+                    Name = v.Name,
+                    Description = v.Description
+                }));
+
+        return result;
+    }
+
+    public Task<IEnumerable<CompanyModel>> GetEntitiesById(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> CreateEntity(CompanyModel model)
     {
         var entity = new CompanyDataModel
         {
+            Id = Guid.NewGuid(),
             Name = model.Name,
             Description = model.Description
         };
