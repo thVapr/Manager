@@ -5,6 +5,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { CompanyDepartmentsService } from '../services/company-departments/company-departments.service';
+import { ProjectService } from '../services/project/project.service';
 
 
 @Component({
@@ -22,7 +23,8 @@ export class CompanyComponent implements OnInit {
 
   constructor(public companyService: CompanyService,
               public companyDepartmentsService : CompanyDepartmentsService,
-              public authService: AuthService, private router: Router) {}
+              public authService: AuthService, private router: Router,
+              private projectService: ProjectService) {}
 
   ngOnInit(): void {
       this.GetAll();
@@ -46,8 +48,8 @@ export class CompanyComponent implements OnInit {
       this.companyService.setCompanyId(id);
       this.companyService.setCompanyName(name);
 
-      this.companyDepartmentsService.setDepartmentId('');
-      this.companyDepartmentsService.setDepartmentName('');
+      this.companyDepartmentsService.removeDepatmentData();
+      this.projectService.removeProjectData();
     }
 
     this.router.navigate(['company/departments']);

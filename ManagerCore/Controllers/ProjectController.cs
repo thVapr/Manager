@@ -16,6 +16,13 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
+    [Route("all")]
+    public async Task<IActionResult> GetModels(string id)
+    {
+        return Ok(await _projectLogic.GetEntitiesById(Guid.Parse(id)));
+    }
+
+    [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetModel(string id)
     {

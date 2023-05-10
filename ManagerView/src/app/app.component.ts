@@ -3,6 +3,7 @@ import { AuthService } from './services/auth/auth.service';
 import { CompanyService } from './services/company/company.service';
 import { CompanyDepartmentsService } from './services/company-departments/company-departments.service';
 import { EmployeeService } from './services/employee/employee.service';
+import { ProjectService } from './services/project/project.service';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +12,8 @@ import { EmployeeService } from './services/employee/employee.service';
 })
 
 export class AppComponent implements OnInit {
-  title = 'Добро пожаловать';
+  employeeProfileString = 'Создайте профиль сотрудника';
+  isEmployeeExist : boolean = false;
 
   get companyName() {
     const name = this.companyService.getCompanyName();
@@ -23,7 +25,7 @@ export class AppComponent implements OnInit {
   }
 
   get departmentName() {
-    const name = this.companyDeparmentsService.getDepartmentName();
+    const name = this.companyDepartmentsService.getDepartmentName();
 
     if (name !== null && name !== '')
       return name;
@@ -31,12 +33,38 @@ export class AppComponent implements OnInit {
     return 'Выберите отдел';
   }
 
+  get projectName() {
+    const name = this.projectService.getProjectName();
+
+    if (name !== null && name !== '')
+      return name;
+
+    return 'Выберите проект';
+  }
+
   constructor (public authService: AuthService,
                public companyService : CompanyService,
-               public companyDeparmentsService : CompanyDepartmentsService,
-               public employeeService : EmployeeService) {}
+               public companyDepartmentsService : CompanyDepartmentsService,
+               public employeeService : EmployeeService,
+               public projectService: ProjectService) {}
 
   ngOnInit(): void {
+    const id = this.authService.getId();
+
+    if (id !== null ) {
+      this.employeeService.getEmployeeById(id).subscribe({
+        next: (employee) => {
+          if (employee.lastName !== null && employee.firstName !== null) {
+            this.employeeProfileString = employee.lastName + ' ' + employee.firstName;
+            this.isEmployeeExist = true;
+          }
+        },
+        error: (error) => {
+          this.employeeProfileString = 'Создайте профиль сотрудника';
+          this.isEmployeeExist = false;
+        }
+      });
+    }
   }
 
   async logout() {

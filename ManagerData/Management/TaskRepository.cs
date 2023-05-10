@@ -100,9 +100,29 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
     {
-        throw new NotImplementedException();
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var tasksId = await database.ProjectTasks.Where(d => d.ProjectId == id).ToListAsync();
+            var entities = new List<TaskDataModel>();
+
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+
+            foreach (var v in tasksId)
+            {
+                entities.Add(await database.Tasks.Where(p => p.Id == v.ProjectId).FirstOrDefaultAsync() ?? throw new InvalidOperationException());
+            }
+
+            return entities;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<TaskDataModel>();
+        }
     }
 
     public async Task<bool> UpdateEntity(TaskDataModel model)

@@ -6,6 +6,7 @@ import { HomeComponent } from './home/home/home.component';
 import { CompanyComponent } from './company/company.component';
 import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
 import { EmployeeComponent } from './employee/employee.component';
+import { ProjectComponent } from './project/project.component';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
@@ -14,6 +15,7 @@ const routes: Routes = [
   {path: 'company', component: CompanyComponent},
   {path: 'company/departments', component: CompanyDepartmentsComponent},
   {path: 'employee', component: EmployeeComponent},
+  {path: 'project', component: ProjectComponent},
 ];
 
 @NgModule({

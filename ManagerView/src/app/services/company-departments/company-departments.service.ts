@@ -46,6 +46,11 @@ export class CompanyDepartmentsService {
     return this.http.get<Department>(`${this.apiUrl}/get?id={id}`);
   }
 
+  removeDepatmentData() : void {
+    localStorage.removeItem('department_id');
+    localStorage.removeItem('department_name');
+  }
+
   isDepartmentSelected() : boolean {
     const id = this.getDepartmentId();
     const name = this.getDepartmentName();

@@ -13,10 +13,6 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
 
         try
         {
-            var existingProject = await database.Projects.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
-
-            if (existingProject != null) return false;
-
             await database.Projects.AddAsync(model);
             await database.SaveChangesAsync();
 
@@ -47,7 +43,7 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
                 });
             
             await database.SaveChangesAsync();
-
+            
             return true;
         }
         catch (Exception ex)
@@ -101,9 +97,29 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<ProjectDataModel>?> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<ProjectDataModel>?> GetEntitiesById(Guid id)
     {
-        throw new NotImplementedException();
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var departmentId = await database.DepartmentProjects.Where(d => d.DepartmentId == id).ToListAsync();
+            var entities = new List<ProjectDataModel>();
+
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+
+            foreach (var v in departmentId)
+            {
+                entities.Add(await database.Projects.Where(p => p.Id == v.ProjectId).FirstOrDefaultAsync() ?? throw new InvalidOperationException());
+            }
+
+            return entities;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<ProjectDataModel>();
+        }
     }
 
     public async Task<bool> UpdateEntity(ProjectDataModel model)

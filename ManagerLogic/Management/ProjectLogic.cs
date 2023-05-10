@@ -33,9 +33,19 @@ public class ProjectLogic : IProjectLogic
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<ProjectModel>> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<ProjectModel>> GetEntitiesById(Guid id)
     {
-        throw new NotImplementedException();
+        var entities = await _repository.GetEntitiesById(id);
+        var results = new List<ProjectModel>();
+
+        results.AddRange(entities.Select(e => new ProjectModel
+        {
+            Id = e.Id,
+            Name = e.Name,
+            Description = e.Description,
+        }));
+
+        return results;
     }
 
     public async Task<bool> CreateEntity(ProjectModel model)

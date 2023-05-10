@@ -14,6 +14,7 @@ import { RegisterComponent } from './register/register.component';
 import { CompanyComponent } from './company/company.component';
 import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
 import { EmployeeComponent } from './employee/employee.component';
+import { ProjectComponent } from './project/project.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { EmployeeComponent } from './employee/employee.component';
     CompanyComponent,
     CompanyDepartmentsComponent,
     EmployeeComponent,
+    ProjectComponent,
   ],
   imports: [
     BrowserModule,   
