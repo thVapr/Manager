@@ -6,9 +6,9 @@ namespace ManagerLogic.Management;
 
 public class TaskLogic : ITaskLogic
 {
-    private readonly IManagementRepository<TaskDataModel> _repository;
+    private readonly ITaskRepository _repository;
 
-    public TaskLogic(IManagementRepository<TaskDataModel> repository)
+    public TaskLogic(ITaskRepository repository)
     {
         _repository = repository;
     }
@@ -24,6 +24,7 @@ public class TaskLogic : ITaskLogic
             Description = entity.Description,
             CreatorId = entity.CreatorId,
             ProjectId = entity.ProjectId,
+            EmployeeId = entity.EmployeeId,
         };
 
         return task;
@@ -34,9 +35,21 @@ public class TaskLogic : ITaskLogic
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<TaskModel>> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<TaskModel>> GetEntitiesById(Guid id)
     {
-        throw new NotImplementedException();
+        var entities = await _repository.GetEntitiesById(id);
+
+        if (entities == null) return Enumerable.Empty<TaskModel>();
+
+        return entities.Select(e => new TaskModel
+        {
+            Id = e.Id,
+            Name = e.Name,
+            Description = e.Description,
+            CreatorId = e.CreatorId,
+            ProjectId = e.ProjectId,
+            EmployeeId = e.EmployeeId,
+        }).ToList();
     }
 
     public async Task<bool> CreateEntity(TaskModel model)
@@ -66,5 +79,35 @@ public class TaskLogic : ITaskLogic
     public Task<bool> AddEmployeeToTask(Guid employeeId, Guid taskId)
     {
         return _repository.LinkEntities(employeeId, taskId);
+    }
+
+    public async Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId)
+    {
+        var tasks = await _repository.GetFreeTasks(projectId);
+
+        return tasks.Select(t => new TaskModel
+        {
+            Id = t.Id,
+            Name = t.Name,
+            Description = t.Description,
+            CreatorId = t.CreatorId,
+            ProjectId = t.ProjectId,
+            EmployeeId = t.EmployeeId,
+        });
+    }
+
+    public async Task<IEnumerable<TaskModel>> GetEmployeeTasks(Guid employeeId)
+    {
+        var tasks = await _repository.GetEmployeeTasks(employeeId);
+
+        return tasks.Select(t => new TaskModel
+        {
+            Id = t.Id,
+            Name = t.Name,
+            Description = t.Description,
+            CreatorId = t.CreatorId,
+            ProjectId = t.ProjectId,
+            EmployeeId = t.EmployeeId,
+        });
     }
 }

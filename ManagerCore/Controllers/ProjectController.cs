@@ -1,11 +1,15 @@
-﻿using ManagerLogic.Management;
+﻿using ManagerCore.Models;
+using ManagerData.DataModels;
+using ManagerLogic.Management;
 using ManagerLogic.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/project")]
+[Authorize]
 public class ProjectController : ControllerBase
 {
     private readonly IProjectLogic _projectLogic;
@@ -41,9 +45,19 @@ public class ProjectController : ControllerBase
 
     [HttpPost]
     [Route("add")]
-    public async Task<IActionResult> AddEmployeeToProject(string projectId, string employeeId)
+    public async Task<IActionResult> AddEmployeeToProject(ProjectEmployeesModel model)
     {
-        if (await _projectLogic.AddEmployeeToProject(Guid.Parse(projectId), Guid.Parse(employeeId)))
+        if (await _projectLogic.AddEmployeeToProject(Guid.Parse(model.ProjectId), Guid.Parse(model.EmployeeId)))
+            return Ok();
+
+        return BadRequest();
+    }
+
+    [HttpPost]
+    [Route("remove")]
+    public async Task<IActionResult> RemoveEmployeeFromProject(ProjectEmployeesModel model)
+    {
+        if (await _projectLogic.RemoveEmployeeFromProject(Guid.Parse(model.ProjectId), Guid.Parse(model.EmployeeId)))
             return Ok();
 
         return BadRequest();

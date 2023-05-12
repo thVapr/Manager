@@ -5,16 +5,13 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class DepartmentLogic : IManagementLogic<DepartmentModel>
+public class DepartmentLogic : IDepartmentLogic
 {
     private readonly IManagementRepository<DepartmentDataModel> _repository;
-    private readonly IManagementRepository<CompanyDataModel> _companyRepository;
 
-    public DepartmentLogic(IManagementRepository<DepartmentDataModel> repository,
-                           IManagementRepository<CompanyDataModel> companyRepository)
+    public DepartmentLogic(IManagementRepository<DepartmentDataModel> repository)
     {
         _repository = repository;
-        _companyRepository = companyRepository;
     }
 
     public async Task<DepartmentModel> GetEntityById(Guid id)
@@ -73,5 +70,15 @@ public class DepartmentLogic : IManagementLogic<DepartmentModel>
     public Task<bool> DeleteEntity(Guid id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId)
+    {
+        return await _repository.LinkEntities(departmentId, employeeId);
+    }
+
+    public async Task<bool> RemoveEmployeeFromDepartment(Guid departmentId, Guid employeeId)
+    {
+        return await _repository.UnlinkEntities(departmentId, employeeId);
     }
 }

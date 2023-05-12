@@ -9,6 +9,7 @@ public interface IManagementRepository<T> : IDisposable
     Task<bool> CreateEntity(Guid id, T model);
 
     Task<bool> LinkEntities(Guid firstId, Guid secondId);
+    Task<bool> UnlinkEntities(Guid firstId, Guid secondId);
 
     Task<T> GetEntityById(Guid id);
     Task<IEnumerable<T>?> GetEntities();

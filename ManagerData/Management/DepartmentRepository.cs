@@ -20,8 +20,9 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -59,9 +60,60 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
         }
     }
 
-    public Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
     {
-        throw new NotImplementedException();
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            await database.DepartmentEmployees.AddAsync(
+                new DepartmentEmployeesDataModel()
+                {
+                    DepartmentId = firstId,
+                    EmployeeId = secondId,
+                }
+            );
+
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+
+    public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var link = await database.DepartmentEmployees
+                .Where(de => de.DepartmentId == firstId && de.EmployeeId == secondId)
+                .FirstOrDefaultAsync();
+            var secondLink = await database.ProjectEmployees
+                .Where(pe => pe.EmployeeId == secondId)
+                .FirstOrDefaultAsync();
+
+            if (link == null) return false;
+
+            database.DepartmentEmployees.Remove(link);
+            
+            if (secondLink != null)
+                database.ProjectEmployees.Remove(secondLink);
+
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<DepartmentDataModel> GetEntityById(Guid id)
@@ -125,8 +177,9 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -146,8 +199,9 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }

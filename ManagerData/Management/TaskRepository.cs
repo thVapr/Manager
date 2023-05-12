@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class TaskRepository : IManagementRepository<TaskDataModel>
+public class TaskRepository : ITaskRepository
 {
     public async Task<bool> CreateEntity(TaskDataModel model)
     {
@@ -13,10 +13,6 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
 
         try
         {
-            var existingTask = await database.Tasks.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
-
-            if (existingTask != null) return false;
-
             await database.Tasks.AddAsync(model);
 
             await database.SaveChangesAsync();
@@ -81,6 +77,11 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
         }
     }
 
+    public Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<TaskDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
@@ -106,17 +107,14 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
 
         try
         {
-            var tasksId = await database.ProjectTasks.Where(d => d.ProjectId == id).ToListAsync();
-            var entities = new List<TaskDataModel>();
+            var tasksId = await database.ProjectTasks
+                .Where(d => d.ProjectId == id)
+                .Select(d => d.TaskId)
+                .ToListAsync();
 
-            if (entities == null) throw new ArgumentNullException(nameof(entities));
-
-            foreach (var v in tasksId)
-            {
-                entities.Add(await database.Tasks.Where(p => p.Id == v.ProjectId).FirstOrDefaultAsync() ?? throw new InvalidOperationException());
-            }
-
-            return entities;
+            return await database.Tasks
+                .Where( t => tasksId.Contains(t.Id))
+                .ToListAsync();
         }
         catch (Exception ex)
         {
@@ -173,5 +171,50 @@ public class TaskRepository : IManagementRepository<TaskDataModel>
 
     public void Dispose()
     {
+    }
+
+    public async Task<IEnumerable<TaskDataModel>> GetFreeTasks(Guid projectId)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var entities = await GetEntitiesById(projectId);
+
+            var tasksIds = await database.EmployeeTasks
+                .Select(et => et.TaskId)
+                .ToListAsync();
+
+            if (entities == null) throw new NullReferenceException();
+
+            return entities.Where(e => !tasksIds.Contains(e.Id));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<TaskDataModel>();
+        }
+    }
+
+    public async Task<IEnumerable<TaskDataModel>> GetEmployeeTasks(Guid employeeId)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var taskIds = await database.EmployeeTasks
+                .Where(et => et.EmployeeId == employeeId)
+                .Select(et => et.TaskId)
+                .ToListAsync();
+
+            return await database.Tasks
+                .Where(t => taskIds.Contains(t.Id))
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<TaskDataModel>();
+        }
     }
 }

@@ -55,23 +55,23 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
-builder.Services.AddScoped<IAuthenticationRepository,AuthenticationRepository>();
-builder.Services.AddScoped<IAuthentication,Authentication>();
-builder.Services.AddScoped<IEncrypt,Encrypt>();
+builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository>();
+builder.Services.AddSingleton<IAuthentication,Authentication>();
+builder.Services.AddSingleton<IEncrypt,Encrypt>();
 
 builder.Services.AddSingleton<IManagementRepository<CompanyDataModel>, CompanyRepository>();
 builder.Services.AddSingleton<IManagementLogic<CompanyModel>, CompanyLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<DepartmentDataModel>, DepartmentRepository>();
-builder.Services.AddSingleton<IManagementLogic<DepartmentModel>, DepartmentLogic>();
+builder.Services.AddSingleton<IDepartmentLogic, DepartmentLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<ProjectDataModel>, ProjectRepository>();
 builder.Services.AddSingleton<IProjectLogic, ProjectLogic>();
 
-builder.Services.AddSingleton<IManagementRepository<EmployeeDataModel>, EmployeeRepository>();
+builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddSingleton<IEmployeeLogic, EmployeeLogic>();
 
-builder.Services.AddSingleton<IManagementRepository<TaskDataModel>, TaskRepository>();
+builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
 
 var app = builder.Build();

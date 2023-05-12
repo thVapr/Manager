@@ -15,6 +15,9 @@ import { CompanyComponent } from './company/company.component';
 import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
 import { EmployeeComponent } from './employee/employee.component';
 import { ProjectComponent } from './project/project.component';
+import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
+import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
+import { TaskComponent } from './task/task.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +29,9 @@ import { ProjectComponent } from './project/project.component';
     CompanyDepartmentsComponent,
     EmployeeComponent,
     ProjectComponent,
+    ProjectEmployeesComponent,
+    DepartmentEmployeesComponent,
+    TaskComponent,
   ],
   imports: [
     BrowserModule,   

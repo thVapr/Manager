@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics.CodeAnalysis;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Models;
@@ -7,9 +8,9 @@ namespace ManagerLogic.Management;
 
 public class EmployeeLogic : IEmployeeLogic
 {
-    private readonly IManagementRepository<EmployeeDataModel> _repository;
+    private readonly IEmployeeRepository _repository;
 
-    public EmployeeLogic(IManagementRepository<EmployeeDataModel> repository)
+    public EmployeeLogic(IEmployeeRepository repository)
     {
         _repository = repository;
     }
@@ -18,15 +19,13 @@ public class EmployeeLogic : IEmployeeLogic
     {
         var entity = await _repository.GetEntityById(id);
 
-        var employee = new EmployeeModel
+        return new EmployeeModel
         {
-            UserId = entity.UserId.ToString(),
+            Id = entity.Id.ToString(),
             FirstName = entity.FirstName,
             LastName = entity.LastName,
             Patronymic = entity.Patronymic,
         };
-        
-        return employee;
     }
 
     public Task<IEnumerable<EmployeeModel>> GetEntities()
@@ -34,19 +33,29 @@ public class EmployeeLogic : IEmployeeLogic
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<EmployeeModel>> GetEntitiesById(Guid id)
-    {
-        throw new NotImplementedException();
+    public async Task<IEnumerable<EmployeeModel>> GetEntitiesById(Guid id)
+    { 
+        var employees = await _repository.GetEntitiesById(id);
+
+        return employees!.Select(e => new EmployeeModel
+        {
+            Id = e.Id.ToString(),
+            FirstName = e.FirstName,
+            LastName = e.LastName,
+            Patronymic = e.Patronymic,
+        });
     }
 
     public async Task<bool> CreateEntity(EmployeeModel model)
     {
+        if (model.Id == null) return false;
+
         var entity = new EmployeeDataModel
         {
-            UserId = Guid.Parse(model.UserId),
-            FirstName = model.FirstName,
-            LastName = model.LastName,
-            Patronymic = model.Patronymic,
+            Id = Guid.Parse(model.Id),
+            FirstName = model.FirstName!,
+            LastName = model.LastName!,
+            Patronymic = model.Patronymic!,
         };
 
         return await _repository.CreateEntity(entity);
@@ -62,17 +71,42 @@ public class EmployeeLogic : IEmployeeLogic
         throw new NotImplementedException();
     }
 
-    public async Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId)
+    public async Task<IEnumerable<EmployeeModel>> GetEmployeesWithoutProjectByDepartmentId(Guid id)
     {
-        try
+        var employees = await _repository.GetEmployeesWithoutProjectsByDepartmentId(id);
+
+        return employees.Select(v => new EmployeeModel
         {
-            await _repository.LinkEntities(departmentId, employeeId);
-            return true;
-        }
-        catch (Exception ex)
+            Id = v.Id.ToString(),
+            FirstName = v.FirstName,
+            LastName = v.LastName,
+            Patronymic = v.Patronymic,
+        }).ToList();
+    }
+
+    public async Task<IEnumerable<EmployeeModel>> GetEmployeesWithoutDepartment()
+    {
+        var employees = await _repository.GetEmployeesWithoutDepartments();
+
+        return employees.Select(v => new EmployeeModel
         {
-            Console.WriteLine(ex);
-            return false;
-        }
+            Id = v.Id.ToString(),
+            FirstName = v.FirstName,
+            LastName = v.LastName,
+            Patronymic = v.Patronymic,
+        }).ToList();
+    }
+
+    public async Task<IEnumerable<EmployeeModel>> GetEmployeesFromProject(Guid id)
+    {
+        var employees = await _repository.GetEmployeesFromProject(new Guid());
+
+        return employees.Select(v => new EmployeeModel
+        {
+            Id = v.Id.ToString(),
+            FirstName = v.FirstName,
+            LastName = v.LastName,
+            Patronymic = v.Patronymic,
+        }).ToList();
     }
 }

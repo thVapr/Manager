@@ -24,6 +24,18 @@ export class CompanyDepartmentsService {
     return this.http.post<any>(`${this.apiUrl}/create`, { name, description, companyId });
   }
   
+  addEmployeeToDepartment(employeeId : string) : Observable<any> {
+    const departmentId = this.getDepartmentId();
+
+    return this.http.post<any>(`${this.apiUrl}/add`,{ departmentId, employeeId });
+  }
+
+  removeEmployeeFromDepartment(employeeId : string) : Observable<any> {
+    const departmentId = this.getDepartmentId();
+
+    return this.http.post<any>(`${this.apiUrl}/remove`,{ departmentId, employeeId });
+  }
+
   setDepartmentId(id : string) : void {
     localStorage.setItem('department_id',id);
   }

@@ -39,6 +39,11 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         throw new NotImplementedException();
     }
 
+    public Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<CompanyDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();

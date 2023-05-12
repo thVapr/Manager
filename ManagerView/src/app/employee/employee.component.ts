@@ -54,12 +54,12 @@ export class EmployeeComponent implements OnInit {
   }
 
   onAddSubmit() : void {
-    const userId = this.authService.getId();
+    const id = this.authService.getId();
     const firstName = this.addEmployeeForm.value.firstName;
     const lastName = this.addEmployeeForm.value.lastName;
     const patronymic = this.addEmployeeForm.value.patronymic;
 
-    this.employeeService.addEmployee(userId, firstName!, lastName!, patronymic!)
+    this.employeeService.addEmployee(id, firstName!, lastName!, patronymic!)
     .subscribe({
       next: () => {
         console.log('successful')

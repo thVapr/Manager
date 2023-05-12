@@ -65,8 +65,32 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
                     ProjectId = firstId,
                     EmployeeId = secondId,
                 }
-            );
+            );  
 
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+
+    public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var link = await database.ProjectEmployees
+                .Where(de => de.ProjectId == firstId && de.EmployeeId == secondId)
+                .FirstOrDefaultAsync();
+
+            if (link == null) return false;
+
+            database.ProjectEmployees.Remove(link);
             await database.SaveChangesAsync();
 
             return true;

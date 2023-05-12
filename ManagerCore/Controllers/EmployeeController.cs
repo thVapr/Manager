@@ -24,14 +24,32 @@ public class EmployeeController : ControllerBase
         return Ok(await _employeeLogic.GetEntityById(Guid.Parse(id)));
     }
 
-    [HttpPost]
-    [Route("add")]
-    public async Task<IActionResult> AddEmployeeToDepartment(string departmentId, string employeeId)
+    [HttpGet]
+    [Route("get_employees")]
+    public async Task<IActionResult> GetEmployeesWithoutProjects(string id)
     {
-        if (await _employeeLogic.AddEmployeeToDepartment(Guid.Parse(departmentId), Guid.Parse(employeeId)))
-            return Ok();
+        return Ok(await _employeeLogic.GetEmployeesWithoutProjectByDepartmentId(Guid.Parse(id)));
+    }
 
-        return BadRequest();
+    [HttpGet]
+    [Route("get_free_employees")]
+    public async Task<IActionResult> GetEmployeesWithoutProjects()
+    {
+        return Ok(await _employeeLogic.GetEmployeesWithoutDepartment());
+    }
+
+    [HttpGet]
+    [Route("all")]
+    public async Task<IActionResult> GetAll(string id)
+    {
+        return Ok(await _employeeLogic.GetEntitiesById(Guid.Parse(id)));
+    }
+
+    [HttpGet]
+    [Route("get_project_employees")]
+    public async Task<IActionResult> GetAllEmployeesByProjectId(string id)
+    {
+        return Ok(await _employeeLogic.GetEmployeesFromProject(Guid.Parse(id)));
     }
 
     [HttpPost]

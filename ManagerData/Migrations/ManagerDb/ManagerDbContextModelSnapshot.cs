@@ -129,9 +129,6 @@ namespace ManagerData.Migrations.ManagerDb
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.ToTable("Employees");
@@ -169,9 +166,6 @@ namespace ManagerData.Migrations.ManagerDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

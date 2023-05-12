@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations.ManagerDb
 {
     [DbContext(typeof(ManagerDbContext))]
-    [Migration("20230508115054_Init")]
+    [Migration("20230511191223_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -132,9 +132,6 @@ namespace ManagerData.Migrations.ManagerDb
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.ToTable("Employees");
@@ -172,9 +169,6 @@ namespace ManagerData.Migrations.ManagerDb
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid>("TaskId")
-                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

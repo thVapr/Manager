@@ -5,5 +5,8 @@ namespace ManagerLogic.Management;
 
 public interface IEmployeeLogic : IManagementLogic<EmployeeModel>
 {
-    Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId);
+    Task<IEnumerable<EmployeeModel>> GetEmployeesWithoutProjectByDepartmentId(Guid id);
+    Task<IEnumerable<EmployeeModel>> GetEmployeesWithoutDepartment();
+
+    Task<IEnumerable<EmployeeModel>> GetEmployeesFromProject(Guid id);
 }

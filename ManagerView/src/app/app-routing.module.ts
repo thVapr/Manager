@@ -7,6 +7,9 @@ import { CompanyComponent } from './company/company.component';
 import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
 import { EmployeeComponent } from './employee/employee.component';
 import { ProjectComponent } from './project/project.component';
+import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
+import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
+import { TaskComponent } from './task/task.component';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
@@ -16,6 +19,9 @@ const routes: Routes = [
   {path: 'company/departments', component: CompanyDepartmentsComponent},
   {path: 'employee', component: EmployeeComponent},
   {path: 'project', component: ProjectComponent},
+  {path: 'department/employees', component: DepartmentEmployeesComponent},
+  {path: 'project/employees', component: ProjectEmployeesComponent},
+  {path: 'project/tasks', component: TaskComponent},
 ];
 
 @NgModule({

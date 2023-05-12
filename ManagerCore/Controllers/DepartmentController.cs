@@ -1,16 +1,19 @@
-﻿using ManagerLogic.Management;
+﻿using ManagerCore.Models;
+using ManagerLogic.Management;
 using ManagerLogic.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/department")]
+[Authorize]
 public class DepartmentController : ControllerBase 
 {
-    private readonly IManagementLogic<DepartmentModel> _departmentLogic;
+    private readonly IDepartmentLogic _departmentLogic;
 
-    public DepartmentController(IManagementLogic<DepartmentModel> departmentLogic)
+    public DepartmentController(IDepartmentLogic departmentLogic)
     {
         _departmentLogic = departmentLogic;
     }
@@ -34,6 +37,26 @@ public class DepartmentController : ControllerBase
     public async Task<IActionResult> CreateModel(DepartmentModel model)
     {
         if (await _departmentLogic.CreateEntity(model))
+            return Ok();
+
+        return BadRequest();
+    }
+
+    [HttpPost]
+    [Route("add")]
+    public async Task<IActionResult> AddEmployeeToDepartment([FromBody] DepartmentEmployeesModel model)
+    {
+        if (await _departmentLogic.AddEmployeeToDepartment(Guid.Parse(model.DepartmentId), Guid.Parse(model.EmployeeId)))
+            return Ok();
+
+        return BadRequest();
+    }
+
+    [HttpPost]
+    [Route("remove")]
+    public async Task<IActionResult> RemoveEmployeeFromDepartment([FromBody] DepartmentEmployeesModel model)
+    {
+        if (await _departmentLogic.RemoveEmployeeFromDepartment(Guid.Parse(model.DepartmentId), Guid.Parse(model.EmployeeId)))
             return Ok();
 
         return BadRequest();

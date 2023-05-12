@@ -28,6 +28,18 @@ export class ProjectService {
     return this.http.post<any>(`${this.apiUrl}/create`, { departmentId, name, description });
   }
 
+  addEmployeeToProject(employeeId : string) : Observable<any> {
+    const projectId = this.getProjectId();
+
+    return this.http.post<any>(`${this.apiUrl}/add`,{ projectId, employeeId });
+  }
+  
+  removeEmployeeFromProject(employeeId : string) : Observable<any> {
+    const projectId = this.getProjectId();
+
+    return this.http.post<any>(`${this.apiUrl}/remove`,{ projectId, employeeId });
+  }
+  
   isProjectSelected() : boolean {
     const id = this.getProjectId();
     const name = this.getProjectName();

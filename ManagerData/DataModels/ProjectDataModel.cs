@@ -10,8 +10,6 @@ public class ProjectDataModel : BaseDataModel
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
-    public Guid TaskId { get; set; }
-    
     public DepartmentProjectsDataModel? DepartmentProjects { get; set; }
     public IEnumerable<ProjectEmployeesDataModel>? ProjectEmployees { get; set; }
     public IEnumerable<ProjectTasksDataModel>? ProjectTasks { get; set; }

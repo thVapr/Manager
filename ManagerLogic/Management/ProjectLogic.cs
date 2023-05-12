@@ -38,7 +38,7 @@ public class ProjectLogic : IProjectLogic
         var entities = await _repository.GetEntitiesById(id);
         var results = new List<ProjectModel>();
 
-        results.AddRange(entities.Select(e => new ProjectModel
+        results.AddRange(entities!.Select(e => new ProjectModel
         {
             Id = e.Id,
             Name = e.Name,
@@ -73,5 +73,10 @@ public class ProjectLogic : IProjectLogic
     public async Task<bool> AddEmployeeToProject(Guid projectId, Guid employeeId)
     {
         return await _repository.LinkEntities(projectId, employeeId);
+    }
+
+    public async Task<bool> RemoveEmployeeFromProject(Guid projectId, Guid employeeId)
+    {
+        return await _repository.UnlinkEntities(projectId, employeeId);
     }
 }
