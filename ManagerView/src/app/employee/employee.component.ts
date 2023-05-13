@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { EmployeeService } from '../services/employee/employee.service';
-import { Employee } from '../models/Employee';
 import { AuthService } from '../services/auth/auth.service';
-import { first, last } from 'rxjs';
 
 @Component({
   selector: 'app-employee',

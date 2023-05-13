@@ -13,6 +13,8 @@ public interface IAuthenticationRepository
     Task<bool> UpdateToken(RefreshTokenDataModel tokenModel, string token);
     Task<bool> DeleteToken(string token);
 
+    Task<IEnumerable<Guid>> GetAdminIds();
+
     Task<bool> AddRole(string name);
     
     Task<bool> AddUser(UserDataModel user);

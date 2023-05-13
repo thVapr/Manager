@@ -17,22 +17,42 @@ public class TaskLogic : ITaskLogic
     {
         var entity = await _repository.GetEntityById(id);
 
-        var task = new TaskModel
+        return new TaskModel
         {
-            Id = entity.Id,
+            Id = entity.Id.ToString(),
+
             Name = entity.Name,
             Description = entity.Description,
+            
             CreatorId = entity.CreatorId,
             ProjectId = entity.ProjectId,
             EmployeeId = entity.EmployeeId,
-        };
 
-        return task;
+            Level = entity.Level,
+            Status = entity.Status,
+        };
     }
 
-    public Task<IEnumerable<TaskModel>> GetEntities()
+    public async Task<IEnumerable<TaskModel>> GetEntities()
     {
-        throw new NotImplementedException();
+        var entities = await _repository.GetEntities();
+
+        if (entities == null) return Enumerable.Empty<TaskModel>();
+
+        return entities.Select(e => new TaskModel
+        {
+            Id = e.Id.ToString(),
+
+            Name = e.Name,
+            Description = e.Description,
+
+            CreatorId = e.CreatorId,
+            ProjectId = e.ProjectId,
+            EmployeeId = e.EmployeeId,
+
+            Level = e.Level,
+            Status = e.Status,
+        }).ToList();
     }
 
     public async Task<IEnumerable<TaskModel>> GetEntitiesById(Guid id)
@@ -43,12 +63,17 @@ public class TaskLogic : ITaskLogic
 
         return entities.Select(e => new TaskModel
         {
-            Id = e.Id,
+            Id = e.Id.ToString(),
+
             Name = e.Name,
             Description = e.Description,
+
             CreatorId = e.CreatorId,
             ProjectId = e.ProjectId,
             EmployeeId = e.EmployeeId,
+
+            Level = e.Level,
+            Status = e.Status,
         }).ToList();
     }
 
@@ -57,28 +82,46 @@ public class TaskLogic : ITaskLogic
         var entity = new TaskDataModel
         {
             Id = Guid.NewGuid(),
+
             Name = model.Name,
             Description = model.Description,
+
             CreatorId = model.CreatorId,
             ProjectId = model.ProjectId,
+
+            Level = model.Level,
         };
 
         return await _repository.CreateEntity(model.ProjectId, entity);
     }
 
-    public Task<bool> UpdateEntity(TaskModel model)
+    public async Task<bool> UpdateEntity(TaskModel model)
     {
-        throw new NotImplementedException();
+        return await _repository.UpdateEntity(new TaskDataModel
+        {
+            Name = model.Name,
+            Description = model.Description,
+
+            EmployeeId = model.EmployeeId,
+
+            Level = model.Level,
+            Status = model.Status,
+        });
     }
 
-    public Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> DeleteEntity(Guid id)
     {
-        throw new NotImplementedException();
+        return await _repository.DeleteEntity(id);
     }
 
     public Task<bool> AddEmployeeToTask(Guid employeeId, Guid taskId)
     {
         return _repository.LinkEntities(employeeId, taskId);
+    }
+
+    public Task<bool> RemoveEmployeeFromTask(Guid employeeId, Guid taskId)
+    {
+        return _repository.UnlinkEntities(employeeId, taskId);
     }
 
     public async Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId)
@@ -87,12 +130,17 @@ public class TaskLogic : ITaskLogic
 
         return tasks.Select(t => new TaskModel
         {
-            Id = t.Id,
+            Id = t.Id.ToString(),
+
             Name = t.Name,
             Description = t.Description,
+            
             CreatorId = t.CreatorId,
             ProjectId = t.ProjectId,
             EmployeeId = t.EmployeeId,
+
+            Level = t.Level,
+            Status = t.Status
         });
     }
 
@@ -102,12 +150,17 @@ public class TaskLogic : ITaskLogic
 
         return tasks.Select(t => new TaskModel
         {
-            Id = t.Id,
+            Id = t.Id.ToString(),
+            
             Name = t.Name,
             Description = t.Description,
+            
             CreatorId = t.CreatorId,
             ProjectId = t.ProjectId,
             EmployeeId = t.EmployeeId,
+
+            Level = t.Level,
+            Status = t.Status,
         });
     }
 }

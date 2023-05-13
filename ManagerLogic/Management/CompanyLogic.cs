@@ -18,33 +18,31 @@ public class CompanyLogic : IManagementLogic<CompanyModel>
     {
         var entity = await _repository.GetEntityById(id);
 
-        var company = new CompanyModel
+        if (entity.Id == Guid.Empty) return new CompanyModel();
+
+        return new CompanyModel
         {
-            Id = entity.Id,
+            Id = entity.Id.ToString(),
             Name = entity.Name,
             Description = entity.Description
         };
-
-        return company;
     }
 
     public async Task<IEnumerable<CompanyModel>> GetEntities()
     {
         var entities = await _repository.GetEntities();
-        List<CompanyModel> result = new();
 
-        if (entities == null) return result;
+        if (entities == null) return Enumerable.Empty<CompanyModel>();
 
-        result.AddRange(
-            entities.Select(
-                v => new CompanyModel
-                {
-                    Id = v.Id,
-                    Name = v.Name,
-                    Description = v.Description
-                }));
-
-        return result;
+        return entities
+            .Where(e => e.Id != Guid.Empty)
+            .Select(e => new CompanyModel
+            {
+                Id = e.Id.ToString(),
+                Name = e.Name,
+                Description = e.Description
+            })
+            .ToList();
     }
 
     public Task<IEnumerable<CompanyModel>> GetEntitiesById(Guid id)

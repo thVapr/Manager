@@ -8,4 +8,5 @@ public class TaskModel : BaseModel
     public Guid CreatorId { get; set; }
 
     public int Level { get; set; }
+    public int Status { get; set; }
 }

@@ -109,4 +109,9 @@ public class EmployeeLogic : IEmployeeLogic
             Patronymic = v.Patronymic,
         }).ToList();
     }
+
+    public Task<EmployeeLinks> GetEmployeeLinks(Guid id)
+    {
+        return _repository.GetEmployeeLinks(id);
+    }
 }

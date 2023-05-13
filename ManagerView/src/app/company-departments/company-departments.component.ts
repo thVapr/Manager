@@ -47,7 +47,6 @@ export class CompanyDepartmentsComponent implements OnInit {
     }
 
     this.router.navigate(['home']);
-
   }
 
   GetAll() : void {

@@ -19,7 +19,7 @@ public class Authentication : IAuthentication {
         _authenticationData = authenticationData;
         _jwtCreator = jwtCreator;
     }
-    //TODO: add server validation
+
     public async Task<Tuple<string,string>> Authenticate(LoginModel user)
     {
         var userFromQuery = await _authenticationData.GetUser(user.Email!);
@@ -59,7 +59,6 @@ public class Authentication : IAuthentication {
         await _authenticationData.AddToken(tokenModel);
 
         return new Tuple<string, string>(tokenHandler.WriteToken(token),tokenModel.Token);
-        // TODO: add exceptions
     }
 
     public async Task<Tuple<string, string>> UpdateToken(RefreshModel model)
@@ -77,7 +76,6 @@ public class Authentication : IAuthentication {
             existingToken.ExpireTime <= DateTime.UtcNow)
             throw new InvalidDataException();
 
-        //TODO:Refactor this
         var claims = new List<Claim>
         {
             new (PublicConstants.Id, user.Id.ToString()),
@@ -106,6 +104,13 @@ public class Authentication : IAuthentication {
         await _authenticationData.UpdateToken(tokenModel, model.RefreshToken);
 
         return new Tuple<string, string>(tokenHandler.WriteToken(newAccessToken), tokenModel.Token);
+    }
+
+    public async Task<IEnumerable<string>> GetAdminIds()
+    {
+        var adminIds = await _authenticationData.GetAdminIds();
+
+        return adminIds.Select(x => x.ToString());
     }
 
     public async Task<bool> Logout(string token)

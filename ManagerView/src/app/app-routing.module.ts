@@ -10,18 +10,24 @@ import { ProjectComponent } from './project/project.component';
 import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
 import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
 import { TaskComponent } from './task/task.component';
+import { ProjectProfileComponent } from './project-profile/project-profile.component';
+import { CompanyProfileComponent } from './company-profile/company-profile.component';
+import { DepartmentProfileComponent } from './department-profile/department-profile.component';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'login', component: LoginComponent},
   {path: 'home', component: HomeComponent},
-  {path: 'company', component: CompanyComponent},
-  {path: 'company/departments', component: CompanyDepartmentsComponent},
   {path: 'employee', component: EmployeeComponent},
-  {path: 'project', component: ProjectComponent},
+  {path: 'company', component: CompanyComponent},
+  {path: 'company/about/:id', component: CompanyProfileComponent},  
+  {path: 'company/departments', component: CompanyDepartmentsComponent},
   {path: 'department/employees', component: DepartmentEmployeesComponent},
-  {path: 'project/employees', component: ProjectEmployeesComponent},
+  {path: 'department/about/:id', component: DepartmentProfileComponent},
+  {path: 'project', component: ProjectComponent},
+  {path: 'project/about/:id', component: ProjectProfileComponent},
   {path: 'project/tasks', component: TaskComponent},
+  {path: 'project/employees', component: ProjectEmployeesComponent},
 ];
 
 @NgModule({

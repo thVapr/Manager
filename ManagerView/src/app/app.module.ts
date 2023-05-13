@@ -18,6 +18,9 @@ import { ProjectComponent } from './project/project.component';
 import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
 import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
 import { TaskComponent } from './task/task.component';
+import { CompanyProfileComponent } from './company-profile/company-profile.component';
+import { DepartmentProfileComponent } from './department-profile/department-profile.component';
+import { ProjectProfileComponent } from './project-profile/project-profile.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +35,9 @@ import { TaskComponent } from './task/task.component';
     ProjectEmployeesComponent,
     DepartmentEmployeesComponent,
     TaskComponent,
+    CompanyProfileComponent,
+    DepartmentProfileComponent,
+    ProjectProfileComponent,
   ],
   imports: [
     BrowserModule,   

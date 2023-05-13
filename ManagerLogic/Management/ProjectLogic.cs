@@ -18,14 +18,14 @@ public class ProjectLogic : IProjectLogic
     {
         var entity = await _repository.GetEntityById(id);
 
-        var department = new ProjectModel
+        if (entity.Id == Guid.Empty) return new ProjectModel();
+
+        return new ProjectModel
         {
-            Id = entity.Id,
+            Id = entity.Id.ToString(),
             Name = entity.Name,
             Description = entity.Description,
         };
-        
-        return department;
     }
 
     public Task<IEnumerable<ProjectModel>> GetEntities()
@@ -36,16 +36,17 @@ public class ProjectLogic : IProjectLogic
     public async Task<IEnumerable<ProjectModel>> GetEntitiesById(Guid id)
     {
         var entities = await _repository.GetEntitiesById(id);
-        var results = new List<ProjectModel>();
 
-        results.AddRange(entities!.Select(e => new ProjectModel
-        {
-            Id = e.Id,
-            Name = e.Name,
-            Description = e.Description,
-        }));
+        if (entities == null) return Enumerable.Empty<ProjectModel>();
 
-        return results;
+        return entities
+            .Where(e => e.Id != Guid.Empty)
+            .Select(e => new ProjectModel
+            {
+                Id = e.Id.ToString(),
+                Name = e.Name,
+                Description = e.Description,
+            }).ToList();
     }
 
     public async Task<bool> CreateEntity(ProjectModel model)

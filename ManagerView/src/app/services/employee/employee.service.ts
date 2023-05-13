@@ -17,7 +17,7 @@ export class EmployeeService {
               private projectService : ProjectService) { }
 
   getEmployeeById(id : string): Observable<Employee> {
-    return this.http.get<Employee>(`${this.apiUrl}/get?id=${id}`);
+    return this.http.get<Employee>(`${this.apiUrl}/get_employee_profile?id=${id}`);
   }
 
   addEmployee(id : string, firstName? : string, lastName? : string, patronymic? : string) : Observable<any> {

@@ -77,9 +77,28 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
     {
-        throw new NotImplementedException();
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var link = await database.EmployeeTasks
+                .Where(et => et.EmployeeId == firstId && et.TaskId == secondId)
+                .FirstOrDefaultAsync();
+
+            if (link == null) return false;
+
+            database.EmployeeTasks.Remove(link);
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<TaskDataModel> GetEntityById(Guid id)
@@ -88,17 +107,30 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            return await database.Tasks.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new TaskDataModel();
+            return await database.Tasks
+                .Where(m => m.Id == id)
+                .FirstOrDefaultAsync() ?? new TaskDataModel();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return new TaskDataModel();
         }
     }
 
-    public Task<IEnumerable<TaskDataModel>?> GetEntities()
+    public async Task<IEnumerable<TaskDataModel>?> GetEntities()
     {
-        throw new NotImplementedException();
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            return await database.Tasks.ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<TaskDataModel>();
+        }
     }
 
     public async Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
@@ -135,15 +167,19 @@ public class TaskRepository : ITaskRepository
 
             task.Name = model.Name;
             task.Description = model.Description;
+
             task.EmployeeId = model.EmployeeId;
+            
             task.Level = model.Level;
+            task.Status = model.Status;
 
             await database.SaveChangesAsync();
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -163,8 +199,9 @@ public class TaskRepository : ITaskRepository
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }

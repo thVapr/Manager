@@ -1,4 +1,5 @@
 ﻿
+using ManagerData.Constants;
 using ManagerData.Contexts;
 using ManagerData.DataModels.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -132,6 +133,29 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
         return false;
 
+    }
+
+    public async Task<IEnumerable<Guid>> GetAdminIds()
+    {
+        await using var database = new AuthenticationDbContext();
+
+        try
+        {
+            var roleId = await database.Roles
+                .Where(r => r.Name == RoleConstants.Admin)
+                .Select(r => r.Id)
+                .FirstOrDefaultAsync();
+
+            return await database.UserRoles
+                .Where(ur => ur.RoleId == roleId)
+                .Select(r => r.UserId)
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Enumerable.Empty<Guid>();
+        }
     }
 
     public async Task<bool> AddUser(UserDataModel user)

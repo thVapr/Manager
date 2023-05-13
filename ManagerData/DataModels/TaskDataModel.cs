@@ -14,6 +14,7 @@ public class TaskDataModel : BaseDataModel
     public string Description { get; set; } = string.Empty;
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public int Level { get; set; } = 0;
+    public int Status { get; set; } = 0;
 
     public EmployeeTasksDataModel EmployeeTasks { get; set; } = null!;
     public ProjectTasksDataModel ProjectTasks { get; set; } = null!;

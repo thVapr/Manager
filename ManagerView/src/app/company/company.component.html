@@ -15,6 +15,9 @@
   </form>
 <hr/>
 <ul>
-    <li *ngFor="let company of companies">{{company.name}} | {{company.description}} <button class="btn btn-primary" (click)="ChooseCompany(company.id, company.name)">Выбрать</button></li>
+    <li *ngFor="let company of companies">
+      <a [href]="'company/about/' + company.id">{{company.name}} | {{company.description}}</a>
+      <button class="btn btn-primary" (click)="ChooseCompany(company.id, company.name)">Выбрать</button>
+    </li>
 </ul>
   

@@ -18,14 +18,14 @@ public class DepartmentLogic : IDepartmentLogic
     {
         var entity = await _repository.GetEntityById(id);
 
-        var department = new DepartmentModel
+        if (entity.Id == Guid.Empty) return new DepartmentModel();
+
+        return new DepartmentModel
         {
-            Id = entity.Id,
+            Id = entity.Id.ToString(),
             Name = entity.Name,
             Description = entity.Description,
         };
-        
-        return department;
     }
 
     public Task<IEnumerable<DepartmentModel>> GetEntities()
@@ -40,9 +40,9 @@ public class DepartmentLogic : IDepartmentLogic
 
         if (entities == null) return result;
 
-        result.AddRange(entities.Select(e => new DepartmentModel
+        result.AddRange(entities.Where(e => e.Id != Guid.Empty).Select(e => new DepartmentModel
         {
-            Id = e.Id,
+            Id = e.Id.ToString(),
             Name = e.Name,
             Description = e.Description,
         }));

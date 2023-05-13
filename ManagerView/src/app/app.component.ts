@@ -21,6 +21,8 @@ export class AppComponent implements OnInit {
     if (name !== null)
       return name;
 
+    if(!this.authService.isAdmin())
+      return 'Ожидайте распределения в компанию';
     return 'Выберите компанию';
   }
 
@@ -30,7 +32,9 @@ export class AppComponent implements OnInit {
     if (name !== null && name !== '')
       return name;
 
-    return 'Выберите отдел';
+    if(!this.authService.isAdmin())
+      return 'Ожидайте распределения в отдел';
+    return 'Выберите отдел'
   }
 
   get projectName() {
@@ -39,6 +43,8 @@ export class AppComponent implements OnInit {
     if (name !== null && name !== '')
       return name;
 
+    if(!this.authService.isAdmin())
+      return 'Ожидайте распределения в проект';
     return 'Выберите проект';
   }
 
@@ -57,9 +63,28 @@ export class AppComponent implements OnInit {
           if (employee.lastName !== null && employee.firstName !== null) {
             this.employeeProfileString = employee.lastName + ' ' + employee.firstName;
             this.isEmployeeExist = true;
+
+            if(employee.companyId !== null && employee.companyId !== undefined) {
+              this.companyService.setCompanyId(employee.companyId);
+              if (employee.companyName !== "" && employee.companyName !== undefined)
+                this.companyService.setCompanyName(employee.companyName);
+            }
+            
+            if(employee.projectId !== null && employee.projectId !== undefined) {
+              this.projectService.setProjectId(employee.projectId);
+              if (employee.projectName !== "" && employee.projectName !== undefined)
+                this.projectService.setProjectName(employee.projectName);
+            }
+
+            if(employee.departmentId !== null && employee.departmentId !== undefined) {
+              this.companyDepartmentsService.setDepartmentId(employee.departmentId);
+              if (employee.departmentName !== "" && employee.departmentName !== undefined)
+                this.companyDepartmentsService.setDepartmentName(employee.departmentName);
+            }
+
           }
         },
-        error: (error) => {
+        error: () => {
           this.employeeProfileString = 'Создайте профиль сотрудника';
           this.isEmployeeExist = false;
         }

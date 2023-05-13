@@ -55,7 +55,7 @@ export class CompanyDepartmentsService {
   }
 
   getDepartment(id : string) : Observable<Department> {
-    return this.http.get<Department>(`${this.apiUrl}/get?id={id}`);
+    return this.http.get<Department>(`${this.apiUrl}/get?id=${id}`);
   }
 
   removeDepatmentData() : void {

@@ -232,4 +232,41 @@ public class EmployeeRepository : IEmployeeRepository
 
         }
     }
+
+    public async Task<EmployeeLinks> GetEmployeeLinks(Guid id)
+    {
+        await using var database = new ManagerDbContext();
+
+        try
+        {
+            var projectId = await database.ProjectEmployees
+                .Where(pe => pe.EmployeeId == id)
+                .Select(pe => pe.ProjectId)
+                .FirstOrDefaultAsync();
+
+            var departmentId = await database.DepartmentEmployees
+                .Where(de => de.EmployeeId == id)
+                .Select(de => de.DepartmentId)
+                .FirstOrDefaultAsync();
+
+            var companyId = await database.CompanyDepartments
+                .Where(ce => ce.DepartmentId == departmentId)
+                .Select(ce => ce.CompanyId)
+                .FirstOrDefaultAsync();
+
+            return new EmployeeLinks
+            {
+                CompanyId = companyId,
+                DepartmentId = departmentId,
+                ProjectId = projectId,
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return new EmployeeLinks();
+        }
+
+
+    }
 }

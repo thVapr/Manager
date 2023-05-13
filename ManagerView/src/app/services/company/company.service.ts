@@ -38,7 +38,7 @@ export class CompanyService {
   }
 
   getCompany(id : string) : Observable<Company> {
-    return this.http.get<Company>(`${this.apiUrl}/get?id={id}`);
+    return this.http.get<Company>(`${this.apiUrl}/get?id=${id}`);
   }
 
   isCompanySelected() : boolean {
