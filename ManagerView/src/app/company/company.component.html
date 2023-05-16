@@ -1,23 +1,29 @@
-<hr/>
+  
+<h2 class="mb-5 text-center">Отделы</h2>
+
 <form [formGroup]="addCompanyForm" (ngSubmit)="OnSubmit()" class="row mb-5" *ngIf="authService.isAuthenticated()&&authService.isAdmin()">
-    <div class="form-outline col-md-4">
+    <div class="form-outline mb-2">
       <input type="text" class="form-control form-control-lg"
         placeholder="Название" formControlName="name"/>
     </div>
 
-    <div class="form-outline col-md-4">
-      <input type="text" class="form-control form-control-lg"
-        placeholder="Описание" formControlName="description" />
+    <div class="form-outline mb-2">
+      <textarea type="text" class="form-control form-control-lg"
+        placeholder="Описание" formControlName="description"></textarea>
     </div>
-    <div class="text-center text-lg-start col-md-4">
+    <div class="text-center text-lg-start">
       <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
     </div>
-  </form>
-<hr/>
-<ul>
-    <li *ngFor="let company of companies">
-      <a [href]="'company/about/' + company.id">{{company.name}} | {{company.description}}</a>
-      <button class="btn btn-primary" (click)="ChooseCompany(company.id, company.name)">Выбрать</button>
-    </li>
-</ul>
-  
+</form>
+
+<div class="container">
+  <table class="row" *ngFor="let company of companies">
+    <td class="col">
+      <a class="btn btn-light w-100" [href]="'department/about/' + company.id">{{company.name}}</a>
+    </td>
+    <td class="col mb-3">
+      <button class="col" class="btn btn-primary" (click)="ChooseCompany(company.id, company.name)">Выбрать</button>
+    </td>
+    <hr>
+  </table>
+</div>

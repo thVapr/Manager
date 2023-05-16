@@ -1,5 +1,4 @@
 ﻿
-using System.Diagnostics.CodeAnalysis;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Models;

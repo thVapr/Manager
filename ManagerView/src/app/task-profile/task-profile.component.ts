@@ -27,6 +27,7 @@ export class TaskProfileComponent {
   taskName : string | undefined = "";
   taskDescription : string | undefined = "";
   status : string | undefined = "";
+  taskStatus : number | undefined = 0;
 
   isAdminOrCreator : boolean = false;
 
@@ -52,6 +53,7 @@ export class TaskProfileComponent {
     this.taskService.getTaskById(id).subscribe((task) => {
       this.taskName = task.name;
       this.taskDescription = task.description;
+      this.taskStatus = task.status;
 
       switch(task.status) {
         case(Status.TODO):
@@ -97,6 +99,18 @@ export class TaskProfileComponent {
     task.id = this.taskId;
     task.name = this.updateTaskForm.value.name!;
     task.description = this.updateTaskForm.value.description!;
+    task.status = this.taskStatus;
+
+    this.taskService.updateTask(task).subscribe(() => {
+      this.Update();
+    });
+  }
+
+  returnTask() : void {
+    let task = new Task;
+
+    task.id = this.taskId;
+    task.status = Status.DOING;
 
     this.taskService.updateTask(task).subscribe(() => {
       this.Update();

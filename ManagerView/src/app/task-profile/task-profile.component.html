@@ -46,3 +46,4 @@
       <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
     </div>
 </form>
+<button *ngIf="taskStatus === 2" class="btn btn-dark btn-lg" (click)="returnTask()">Вернуть</button>

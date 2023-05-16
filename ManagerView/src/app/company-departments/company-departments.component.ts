@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { CompanyDepartmentsService } from '../services/company-departments/company-departments.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ProjectService } from '../services/project/project.service';
 
 @Component({
   selector: 'app-company-departments',
@@ -21,7 +22,8 @@ export class CompanyDepartmentsComponent implements OnInit {
 
   constructor(public authService : AuthService,
               public companyDepartmentsService: CompanyDepartmentsService,
-              public router : Router) {}
+              public router : Router,
+              private projectService: ProjectService) {}
 
   ngOnInit(): void {
     this.GetAll();
@@ -33,8 +35,9 @@ export class CompanyDepartmentsComponent implements OnInit {
     this.companyDepartmentsService.addDepartment(name!, description!)
     .subscribe({
       next: () => {
-       console.log('successful')
-       this.GetAll()
+       console.log('successful');
+       this.GetAll();
+       this.addCompanyForm.reset();
       },
       error: (error) => console.error('failed', error)
      });
@@ -44,6 +47,8 @@ export class CompanyDepartmentsComponent implements OnInit {
     if (id !== undefined && name !== undefined) {
       this.companyDepartmentsService.setDepartmentId(id);
       this.companyDepartmentsService.setDepartmentName(name);
+      this.projectService.setProjectId("");
+      this.projectService.setProjectName("");
     }
 
     this.router.navigate(['home']);

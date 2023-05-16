@@ -16,6 +16,8 @@ import { DepartmentProfileComponent } from './department-profile/department-prof
 import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
 import { TaskProfileComponent } from './task-profile/task-profile.component';
 import { AuthGuard } from './guards/auth-guard.guard';
+import { DepartmentGuard } from './guards/department-guard.guard';
+import { AdminGuard } from './guards/admin-guard.guard';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
@@ -23,14 +25,14 @@ const routes: Routes = [
   {path: 'home', component: HomeComponent},
   {path: 'employee', component: EmployeeComponent, canActivate: [AuthGuard]},
   {path: 'employee/tasks', component: TaskComponent, canActivate: [AuthGuard]},
-  {path: 'company', component: CompanyComponent, canActivate: [AuthGuard]},
+  {path: 'company', component: CompanyComponent, canActivate: [AuthGuard,AdminGuard]},
   {path: 'company/about/:id', component: CompanyProfileComponent, canActivate: [AuthGuard]},  
   {path: 'company/departments', component: CompanyDepartmentsComponent, canActivate: [AuthGuard]},
-  {path: 'department/employees', component: DepartmentEmployeesComponent, canActivate: [AuthGuard]},
+  {path: 'department/employees', component: DepartmentEmployeesComponent, canActivate: [AuthGuard,DepartmentGuard]},
   {path: 'department/about/:id', component: DepartmentProfileComponent, canActivate: [AuthGuard]},
-  {path: 'project', component: ProjectComponent, canActivate: [AuthGuard]},
+  {path: 'project', component: ProjectComponent, canActivate: [AuthGuard, DepartmentGuard]},
   {path: 'project/about/:id', component: ProjectProfileComponent, canActivate: [AuthGuard]},
-  {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard]},
+  {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard,DepartmentGuard]},
   {path: 'project/tasks', component: ProjectTasksComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]}
 ];
