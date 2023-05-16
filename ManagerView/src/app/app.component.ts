@@ -14,6 +14,8 @@ import { ProjectService } from './services/project/project.service';
 export class AppComponent implements OnInit {
   employeeProfileString = 'Создайте профиль сотрудника';
   isEmployeeExist : boolean = false;
+  isProjectManager : boolean = false;
+  isDepartmentManager : boolean = false;
 
   get companyName() {
     const name = this.companyService.getCompanyName();
@@ -43,7 +45,7 @@ export class AppComponent implements OnInit {
     if (name !== null && name !== '')
       return name;
 
-    if(!this.authService.isAdmin())
+    if(!this.authService.isAdmin() && !this.isDepartmentManager)
       return 'Ожидайте распределения в проект';
     return 'Выберите проект';
   }
@@ -90,6 +92,31 @@ export class AppComponent implements OnInit {
         }
       });
     }
+
+    const departmentId = this.companyDepartmentsService.getDepartmentId();
+
+    if (departmentId !== null) {
+      this.companyDepartmentsService.getDepartment(departmentId).subscribe({
+        next: (department) => {
+          if (department.managerId !== null && department.managerId !== undefined && department.managerId == id)
+            this.isDepartmentManager = true;
+        },
+        error: () => this.isDepartmentManager = false
+      });
+    }
+
+    const projectId = this.projectService.getProjectId();
+
+    if (projectId !== null) {
+      this.projectService.getProjectById(projectId).subscribe({
+        next: (project) => {
+          if (project.managerId !== null && project.managerId !== undefined && project.managerId == id)
+            this.isProjectManager = true;
+        },
+        error: () => this.isProjectManager = false
+      });
+    }
+
   }
 
   async logout() {

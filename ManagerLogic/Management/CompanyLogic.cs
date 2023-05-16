@@ -55,14 +55,19 @@ public class CompanyLogic : IManagementLogic<CompanyModel>
         var entity = new CompanyDataModel
         {
             Id = Guid.NewGuid(),
-            Name = model.Name,
-            Description = model.Description
+            Name = model.Name!,
+            Description = model.Description!,
         };
 
         return await _repository.CreateEntity(entity);
     }
 
     public Task<bool> UpdateEntity(CompanyModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<CompanyModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }

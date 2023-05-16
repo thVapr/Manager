@@ -62,4 +62,13 @@ public class ProjectController : ControllerBase
 
         return BadRequest();
     }
+
+    [HttpPut]
+    [Route("update")]
+    public async Task<IActionResult> UpdateProject([FromBody] ProjectModel model)
+    {
+        if (await _projectLogic.UpdateEntity(model))
+            return Ok();
+        return BadRequest();
+    }
 }

@@ -161,16 +161,20 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var task = await database.Tasks.FindAsync(model.Id);
+            var task = await database.Tasks.Where(t => t.Id == model.Id).FirstOrDefaultAsync();
 
             if (task == null) return false;
 
-            task.Name = model.Name;
-            task.Description = model.Description;
+            if(!string.IsNullOrEmpty(model.Name))
+                task.Name = model.Name;
+            if (!string.IsNullOrEmpty(model.Description))
+                task.Description = model.Description;
 
-            task.EmployeeId = model.EmployeeId;
+            if (model.EmployeeId != Guid.Empty)
+                task.EmployeeId = model.EmployeeId; 
             
             task.Level = model.Level;
+
             task.Status = model.Status;
 
             await database.SaveChangesAsync();

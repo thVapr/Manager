@@ -166,12 +166,16 @@ public class DepartmentRepository : IManagementRepository<DepartmentDataModel>
 
         try
         {
-            var department = await database.Companies.FindAsync(model.Id);
+            var department = await database.Departments.Where(c => c.Id == model.Id).FirstOrDefaultAsync();
 
             if (department == null) return false;
 
-            department.Name = model.Name;
-            department.Description = model.Description;
+            if (!string.IsNullOrEmpty(model.Name))
+                department.Name = model.Name;
+            if (!string.IsNullOrEmpty(model.Description))
+                department.Description = model.Description;
+            if (model.ManagerId != null)
+                department.ManagerId = model.ManagerId;
 
             await database.SaveChangesAsync();
 

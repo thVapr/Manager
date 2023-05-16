@@ -1,6 +1,19 @@
-export class Department {
+export class Department {    
+    constructor(id: string,
+                name: string,
+                description: string,
+                managerId: string) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.managerId = managerId;
+    }
+
     id?: string;
+
     name?: string;
     description?: string;
-    company_id?: string;
+    
+    companyId?: string;
+    managerId?: string
 }

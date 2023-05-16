@@ -4,7 +4,6 @@ using ManagerData.Authentication;
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using ManagerData.Management;
-using ManagerLogic;
 using ManagerLogic.Authentication;
 using ManagerLogic.Management;
 using ManagerLogic.Models;

@@ -130,9 +130,12 @@ public class EmployeeRepository : IEmployeeRepository
 
             if (employee == null) return false;
 
-            employee.FirstName = model.FirstName;
-            employee.LastName = model.LastName;
-            employee.Patronymic = model.Patronymic;
+            if(!string.IsNullOrEmpty(model.FirstName))
+                employee.FirstName = model.FirstName;
+            if (!string.IsNullOrEmpty(model.LastName))
+                employee.LastName = model.LastName;
+            if (!string.IsNullOrEmpty(model.Patronymic))
+                employee.Patronymic = model.Patronymic;
 
             await database.SaveChangesAsync();
 
@@ -220,7 +223,7 @@ public class EmployeeRepository : IEmployeeRepository
 
         try
         {
-            var links = await database.ProjectEmployees.ToListAsync();
+            var links = await database.ProjectEmployees.Where(pe => pe.ProjectId == id).ToListAsync();
             var employeeIds = links.Select(l => l.EmployeeId);
 
             return await database.Employees.Where(e => employeeIds.Contains(e.Id)).ToListAsync();

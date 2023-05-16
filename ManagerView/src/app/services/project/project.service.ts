@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Project } from 'src/app/models/Project';
 import { CompanyDepartmentsService } from '../company-departments/company-departments.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,49 @@ import { CompanyDepartmentsService } from '../company-departments/company-depart
 export class ProjectService {
   private apiUrl = 'http://localhost:5106/api/project';
 
-  constructor(private http: HttpClient, private departmentService : CompanyDepartmentsService) { }
+  constructor(private http: HttpClient,
+     private departmentService : CompanyDepartmentsService,
+     private authService: AuthService) { }
+
+  addManager(employeeId: string | undefined) : Observable<any> {
+    const id = this.getProjectId();
+
+    return this.updateProject(new Project(
+      id!,
+      "",
+      "",
+      employeeId!,
+    ));
+  }
+
+  isManagerExist(managerId : string | undefined): boolean {
+    const id = this.authService.getId();
+
+    if (managerId !== null &&
+        managerId !== "" &&
+        managerId !== undefined &&
+        managerId !== id)
+      return true;
+    return false;
+  }
+  
+  isManager(id : string | undefined, managerId : string | undefined) : boolean {
+    if (this.isManagerExist(managerId) && managerId == id)
+      return true;
+    return false;    
+  }
+
+  removeManager() : Observable<any> {
+    const id = this.getProjectId();
+    const adminId = this.authService.getId();
+
+    return this.updateProject(new Project(
+      id!,
+      "",
+      "",
+      adminId!,
+    ));
+  }
 
   getAll(): Observable<Project[]> {
     const id = this.departmentService.getDepartmentId();
@@ -24,8 +67,13 @@ export class ProjectService {
 
   addProject(name : string, description : string ) : Observable<any> {
     const departmentId = this.departmentService.getDepartmentId();
-    
-    return this.http.post<any>(`${this.apiUrl}/create`, { departmentId, name, description });
+    const managerId = this.authService.getId();
+
+    return this.http.post<any>(`${this.apiUrl}/create`, { departmentId, name, description, managerId });
+  }
+
+  updateProject(project: Project) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update`, project);
   }
 
   addEmployeeToProject(employeeId : string) : Observable<any> {

@@ -4,6 +4,7 @@ import { ProjectService } from '../services/project/project.service';
 import { Router } from '@angular/router';
 import { Project } from 'src/app/models/Project'
 import { AuthService } from '../services/auth/auth.service';
+import { CompanyDepartmentsService } from '../services/company-departments/company-departments.service';
 
 @Component({
   selector: 'app-project',
@@ -16,14 +17,29 @@ export class ProjectComponent {
     description: new FormControl('', [Validators.required, Validators.maxLength(20)])
   });
 
+  isDepartmentManager : boolean = false;
   projects : Project[] = [];
 
   constructor(public authService: AuthService,
               public projectService: ProjectService,
-              public router : Router) {}
+              public router : Router,
+              public departmentService: CompanyDepartmentsService) {}
 
   ngOnInit(): void {
     this.GetAll();
+
+    const departmentId = this.departmentService.getDepartmentId();
+    const id = this.authService.getId();
+
+    if (departmentId !== null && id !== null) {
+      this.departmentService.getDepartment(departmentId).subscribe({
+        next: (department) => {
+          if (department.managerId !== null && department.managerId !== undefined && department.managerId == id)
+            this.isDepartmentManager = true;
+        },
+        error: () => this.isDepartmentManager = false
+      });
+    }
   }
 
   OnSubmit() : void {

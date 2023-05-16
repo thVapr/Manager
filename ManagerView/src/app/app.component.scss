@@ -1,3 +1,5 @@
+@import "../styles.scss";
+
 :host {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-size: 14px;
@@ -40,27 +42,12 @@
   .toolbar img {
     margin: 0 16px;
   }
-
-  .toolbar #twitter-logo {
-    height: 40px;
-    margin: 0 8px;
-  }
-
-  .toolbar #youtube-logo {
-    height: 40px;
-    margin: 0 16px;
-  }
-
-  .toolbar #twitter-logo:hover,
-  .toolbar #youtube-logo:hover {
-    opacity: 0.8;
-  }
-
+  
   .content {
     display: flex;
     margin: 82px auto 32px;
     padding: 0 16px;
-    max-width: 960px;
+    max-width: 1240px;
     flex-direction: column;
     align-items: center;
   }
@@ -87,9 +74,9 @@
 
   .card {
     all: unset;
-    border-radius: 4px;
+    border-radius: 12px;
     border: 1px solid #eee;
-    background-color: #fafafa;
+    background-color: #000000;
     height: 40px;
     width: 200px;
     margin: 0 8px 16px;
@@ -137,26 +124,10 @@
   .card.card.highlight-card span {
     margin-left: 60px;
   }
-
-  svg#rocket {
-    width: 80px;
-    position: absolute;
-    left: -10px;
-    top: -24px;
-  }
-
-  svg#rocket-smoke {
-    height: calc(100vh - 95px);
-    position: absolute;
-    top: 10px;
-    right: 180px;
-    z-index: -10;
-  }
-
   a,
   a:visited,
   a:hover {
-    color: #1976d2;
+    color: white;
     text-decoration: none;
   }
 
@@ -290,3 +261,10 @@
       visibility: hidden;
     }
   }
+
+/* Bootstrap icons styles */
+.bi {
+    font-size: 1.5rem;
+    margin-right: 5px;
+    color: $primary;
+}

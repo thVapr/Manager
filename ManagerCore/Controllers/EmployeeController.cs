@@ -100,14 +100,14 @@ public class EmployeeController : ControllerBase
             LastName = employee.LastName!,
             Patronymic = employee.Patronymic!,
 
-            CompanyId = company.Id,
-            CompanyName = company.Name,
+            CompanyId = company.Id!,
+            CompanyName = company.Name!,
 
-            DepartmentId = department.Id,
-            DepartmentName = department.Name,
+            DepartmentId = department.Id!,
+            DepartmentName = department.Name!,
 
-            ProjectId = project.Id,
-            ProjectName = project.Name,
+            ProjectId = project.Id!,
+            ProjectName = project.Name!,
         });
 
     }

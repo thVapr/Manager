@@ -1,4 +1,17 @@
-<ul>
-    <li>Название: {{ projectName }}</li>
-    <li>Описание: {{ projectDescription }}</li>
-</ul>
+
+<h2 class="text-center mb-5">Проект</h2>
+<form class="vh-100">
+    <fieldset disabled>
+        <div class="form-outline mb-3">
+            <label class="form-label" for="form1">Имя</label>
+            <input type="email" id="form1" class="form-control form-control-lg"
+                placeholder="" value="{{ projectName }}"/>
+        </div>
+
+        <div class="form-outline mb-3">
+            <label class="form-label" for="form2">Описание</label>
+            <textarea id="form2" class="form-control form-control-lg"
+                placeholder="" value="{{ projectDescription }}"></textarea>
+        </div>
+    </fieldset>
+  </form>

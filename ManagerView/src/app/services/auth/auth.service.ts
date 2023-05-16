@@ -12,10 +12,6 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  getData(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/data`);
-  }
-
   register(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/register`, { email, password }).pipe(
       tap(response => {
@@ -68,7 +64,7 @@ export class AuthService {
 
   isAdmin() : boolean {
     const role = this.getRole();
-
+    
     return role === 'Admin';
   }
 
@@ -112,7 +108,6 @@ export class AuthService {
 
     await firstValueFrom(this.http.post<any>(`${this.apiUrl}/logout`, { refreshToken }));
 
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.clear();
   }
 }

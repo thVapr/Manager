@@ -18,8 +18,9 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -110,8 +111,9 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
         {
             return await database.Projects.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new ProjectDataModel();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return new ProjectDataModel();
         }
     }
@@ -156,15 +158,20 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
 
             if (project == null) return false;
 
-            project.Name = model.Name;
-            project.Description = model.Description;
+            if (!string.IsNullOrEmpty(model.Name))
+                project.Name = model.Name;
+            if (!string.IsNullOrEmpty(model.Description))
+                project.Description = model.Description;
+            if(model.ManagerId != null)
+                project.ManagerId = model.ManagerId;
 
             await database.SaveChangesAsync();
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -184,8 +191,9 @@ public class ProjectRepository : IManagementRepository<ProjectDataModel>
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }

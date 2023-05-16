@@ -8,17 +8,27 @@ import { ProjectService } from '../services/project/project.service';
 import { Status } from '../status'
 
 @Component({
-  selector: 'app-task',
-  templateUrl: './task.component.html',
-  styleUrls: ['./task.component.scss']
+  selector: 'app-project-tasks',
+  templateUrl: './project-tasks.component.html',
+  styleUrls: ['./project-tasks.component.scss']
 })
-export class TaskComponent implements OnInit {
-  
+export class ProjectTasksComponent implements OnInit {
+
+  searchTaskForm = new FormGroup({
+    query: new FormControl('', [Validators.nullValidator]),
+  });
+
+  addTaskForm = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(4)]),
+    description: new FormControl('', [Validators.required, Validators.minLength(4)])
+  });
+
   isProjectManager : boolean = false;
   isDepartmentManager : boolean = false;
 
-  tasks : Task[] = []
-  myTasks : Task[] = []
+  todoTasks : Task[] = []
+  doingTasks : Task[] = []
+  doneTasks : Task[] = []
 
   constructor(private taskService : TaskService,
     public authService: AuthService,
@@ -55,21 +65,35 @@ export class TaskComponent implements OnInit {
   }
 
   Update() : void {
-    this.taskService.getFreeTasks().subscribe(tasks => this.tasks = tasks);
-    this.taskService.getTasksByEmployeeId().subscribe(tasks => this.myTasks = tasks.filter(t => t.status != Status.DONE));
+    this.taskService.getFreeTasks().subscribe(tasks => this.todoTasks = tasks);
+    this.taskService.getAll().subscribe(tasks => {
+      this.doingTasks = tasks.filter(t => t.status == Status.DOING);
+      this.doneTasks = tasks.filter(t => t.status == Status.DONE);
+    });
   }
  
-  ChooseTask(id : string | undefined) : void {
-    if(id !== undefined)
-      this.taskService.addTaskToEmployee(id).subscribe(() => this.Update());
+  addTask() : void {
+    let task = new Task;
+
+    task.name = this.addTaskForm.value.name!;
+    task.description = this.addTaskForm.value.description!;
+
+    this.taskService.addTask(task).subscribe(() => {
+      this.Update();
+      this.addTaskForm.reset();
+    });
   }
 
-  completeTask(id : string | undefined) : void {
-    let task = new Task();
+  searchTask() : void {
+    const query = this.searchTaskForm.value.query;
 
-    task.id = id;
-    task.status = Status.DONE;
-    
-    this.taskService.updateTask(task).subscribe(() => this.Update());
+    if(query !== null && query !== undefined)
+      this.taskService.getTaskByQuery(query).subscribe({
+        next: (tasks) => {
+          this.todoTasks = tasks.filter(t => t.status == Status.TODO);
+          this.doingTasks = tasks.filter(t => t.status == Status.DOING);
+          this.doneTasks = tasks.filter(t => t.status == Status.DONE);
+        }
+      });
   }
 }

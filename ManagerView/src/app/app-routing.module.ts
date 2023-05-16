@@ -13,21 +13,26 @@ import { TaskComponent } from './task/task.component';
 import { ProjectProfileComponent } from './project-profile/project-profile.component';
 import { CompanyProfileComponent } from './company-profile/company-profile.component';
 import { DepartmentProfileComponent } from './department-profile/department-profile.component';
+import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
+import { TaskProfileComponent } from './task-profile/task-profile.component';
+import { AuthGuard } from './guards/auth-guard.guard';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
   {path: 'login', component: LoginComponent},
   {path: 'home', component: HomeComponent},
-  {path: 'employee', component: EmployeeComponent},
-  {path: 'company', component: CompanyComponent},
-  {path: 'company/about/:id', component: CompanyProfileComponent},  
-  {path: 'company/departments', component: CompanyDepartmentsComponent},
-  {path: 'department/employees', component: DepartmentEmployeesComponent},
-  {path: 'department/about/:id', component: DepartmentProfileComponent},
-  {path: 'project', component: ProjectComponent},
-  {path: 'project/about/:id', component: ProjectProfileComponent},
-  {path: 'project/tasks', component: TaskComponent},
-  {path: 'project/employees', component: ProjectEmployeesComponent},
+  {path: 'employee', component: EmployeeComponent, canActivate: [AuthGuard]},
+  {path: 'employee/tasks', component: TaskComponent, canActivate: [AuthGuard]},
+  {path: 'company', component: CompanyComponent, canActivate: [AuthGuard]},
+  {path: 'company/about/:id', component: CompanyProfileComponent, canActivate: [AuthGuard]},  
+  {path: 'company/departments', component: CompanyDepartmentsComponent, canActivate: [AuthGuard]},
+  {path: 'department/employees', component: DepartmentEmployeesComponent, canActivate: [AuthGuard]},
+  {path: 'department/about/:id', component: DepartmentProfileComponent, canActivate: [AuthGuard]},
+  {path: 'project', component: ProjectComponent, canActivate: [AuthGuard]},
+  {path: 'project/about/:id', component: ProjectProfileComponent, canActivate: [AuthGuard]},
+  {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard]},
+  {path: 'project/tasks', component: ProjectTasksComponent, canActivate: [AuthGuard]},
+  {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({

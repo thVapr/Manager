@@ -21,6 +21,8 @@ import { TaskComponent } from './task/task.component';
 import { CompanyProfileComponent } from './company-profile/company-profile.component';
 import { DepartmentProfileComponent } from './department-profile/department-profile.component';
 import { ProjectProfileComponent } from './project-profile/project-profile.component';
+import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
+import { TaskProfileComponent } from './task-profile/task-profile.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,8 @@ import { ProjectProfileComponent } from './project-profile/project-profile.compo
     CompanyProfileComponent,
     DepartmentProfileComponent,
     ProjectProfileComponent,
+    ProjectTasksComponent,
+    TaskProfileComponent,
   ],
   imports: [
     BrowserModule,   

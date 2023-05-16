@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Department } from 'src/app/models/Department'
 import { CompanyService } from '../company/company.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,50 @@ import { CompanyService } from '../company/company.service';
 export class CompanyDepartmentsService {
   private apiUrl = 'http://localhost:5106/api/department';
 
-  constructor(private http: HttpClient, private companyService: CompanyService) { }
+  constructor(private http: HttpClient,
+     private companyService: CompanyService,
+     private authService: AuthService) { }
+
+  addManager(employeeId: string | undefined) : Observable<any> {
+    const id = this.getDepartmentId();
+
+    return this.updateDepartment(new Department(
+      id!,
+      "",
+      "",
+      employeeId!,
+    ));
+
+  }
+ 
+  removeManager() : Observable<any> {
+    const id = this.getDepartmentId();
+    const adminId = this.authService.getId();
+
+    return this.updateDepartment(new Department(
+      id!,
+      "",
+      "",
+      adminId!,
+    ));
+  }
+
+  isManagerExist(managerId : string | undefined): boolean {
+    const id = this.authService.getId();
+
+    if (managerId !== null &&
+        managerId !== "" &&
+        managerId !== undefined &&
+        managerId !== id)
+      return true;
+    return false;
+  }
+
+  isManager(id : string | undefined, managerId : string | undefined) : boolean {
+    if (managerId === id)
+      return true;
+    return false;    
+  }
 
   getAll(): Observable<Department[]> {
     const id = this.companyService.getCompanyId();
@@ -20,8 +64,9 @@ export class CompanyDepartmentsService {
 
   addDepartment(name: string, description: string) : Observable<any> {
     const companyId = this.companyService.getCompanyId();
+    const managerId = this.authService.getId();
     
-    return this.http.post<any>(`${this.apiUrl}/create`, { name, description, companyId });
+    return this.http.post<any>(`${this.apiUrl}/create`, { name, description, companyId, managerId });
   }
   
   addEmployeeToDepartment(employeeId : string) : Observable<any> {
@@ -34,6 +79,10 @@ export class CompanyDepartmentsService {
     const departmentId = this.getDepartmentId();
 
     return this.http.post<any>(`${this.apiUrl}/remove`,{ departmentId, employeeId });
+  }
+
+  updateDepartment(department : Department) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update`, department);
   }
 
   setDepartmentId(id : string) : void {
@@ -62,7 +111,7 @@ export class CompanyDepartmentsService {
     localStorage.removeItem('department_id');
     localStorage.removeItem('department_name');
   }
-
+  
   isDepartmentSelected() : boolean {
     const id = this.getDepartmentId();
     const name = this.getDepartmentName();

@@ -22,20 +22,12 @@ export class LoginComponent {
     this.authService.login(email!, password!)
       .subscribe({
        next: () => {
-        console.log('Login successful')
-        this.router.navigate(['/home'])
+        console.log('Login successful');
+        this.router.navigate(['/home']).then(() => {
+          window.location.reload();
+        });
        },
        error: (error) => console.error('Login failed', error)
       });
   }
-
-  GetData() {
-    const time = this.authService.getTokenExpiration();
-    this.authService.getData()
-      .subscribe({
-        next: (response) => console.log('Data received:', response, time),
-        error: (error) => console.error('Error occurred:', error)
-      }); 
-  }
-
 }

@@ -24,6 +24,16 @@ export class EmployeeService {
     return this.http.post<any>(`${this.apiUrl}/create`, {id, firstName, lastName, patronymic});
   }
 
+  updateEmployee(id : string, firstName? : string, lastName? : string, patronymic? : string) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update`, {id, firstName, lastName, patronymic});
+  }
+
+  isCurrentEmployee(employeeId : string | undefined) {
+    const id = this.authService.getId();
+
+    return employeeId === id;
+  }
+
   getEmployeesByDepartmentId() : Observable<Employee[]> {
     const id = this.departmentService.getDepartmentId();
     
@@ -45,5 +55,4 @@ export class EmployeeService {
 
     return this.http.get<Employee[]>(`${this.apiUrl}/get_employees?id=${id}`);
   }
-
 }

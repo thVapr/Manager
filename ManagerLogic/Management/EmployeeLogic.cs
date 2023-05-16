@@ -63,6 +63,17 @@ public class EmployeeLogic : IEmployeeLogic
 
     public Task<bool> UpdateEntity(EmployeeModel model)
     {
+        return _repository.UpdateEntity(new EmployeeDataModel
+        {
+            Id = Guid.Parse(model.Id!),
+            FirstName = model.FirstName!,
+            LastName = model.LastName!,
+            Patronymic = model.Patronymic!,
+        });
+    }
+
+    public Task<IEnumerable<EmployeeModel>> GetEntitiesByQuery(string query, Guid id)
+    {
         throw new NotImplementedException();
     }
 
@@ -99,7 +110,7 @@ public class EmployeeLogic : IEmployeeLogic
 
     public async Task<IEnumerable<EmployeeModel>> GetEmployeesFromProject(Guid id)
     {
-        var employees = await _repository.GetEmployeesFromProject(new Guid());
+        var employees = await _repository.GetEmployeesFromProject(id);
 
         return employees.Select(v => new EmployeeModel
         {

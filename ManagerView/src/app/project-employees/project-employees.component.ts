@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Employee } from '../models/Employee';
 import { ProjectService } from '../services/project/project.service';
 import { EmployeeService } from '../services/employee/employee.service';
+import { Project } from '../models/Project';
+import { AuthService } from '../services/auth/auth.service';
+import { CompanyDepartmentsService } from '../services/company-departments/company-departments.service';
+import { Department } from '../models/Department';
 
 @Component({
   selector: 'app-project-employees',
@@ -10,23 +13,49 @@ import { EmployeeService } from '../services/employee/employee.service';
   styleUrls: ['./project-employees.component.scss']
 })
 export class ProjectEmployeesComponent implements OnInit{
+  project: Project = new Project("","","","");
+  department: Department = new Department("","","","");
   employees : Employee[] = [];
   projectEmployees: Employee[] = [];
 
   constructor(public projectService: ProjectService,
-              public employeeService: EmployeeService) {}
+              public employeeService: EmployeeService,
+              public authService: AuthService,
+              public departmentService: CompanyDepartmentsService) {}
 
   ngOnInit(): void {
     this.Update();
   }
 
-  OnChoose(id : string | undefined) : void {
+  addManager(employeeId: string | undefined) {
+    this.projectService.addManager(employeeId).subscribe(() => {
+      this.Update();
+    });
+  }  
 
+  removeManager() {
+    this.projectService.removeManager().subscribe(() => {
+      this.Update();
+    });
   }
-
+  
   Update() : void {
     this.GetAll();
     this.GetAllFree();
+
+    const id = this.projectService.getProjectId();
+
+    if(id !== null)
+      this.projectService.getProjectById(id).subscribe((project) => {
+        this.project = project;
+      });
+
+    const departmentId = this.departmentService.getDepartmentId()
+
+    if(departmentId !== null)
+      this.departmentService.getDepartment(departmentId).subscribe((department) => {
+       this.department = department;
+      });
   }
 
   AddEmployeeToProject(id : any) {

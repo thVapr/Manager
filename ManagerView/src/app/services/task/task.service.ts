@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Task } from 'src/app/models/Task';
 import { CompanyDepartmentsService } from '../company-departments/company-departments.service';
 import { AuthService } from '../auth/auth.service';
+import { Status } from 'src/app/status'
 
 @Injectable({
   providedIn: 'root'
@@ -27,13 +28,27 @@ export class TaskService {
   getTasksByEmployeeId() : Observable<Task[]> {
     const employeeId = this.authService.getId();
 
-    return this.http.get<Task[]>(`${this.apiUrl}/get_employee_tasks?id=${employeeId}`)
+    return this.http.get<Task[]>(`${this.apiUrl}/get_employee_tasks?id=${employeeId}`);
   }
 
   getFreeTasks() : Observable<Task[]> {
     const projectId = this.projectService.getProjectId();
 
-    return this.http.get<Task[]>(`${this.apiUrl}/get_free_tasks?id=${projectId}`)
+    return this.http.get<Task[]>(`${this.apiUrl}/get_free_tasks?id=${projectId}`);
+  }
+
+  getTaskById(id : string) : Observable<Task> {
+    return this.http.get<Task>(`${this.apiUrl}/get?id=${id}`);
+  }
+
+  getTaskByQuery(query : string) : Observable<Task[]> {
+    const id = this.projectService.getProjectId();
+
+    return this.http.get<Task[]>(`${this.apiUrl}/search?query=${query}&id=${id}`);
+  }
+
+  updateTask(task : Task) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update`, task);
   }
 
   addTask(task : Task) : Observable<any> {
@@ -47,7 +62,7 @@ export class TaskService {
   addTaskToEmployee(taskId : string) : Observable<any> {
     const employeeId = this.authService.getId();
 
-    return this.http.post<any>(`${this.apiUrl}/add`,{ employeeId, taskId });
+    return this.http.post<any>(`${this.apiUrl}/add`,{ employeeId, taskId});
   }
   
   removeEmployeeFromTask(employeeId : string,taskId : string) : Observable<any> {

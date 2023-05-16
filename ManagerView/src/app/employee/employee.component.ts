@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { EmployeeService } from '../services/employee/employee.service';
 import { AuthService } from '../services/auth/auth.service';
+import { Employee } from '../models/Employee';
 
 @Component({
   selector: 'app-employee',
@@ -9,6 +10,9 @@ import { AuthService } from '../services/auth/auth.service';
   styleUrls: ['./employee.component.scss']
 })
 export class EmployeeComponent implements OnInit {
+
+  employee: Employee = new Employee("","","","");
+  
   addEmployeeForm = new FormGroup({
     firstName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
     lastName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
@@ -26,6 +30,10 @@ export class EmployeeComponent implements OnInit {
   constructor(public employeeService : EmployeeService, private authService : AuthService) {}
   
   ngOnInit(): void {
+    this.update();
+  }
+
+  update() : void {
     const id = this.authService.getId();
     
     this.employeeService.getEmployeeById(id)
@@ -38,6 +46,7 @@ export class EmployeeComponent implements OnInit {
           
           this.isEmployeeProfileExist = true;
 
+          this.employee = employee;
           this.changeEmployeeForm.setValue({
             firstName: employee.firstName!,
             lastName: employee.lastName!,
@@ -61,6 +70,23 @@ export class EmployeeComponent implements OnInit {
     .subscribe({
       next: () => {
         console.log('successful')
+        this.update();
+      },
+      error: (error) => console.error('failed', error)
+      });
+  }
+
+  onChangeSubmit() : void {
+    const id = this.authService.getId();
+    const firstName = this.changeEmployeeForm.value.firstName;
+    const lastName = this.changeEmployeeForm.value.lastName;
+    const patronymic = this.changeEmployeeForm.value.patronymic;
+
+    this.employeeService.updateEmployee(id, firstName!, lastName!, patronymic!)
+    .subscribe({
+      next: () => {
+        console.log('successful')
+        this.update();
       },
       error: (error) => console.error('failed', error)
       });

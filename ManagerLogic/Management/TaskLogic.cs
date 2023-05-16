@@ -83,8 +83,8 @@ public class TaskLogic : ITaskLogic
         {
             Id = Guid.NewGuid(),
 
-            Name = model.Name,
-            Description = model.Description,
+            Name = model.Name!,
+            Description = model.Description ?? "",
 
             CreatorId = model.CreatorId,
             ProjectId = model.ProjectId,
@@ -99,8 +99,9 @@ public class TaskLogic : ITaskLogic
     {
         return await _repository.UpdateEntity(new TaskDataModel
         {
-            Name = model.Name,
-            Description = model.Description,
+            Id = Guid.Parse(model.Id ?? ""),
+            Name = model.Name!,
+            Description = model.Description!,
 
             EmployeeId = model.EmployeeId,
 
@@ -109,19 +110,46 @@ public class TaskLogic : ITaskLogic
         });
     }
 
+    public async Task<IEnumerable<TaskModel>> GetEntitiesByQuery(string query, Guid id)
+    {
+        var entities = await GetEntitiesById(id);
+
+        var queries = query.ToLower().Split(' ');
+
+        return entities.Where(e => 
+            queries.Any(q => e.Name!.ToLower().Contains(q)) &&
+                                   !string.IsNullOrEmpty(e.Name) ||
+            queries.Any(q => e.Description!.ToLower().Contains(q)) &&
+                                   !string.IsNullOrEmpty(e.Description)
+            );
+    }
+
     public async Task<bool> DeleteEntity(Guid id)
     {
         return await _repository.DeleteEntity(id);
     }
 
-    public Task<bool> AddEmployeeToTask(Guid employeeId, Guid taskId)
+    public async Task<bool> AddEmployeeToTask(Guid employeeId, Guid taskId)
     {
-        return _repository.LinkEntities(employeeId, taskId);
+        await _repository.UpdateEntity(new TaskDataModel
+        {
+            Id = taskId,
+            EmployeeId = employeeId,
+            Status = (int)PublicConstants.Task.Doing
+        });
+
+        return await _repository.LinkEntities(employeeId, taskId);
     }
 
-    public Task<bool> RemoveEmployeeFromTask(Guid employeeId, Guid taskId)
+    public async Task<bool> RemoveEmployeeFromTask(Guid employeeId, Guid taskId)
     {
-        return _repository.UnlinkEntities(employeeId, taskId);
+        await _repository.UpdateEntity(new TaskDataModel
+        {
+            Id = taskId,
+            Status = (int)PublicConstants.Task.Todo
+        });
+
+        return await _repository.UnlinkEntities(employeeId, taskId);
     }
 
     public async Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId)

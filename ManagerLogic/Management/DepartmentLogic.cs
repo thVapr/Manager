@@ -25,6 +25,7 @@ public class DepartmentLogic : IDepartmentLogic
             Id = entity.Id.ToString(),
             Name = entity.Name,
             Description = entity.Description,
+            ManagerId = entity.ManagerId,
         };
     }
 
@@ -45,6 +46,7 @@ public class DepartmentLogic : IDepartmentLogic
             Id = e.Id.ToString(),
             Name = e.Name,
             Description = e.Description,
+            ManagerId = e.ManagerId,
         }));
 
         return result;
@@ -55,14 +57,25 @@ public class DepartmentLogic : IDepartmentLogic
         var entity = new DepartmentDataModel
         {
             Id = Guid.NewGuid(),
-            Name = model.Name,
-            Description = model.Description
+            Name = model.Name!,
+            Description = model.Description,
         };
 
         return await _repository.CreateEntity(model.CompanyId, entity);
     }
 
-    public Task<bool> UpdateEntity(DepartmentModel model)
+    public async Task<bool> UpdateEntity(DepartmentModel model)
+    {
+        return await _repository.UpdateEntity(new DepartmentDataModel
+        {
+            Id = Guid.Parse(model.Id!),
+            Name = model.Name!,
+            Description = model.Description!,
+            ManagerId = model.ManagerId,
+        });
+    }
+
+    public Task<IEnumerable<DepartmentModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }

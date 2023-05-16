@@ -1,20 +1,41 @@
 
 <div class="row">
-    <div class="col-md-6">
-      <h5>Сотрудники проекта</h5>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item" *ngFor="let employee of projectEmployees">
-          <button class="btn mb-2 w-100" (click)="RemoveEmployeeFromProject(employee.id)">{{employee.lastName}} {{employee.firstName}}</button>
+  <h2 class="text-center mb-5">Проект</h2>
+  <div class="col">
+    <h5>Сотрудники проекта</h5>
+    <ul class="list-group list-group-flush" *ngFor="let employee of projectEmployees">
+        <li class="list-group-item text-nowrap" *ngIf="projectService.isManager(employee.id, project.managerId)&&!departmentService.isManager(department.managerId, employee.id)">
+          <button class="btn mb-2 btn-dark" (click)="removeManager()">
+            <i class="bi bi-award"></i>
+          </button>
+          <button class="btn mb-2">
+            {{employee.lastName}} {{employee.firstName}}
+          </button>
         </li>
-      </ul>
-    </div>
-  
-    <div class="col-md-6">
-      <h5 class="text-nowrap">Свободные сотрудники</h5>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item" *ngFor="let employee of employees">
-          <button class="btn mb-2 w-100" (click)="AddEmployeeToProject(employee.id)">{{employee.lastName}} {{employee.firstName}}</button>
+        <li class="list-group-item text-nowrap" *ngIf="!projectService.isManager(employee.id, project.managerId)&&!departmentService.isManager(department.managerId, employee.id)">
+          <button class="btn mb-2 btn-primary" *ngIf="!projectService.isManagerExist(project.managerId)" (click)="addManager(employee.id)">
+            <i class="bi bi-award"></i>
+          </button>
+          <button class="btn opacity-0" *ngIf="projectService.isManagerExist(project.managerId)">
+            <i class="bi bi-award"></i>
+          </button>
+          <button class="btn btn-light mb-2" (click)="RemoveEmployeeFromProject(employee.id)">
+            {{employee.lastName}} {{employee.firstName}}
+          </button>
         </li>
-      </ul>
-    </div>
+    </ul>
   </div>
+
+  <div class="col">
+    <h5 class="text-nowrap">Свободные сотрудники</h5>
+    <ul class="list-group list-group-flush" *ngFor="let employee of employees">
+      <li class="list-group-item text-nowrap" *ngIf="!departmentService.isManager(department.managerId, employee.id)">
+        <span>
+          <button class="btn mb-2" (click)="AddEmployeeToProject(employee.id)">
+            {{employee.lastName}} {{employee.firstName}}
+          </button>
+        </span>
+      </li>
+    </ul>
+  </div>
+</div>

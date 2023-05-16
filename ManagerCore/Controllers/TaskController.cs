@@ -1,4 +1,5 @@
 ﻿using ManagerCore.Models;
+using ManagerCore.ViewModels;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -8,14 +9,16 @@ namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/task")]
-[Authorize]
+
 public class TaskController : ControllerBase
 {
     private readonly ITaskLogic _taskLogic;
+    private readonly IEmployeeLogic _employeeLogic;
 
-    public TaskController(ITaskLogic taskLogic)
+    public TaskController(ITaskLogic taskLogic, IEmployeeLogic employeeLogic)
     {
         _taskLogic = taskLogic;
+        _employeeLogic = employeeLogic;
     }
 
     [HttpGet]
@@ -43,7 +46,25 @@ public class TaskController : ControllerBase
     [Route("all")]
     public async Task<IActionResult> GetModels(string id)
     {
-        return Ok(await _taskLogic.GetEntitiesById(Guid.Parse(id)));
+
+        return Ok((await _taskLogic.GetEntitiesById(Guid.Parse(id)))
+            .Select(t => new TaskModel()
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Description = t.Description,
+                CreatorId = t.CreatorId,
+                EmployeeId = t.EmployeeId,
+                Level = t.Level,
+                Status = t.Status,
+            }));
+    }
+
+    [HttpGet]
+    [Route("search")]
+    public async Task<IActionResult> SearchTasks(string query, string id)
+    {
+        return Ok(await _taskLogic.GetEntitiesByQuery(query, Guid.Parse(id)));
     }
 
     [HttpPost]
@@ -65,4 +86,15 @@ public class TaskController : ControllerBase
 
         return BadRequest();
     }
+
+    [HttpPut]
+    [Route("update")]
+    public async Task<IActionResult> UpdateTask(TaskModel model)
+    {
+        if (await _taskLogic.UpdateEntity(model))
+            return Ok();
+
+        return BadRequest();
+    }
+
 }

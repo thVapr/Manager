@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations.ManagerDb
 {
     [DbContext(typeof(ManagerDbContext))]
-    [Migration("20230511191223_Init")]
+    [Migration("20230514064228_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -34,6 +34,9 @@ namespace ManagerData.Migrations.ManagerDb
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -69,6 +72,9 @@ namespace ManagerData.Migrations.ManagerDb
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -166,6 +172,9 @@ namespace ManagerData.Migrations.ManagerDb
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("ManagerId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -235,6 +244,9 @@ namespace ManagerData.Migrations.ManagerDb
 
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

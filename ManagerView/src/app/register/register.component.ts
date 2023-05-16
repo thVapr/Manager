@@ -22,8 +22,10 @@ export class RegisterComponent {
     this.authService.register(email!, password!)
     .subscribe({
       next: () => {
-       console.log('Register successful')
-       this.router.navigate(['/home'])
+       console.log('Register successful');
+       this.router.navigate(['/home']).then(() => {
+        window.location.reload();
+      });
       },
       error: (error) => console.error('Register failed', error)
      });

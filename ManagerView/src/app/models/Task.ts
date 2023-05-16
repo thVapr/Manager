@@ -3,9 +3,15 @@ export class Task {
 
     name?: string;
     description?: string;
+    
     employeeId?: string;
-    projectId?: string;
+    employeeName?: string;
+    employeeLastName? : string;
+
     creatorId?: string;
 
+    projectId?: string;
+
+    status?: number;
     level?: number;
 }

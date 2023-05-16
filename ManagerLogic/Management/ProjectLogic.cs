@@ -25,6 +25,7 @@ public class ProjectLogic : IProjectLogic
             Id = entity.Id.ToString(),
             Name = entity.Name,
             Description = entity.Description,
+            ManagerId = entity.ManagerId.ToString(),
         };
     }
 
@@ -46,6 +47,7 @@ public class ProjectLogic : IProjectLogic
                 Id = e.Id.ToString(),
                 Name = e.Name,
                 Description = e.Description,
+                ManagerId = e.ManagerId.ToString(),
             }).ToList();
     }
 
@@ -54,14 +56,25 @@ public class ProjectLogic : IProjectLogic
         var entity = new ProjectDataModel
         {
             Id = Guid.NewGuid(),
-            Name = model.Name,
-            Description = model.Description
+            Name = model.Name!,
+            Description = model.Description!
         };
 
         return await _repository.CreateEntity(model.DepartmentId, entity);
     }
 
-    public Task<bool> UpdateEntity(ProjectModel model)
+    public async Task<bool> UpdateEntity(ProjectModel model)
+    {
+        return await _repository.UpdateEntity(new ProjectDataModel
+        {
+            Id = Guid.Parse(model.Id!),
+            Name = model.Name!,
+            Description = model.Description!,
+            ManagerId = Guid.Parse(model.ManagerId!),
+        });
+    }
+
+    public Task<IEnumerable<ProjectModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }

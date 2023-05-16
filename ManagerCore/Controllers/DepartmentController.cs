@@ -61,4 +61,13 @@ public class DepartmentController : ControllerBase
 
         return BadRequest();
     }
+
+    [HttpPut]
+    [Route("update")]
+    public async Task<IActionResult> UpdateDepartment([FromBody] DepartmentModel model)
+    {
+        if (await _departmentLogic.UpdateEntity(model))
+            return Ok();
+        return BadRequest();
+    }
 }

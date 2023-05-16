@@ -8,6 +8,7 @@ public interface IManagementLogic<T>
 
     Task<bool> CreateEntity(T model);
     Task<bool> UpdateEntity(T model);
+    Task<IEnumerable<T>> GetEntitiesByQuery(string query, Guid id);
 
     Task<bool> DeleteEntity(Guid id);
 }

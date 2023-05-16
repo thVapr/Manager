@@ -138,6 +138,7 @@ public class Authentication : IAuthentication {
 
         var newUser = new UserDataModel
         {
+            Id = Guid.NewGuid(),
             Email = user.Email,
             PasswordHash = hashPassword,
             Salt = salt
