@@ -83,7 +83,7 @@
         <span>Отдел</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="project/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager)&&projectService.isProjectSelected()">
+      <a class="card" rel="noopener" routerLink="project/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager || isProjectManager)&&projectService.isProjectSelected()">
         <i class="bi bi-cup-hot"></i>
         <span>Проект</span>
       </a>

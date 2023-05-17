@@ -18,6 +18,7 @@ import { TaskProfileComponent } from './task-profile/task-profile.component';
 import { AuthGuard } from './guards/auth-guard.guard';
 import { DepartmentGuard } from './guards/department-guard.guard';
 import { AdminGuard } from './guards/admin-guard.guard';
+import { ProjectGuard } from './guards/project-guard.guard';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
@@ -32,7 +33,7 @@ const routes: Routes = [
   {path: 'department/about/:id', component: DepartmentProfileComponent, canActivate: [AuthGuard]},
   {path: 'project', component: ProjectComponent, canActivate: [AuthGuard, DepartmentGuard]},
   {path: 'project/about/:id', component: ProjectProfileComponent, canActivate: [AuthGuard]},
-  {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard,DepartmentGuard]},
+  {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard, ProjectGuard]},
   {path: 'project/tasks', component: ProjectTasksComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]}
 ];
