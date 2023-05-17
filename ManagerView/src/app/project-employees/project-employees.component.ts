@@ -17,6 +17,7 @@ export class ProjectEmployeesComponent implements OnInit{
   department: Department = new Department("","","","");
   employees : Employee[] = [];
   projectEmployees: Employee[] = [];
+  isManager : boolean = false;
 
   constructor(public projectService: ProjectService,
               public employeeService: EmployeeService,
@@ -54,7 +55,14 @@ export class ProjectEmployeesComponent implements OnInit{
 
     if(departmentId !== null)
       this.departmentService.getDepartment(departmentId).subscribe((department) => {
-       this.department = department;
+        this.department = department;
+
+        const id = this.authService.getId();
+
+        if (department.managerId !== null && department.managerId == id)
+          this.isManager = true;
+        else
+          this.isManager = false;
       });
   }
 

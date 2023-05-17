@@ -27,31 +27,31 @@ export class ProjectService {
   }
 
   isManagerExist(managerId : string | undefined): boolean {
-    const id = this.authService.getId();
-
+    console.log(managerId);
     if (managerId !== null &&
         managerId !== "" &&
-        managerId !== undefined &&
-        managerId !== id)
+        managerId !== "00000000-0000-0000-0000-000000000000" &&
+        managerId !== undefined)
       return true;
     return false;
   }
   
   isManager(id : string | undefined, managerId : string | undefined) : boolean {
-    if (this.isManagerExist(managerId) && managerId == id)
+    if (this.isManagerExist(managerId) && managerId == id) {
       return true;
+    }
     return false;    
   }
 
   removeManager() : Observable<any> {
     const id = this.getProjectId();
-    const adminId = this.authService.getId();
+    const emptyId = "00000000-0000-0000-0000-000000000000";
 
     return this.updateProject(new Project(
       id!,
       "",
       "",
-      adminId!,
+      emptyId,
     ));
   }
 

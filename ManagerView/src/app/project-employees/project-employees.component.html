@@ -5,7 +5,10 @@
     <h5>Сотрудники проекта</h5>
     <ul class="list-group list-group-flush" *ngFor="let employee of projectEmployees">
         <li class="list-group-item text-nowrap" *ngIf="projectService.isManager(employee.id, project.managerId)&&!departmentService.isManager(department.managerId, employee.id)">
-          <button class="btn mb-2 btn-dark" (click)="removeManager()">
+          <button class="btn mb-2 btn-dark" *ngIf="this.authService.isAdmin()||isManager" (click)="removeManager()">
+            <i class="bi bi-award"></i>
+          </button>
+          <button class="btn mb-2 btn-dark" *ngIf="!this.authService.isAdmin()&&!isManager">
             <i class="bi bi-award"></i>
           </button>
           <button class="btn mb-2">
@@ -13,7 +16,7 @@
           </button>
         </li>
         <li class="list-group-item text-nowrap" *ngIf="!projectService.isManager(employee.id, project.managerId)&&!departmentService.isManager(department.managerId, employee.id)">
-          <button class="btn mb-2 btn-primary" *ngIf="!projectService.isManagerExist(project.managerId)" (click)="addManager(employee.id)">
+          <button class="btn mb-2 btn-primary" *ngIf="!projectService.isManagerExist(project.managerId)&&(this.authService.isAdmin()||isManager)" (click)="addManager(employee.id)">
             <i class="bi bi-award"></i>
           </button>
           <button class="btn opacity-0" *ngIf="projectService.isManagerExist(project.managerId)">

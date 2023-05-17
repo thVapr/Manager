@@ -29,23 +29,22 @@ export class CompanyDepartmentsService {
  
   removeManager() : Observable<any> {
     const id = this.getDepartmentId();
-    const adminId = this.authService.getId();
+    const emptyId = "00000000-0000-0000-0000-000000000000";
 
     return this.updateDepartment(new Department(
       id!,
       "",
       "",
-      adminId!,
+      emptyId,
     ));
   }
 
   isManagerExist(managerId : string | undefined): boolean {
-    const id = this.authService.getId();
 
     if (managerId !== null &&
         managerId !== "" &&
-        managerId !== undefined &&
-        managerId !== id)
+        managerId !== "00000000-0000-0000-0000-000000000000" &&
+        managerId !== undefined)
       return true;
     return false;
   }
