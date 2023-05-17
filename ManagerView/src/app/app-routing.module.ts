@@ -19,6 +19,7 @@ import { AuthGuard } from './guards/auth-guard.guard';
 import { DepartmentGuard } from './guards/department-guard.guard';
 import { AdminGuard } from './guards/admin-guard.guard';
 import { ProjectGuard } from './guards/project-guard.guard';
+import { EmployeeProfileComponent } from './employee-profile/employee-profile.component';
 
 const routes: Routes = [
   {path: 'register', component: RegisterComponent},
@@ -35,7 +36,8 @@ const routes: Routes = [
   {path: 'project/about/:id', component: ProjectProfileComponent, canActivate: [AuthGuard]},
   {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard, ProjectGuard]},
   {path: 'project/tasks', component: ProjectTasksComponent, canActivate: [AuthGuard]},
-  {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]}
+  {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]},
+  {path: 'employee/about/:id', component: EmployeeProfileComponent, canActivate: [AuthGuard]},
 ];
 
 @NgModule({

@@ -4,14 +4,14 @@
 <div class="card border-primary mb-3">
     <div class="card-header">Создатель</div>
     <div class="card-body text-primary">
-        <h5 class="card-title">{{creator.lastName}} {{ creator.firstName }}</h5>
+        <a [href]="'employee/about/' + employee.id" class="card-title h5">{{creator.lastName}} {{ creator.firstName }}</a>
     </div>
 </div>
 
 <div class="card border-primary mb-3">
     <div class="card-header">{{ status }}</div>
     <div class="card-body text-primary">
-        <h5 class="card-title">{{employee.lastName}} {{ employee.firstName }}</h5>
+        <a [href]="'employee/about/' + employee.id" class="card-title h5">{{employee.lastName}} {{ employee.firstName }}</a>
     </div>
 </div>
 
@@ -19,7 +19,7 @@
     <fieldset disabled>       
         <div class="form-outline mb-3">
             <label class="form-label" for="form1">Заголовок</label>
-            <input type="email" id="form1" class="form-control form-control-lg"
+            <input type="text" id="form1" class="form-control form-control-lg"
                 placeholder="" value="{{ taskName }}"/>
         </div>
 

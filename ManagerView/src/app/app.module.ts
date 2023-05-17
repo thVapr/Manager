@@ -23,6 +23,7 @@ import { DepartmentProfileComponent } from './department-profile/department-prof
 import { ProjectProfileComponent } from './project-profile/project-profile.component';
 import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
 import { TaskProfileComponent } from './task-profile/task-profile.component';
+import { EmployeeProfileComponent } from './employee-profile/employee-profile.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { TaskProfileComponent } from './task-profile/task-profile.component';
     ProjectProfileComponent,
     ProjectTasksComponent,
     TaskProfileComponent,
+    EmployeeProfileComponent,
   ],
   imports: [
     BrowserModule,   

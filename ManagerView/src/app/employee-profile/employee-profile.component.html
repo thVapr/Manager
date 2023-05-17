@@ -1,0 +1,42 @@
+
+<h2 class="mt-3 mb-5">Профиль сотрудника</h2>
+
+<form>
+    <fieldset disabled>       
+    <div class="card border-primary mb-3" *ngIf="employee.companyName !== null">
+        <div class="card-header">Компания</div>
+        <div class="card-body text-primary">
+            <h5 class="card-title">{{ employee.companyName }}</h5>
+        </div>
+    </div>
+
+    <div class="card border-primary mb-3" *ngIf="employee.departmentName !== null">
+        <div class="card-header">Отдел</div>
+        <div class="card-body text-primary">
+            <h5 class="card-title">{{ employee.departmentName }}</h5>
+        </div>
+    </div>
+
+    <div class="card border-primary mb-3" *ngIf="employee.projectName !== null">
+        <div class="card-header">Проект</div>
+        <div class="card-body text-primary">
+            <h5 class="card-title">{{ employee.projectName }}</h5>
+        </div>
+    </div>
+
+    <div class="form-outline mb-3">
+        <input type="text" class="form-control form-control-lg"
+        placeholder="Фамилия" value="{{employee.lastName}}"/>
+    </div>
+
+    <div class="form-outline mb-3">
+        <input type="text" class="form-control form-control-lg"
+        placeholder="Имя" value={{employee.firstName}}/>
+    </div>
+
+    <div class="form-outline mb-3">
+        <input type="text" class="form-control form-control-lg"
+            placeholder="Отчество" value="{{employee.patronymic}}" />
+    </div>
+    </fieldset>
+</form>
