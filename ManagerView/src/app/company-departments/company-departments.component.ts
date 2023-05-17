@@ -51,7 +51,7 @@ export class CompanyDepartmentsComponent implements OnInit {
       this.projectService.setProjectName("");
     }
 
-    this.router.navigate(['home']);
+    this.router.navigate(['project']);
   }
 
   GetAll() : void {
