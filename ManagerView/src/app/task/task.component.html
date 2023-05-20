@@ -23,7 +23,7 @@
           <button class="btn btn-dark" (click)="completeTask(task.id)">
             <i class="bi bi-circle"></i>
           </button>
-          <a class="btn btn-light">
+          <a class="btn btn-light" [href]="'/task/about/' + task.id">
             {{task.name}}
           </a>
         </li>
