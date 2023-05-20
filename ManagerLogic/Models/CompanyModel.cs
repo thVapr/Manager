@@ -1,6 +1,4 @@
 ﻿
-using ManagerData.DataModels;
-
 namespace ManagerLogic.Models;
 
 public class CompanyModel : BaseModel

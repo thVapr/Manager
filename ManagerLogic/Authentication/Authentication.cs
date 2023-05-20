@@ -106,6 +106,11 @@ public class Authentication : IAuthentication {
         return new Tuple<string, string>(tokenHandler.WriteToken(newAccessToken), tokenModel.Token);
     }
 
+    public Task<UserDataModel> GetUser(string email)
+    {
+        return _authenticationData.GetUser(email);
+    }
+
     public async Task<IEnumerable<string>> GetAdminIds()
     {
         var adminIds = await _authenticationData.GetAdminIds();
@@ -147,5 +152,10 @@ public class Authentication : IAuthentication {
         await _authenticationData.AddUser(newUser);
 
         return true;
+    }
+
+    public Task<bool> RemoveUser(Guid id)
+    {
+        return _authenticationData.DeleteUser(id);
     }
 }

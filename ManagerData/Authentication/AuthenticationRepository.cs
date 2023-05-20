@@ -14,11 +14,14 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         
         try
         {
-            return await database.Users.FindAsync(id) ?? new UserDataModel();
+            return await database.Users
+                .Where(u => u.Id == id)
+                .FirstOrDefaultAsync() ?? new UserDataModel();
         }
-        catch (NullReferenceException ex)
+        catch (Exception ex)
         {
-            throw ex;
+            Console.WriteLine(ex);
+            return new UserDataModel();
         }
     }
 
@@ -28,11 +31,14 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
         try
         {
-            return await database.Users.Where(o => o.Email == email).FirstOrDefaultAsync() ?? new UserDataModel();
+            return await database.Users
+                .Where(o => o.Email == email)
+                .FirstOrDefaultAsync() ?? new UserDataModel();
         }
-        catch (NullReferenceException ex)
+        catch (Exception ex)
         {
-            throw ex;
+            Console.WriteLine(ex);
+            return new UserDataModel();
         }
     }
 
@@ -43,17 +49,21 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         try
         {
             var user = await GetUser(email);
-            var userRoles = await database.UserRoles.Where(u => u.UserId == user.Id).FirstOrDefaultAsync();
-            var role = await database.Roles.Where(r => r.Id == userRoles!.RoleId).FirstOrDefaultAsync();
+            var userRoles = await database.UserRoles
+                .Where(u => u.UserId == user.Id)
+                .FirstOrDefaultAsync();
+            var role = await database.Roles
+                .Where(r => r.Id == userRoles!.RoleId)
+                .FirstOrDefaultAsync();
 
             if (role == null) await SeedRoles();
 
             return role!.Name;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            Console.WriteLine(ex);
+            return String.Empty;
         }
     }
 
@@ -65,10 +75,10 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         {
             return await database.Tokens.FirstOrDefaultAsync(u => u.UserId == UserId) ?? new RefreshTokenDataModel();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
-            throw;
+            Console.WriteLine(ex);
+            return new RefreshTokenDataModel();
         }
     }
 
@@ -91,17 +101,25 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
     {
         await using var database = new AuthenticationDbContext();
 
-        var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.UserId == token.UserId);
-
-        if (existingToken != null)
+        try
         {
-            database.Tokens.Remove(existingToken);
+            var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.UserId == token.UserId);
+
+            if (existingToken != null)
+            {
+                database.Tokens.Remove(existingToken);
+            }
+
+            await database.Tokens.AddAsync(token);
+            await database.SaveChangesAsync();
+
+            return true;
         }
-
-        await database.Tokens.AddAsync(token);
-        await database.SaveChangesAsync();
-
-        return true;
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<bool> UpdateToken(RefreshTokenDataModel tokenModel, string token)
@@ -122,17 +140,22 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
     {
         await using var database = new AuthenticationDbContext();
 
-        var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.Token == token);
-
-        if (existingToken != null)
+        try
         {
+            var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.Token == token);
+
+            if (existingToken == null) return false;
+            
             database.Tokens.Remove(existingToken);
             await database.SaveChangesAsync();
             return true;
+
         }
-
-        return false;
-
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<IEnumerable<Guid>> GetAdminIds()
@@ -188,8 +211,9 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
             await database.SaveChangesAsync();
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -208,7 +232,6 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
             var roles = await database.Roles.FirstOrDefaultAsync(r => r.Name == name);
 
-            //TODO: change this shit
             if (roles != null) return false;
 
             await database.Roles.AddAsync(role);
@@ -216,8 +239,9 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine(ex);
             return false;
         }
     }
@@ -226,32 +250,47 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
     {
         await using var database = new AuthenticationDbContext();
 
-        var user = await database.Users.FindAsync(model.Id);
+        try
+        {
+            var user = await database.Users.FindAsync(model.Id);
 
-        if (user == null) return false;
+            if (user == null) return false;
 
-        user.Email = model.Email;
-        user.Roles = model.Roles;
-        user.PasswordHash = model.PasswordHash;
-        user.Salt = model.Salt;
-        user.Status = model.Status;
+            user.Email = model.Email;
+            user.Roles = model.Roles;
+            user.PasswordHash = model.PasswordHash;
+            user.Salt = model.Salt;
+            user.Status = model.Status;
 
-        await database.SaveChangesAsync();
-        return true;
+            await database.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     public async Task<bool> DeleteUser(Guid id)
     {
         await using var database = new AuthenticationDbContext();
 
-        var user = await database.Users.FindAsync(id);
+        try
+        {
+            var user = await database.Users.FindAsync(id);
 
-        if (user == null) return false;
+            if (user == null) return false;
 
-        database.Users.Remove(user);
-        await database.SaveChangesAsync();
-        return true;
-
+            database.Users.Remove(user);
+            await database.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
     }
 
     private async Task SeedRoles()
@@ -263,9 +302,8 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         await AddRole(Constants.RoleConstants.Admin);
     }
 
-    //TODO: fill this method
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
+
     }
 }
