@@ -260,7 +260,6 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
             user.Roles = model.Roles;
             user.PasswordHash = model.PasswordHash;
             user.Salt = model.Salt;
-            user.Status = model.Status;
 
             await database.SaveChangesAsync();
             return true;

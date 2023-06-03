@@ -16,7 +16,8 @@ namespace ManagerData.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,7 +32,8 @@ namespace ManagerData.Migrations
                     Email = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     Salt = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,7 +48,9 @@ namespace ManagerData.Migrations
                     Token = table.Column<string>(type: "text", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpireTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -7,8 +7,6 @@ namespace ManagerData.DataModels;
 [Table("Department")]
 public class DepartmentDataModel: BaseDataModel
 {
-    [Required] public string Name { get; set; } = null!;
-    [Required] public string? Description { get; set; }
     public Guid? ManagerId { get; set; }
 
     public CompanyDepartmentsDataModel? CompanyDepartments { get; set; }

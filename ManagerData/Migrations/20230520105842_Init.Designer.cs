@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations
 {
     [DbContext(typeof(AuthenticationDbContext))]
-    [Migration("20230514064221_Init")]
+    [Migration("20230520105842_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -34,8 +34,16 @@ namespace ManagerData.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("ExpireTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -57,10 +65,13 @@ namespace ManagerData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("character varying(40)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -73,10 +84,18 @@ namespace ManagerData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(40)
                         .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -85,9 +104,6 @@ namespace ManagerData.Migrations
                     b.Property<string>("Salt")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

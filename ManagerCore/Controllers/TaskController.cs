@@ -1,8 +1,6 @@
 ﻿using ManagerCore.Models;
-using ManagerCore.ViewModels;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
@@ -13,12 +11,10 @@ namespace ManagerCore.Controllers;
 public class TaskController : ControllerBase
 {
     private readonly ITaskLogic _taskLogic;
-    private readonly IEmployeeLogic _employeeLogic;
 
-    public TaskController(ITaskLogic taskLogic, IEmployeeLogic employeeLogic)
+    public TaskController(ITaskLogic taskLogic)
     {
         _taskLogic = taskLogic;
-        _employeeLogic = employeeLogic;
     }
 
     [HttpGet]

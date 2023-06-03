@@ -16,9 +16,9 @@ namespace ManagerData.Migrations.ManagerDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true)
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,9 +30,9 @@ namespace ManagerData.Migrations.ManagerDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true)
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,10 +59,10 @@ namespace ManagerData.Migrations.ManagerDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true)
+                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,11 +77,11 @@ namespace ManagerData.Migrations.ManagerDb
                     CreatorId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Level = table.Column<int>(type: "integer", nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false)
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

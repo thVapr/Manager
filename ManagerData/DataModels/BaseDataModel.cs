@@ -5,6 +5,7 @@ namespace ManagerData.DataModels;
 
 public abstract class BaseDataModel
 {
-    [Key]
-    public Guid Id { get; init; }
+    [Key] public Guid Id { get; init; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 }

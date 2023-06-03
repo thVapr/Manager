@@ -58,7 +58,7 @@ public class DepartmentLogic : IDepartmentLogic
         {
             Id = Guid.NewGuid(),
             Name = model.Name!,
-            Description = model.Description,
+            Description = model.Description!,
         };
 
         return await _repository.CreateEntity(model.CompanyId, entity);

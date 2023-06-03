@@ -13,8 +13,6 @@ public class UserDataModel : BaseDataModel
     [Required] public string PasswordHash { get; set; } = null!;
     public string Salt { get; set; } = null!;
 
-    public int Status { get; set; } = 0;
-
     public IEnumerable<UserRoleDataModel>? Roles { get; set; }
     public IEnumerable<RefreshTokenDataModel>? Tokens { get; set; }
 }
