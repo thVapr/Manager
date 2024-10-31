@@ -5,13 +5,9 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagerCore", "ManagerCore\ManagerCore.csproj", "{4A8CCE38-A427-4A16-8190-AD96D0EEBC96}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8D93E957-4C42-4A5C-8425-C3B51A08865E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagerLogic", "ManagerLogic\ManagerLogic.csproj", "{83019580-768F-48A9-8BE3-10520FF53054}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ManagerData", "ManagerData\ManagerData.csproj", "{539C453B-807B-4903-B0DC-9C82B84599F0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManagerTest", "..\ManagerTest\ManagerTest.csproj", "{B8E025EB-BD19-4557-B33B-611B472B7830}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
