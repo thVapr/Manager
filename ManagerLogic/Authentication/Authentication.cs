@@ -129,7 +129,7 @@ public class Authentication : IAuthentication {
     {
         var userCheck = await _authenticationData.GetUser(user.Email);
 
-        if (!userCheck.Email.IsNullOrEmpty()) return false;
+        if (!string.IsNullOrEmpty(userCheck.Email)) return false;
 
         var salt = Guid.NewGuid().ToString();
         var hashPassword = _encrypt.HashPassword(user.Password, salt);
