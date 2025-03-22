@@ -7,9 +7,10 @@ import { AuthService } from '../services/auth/auth.service';
 import { CompanyDepartmentsService } from '../services/company-departments/company-departments.service';
 
 @Component({
-  selector: 'app-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+    selector: 'app-project',
+    templateUrl: './project.component.html',
+    styleUrls: ['./project.component.scss'],
+    standalone: false
 })
 export class ProjectComponent {
   addProjectForm = new FormGroup({

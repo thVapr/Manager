@@ -4,9 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { Employee } from '../models/Employee';
 
 @Component({
-  selector: 'app-employee-profile',
-  templateUrl: './employee-profile.component.html',
-  styleUrls: ['./employee-profile.component.scss']
+    selector: 'app-employee-profile',
+    templateUrl: './employee-profile.component.html',
+    styleUrls: ['./employee-profile.component.scss'],
+    standalone: false
 })
 export class EmployeeProfileComponent implements OnInit {
 

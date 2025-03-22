@@ -8,9 +8,10 @@ import { ProjectService } from '../services/project/project.service';
 import { Status } from '../status'
 
 @Component({
-  selector: 'app-task',
-  templateUrl: './task.component.html',
-  styleUrls: ['./task.component.scss']
+    selector: 'app-task',
+    templateUrl: './task.component.html',
+    styleUrls: ['./task.component.scss'],
+    standalone: false
 })
 export class TaskComponent implements OnInit {
   

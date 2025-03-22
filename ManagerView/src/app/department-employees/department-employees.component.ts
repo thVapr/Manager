@@ -6,9 +6,10 @@ import { AuthService } from '../services/auth/auth.service';
 import { Department } from '../models/Department';
 
 @Component({
-  selector: 'app-department-employees',
-  templateUrl: './department-employees.component.html',
-  styleUrls: ['./department-employees.component.scss']
+    selector: 'app-department-employees',
+    templateUrl: './department-employees.component.html',
+    styleUrls: ['./department-employees.component.scss'],
+    standalone: false
 })
 export class DepartmentEmployeesComponent {
   employees : Employee[] = [];

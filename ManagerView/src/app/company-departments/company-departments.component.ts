@@ -7,9 +7,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProjectService } from '../services/project/project.service';
 
 @Component({
-  selector: 'app-company-departments',
-  templateUrl: './company-departments.component.html',
-  styleUrls: ['./company-departments.component.scss']
+    selector: 'app-company-departments',
+    templateUrl: './company-departments.component.html',
+    styleUrls: ['./company-departments.component.scss'],
+    standalone: false
 })
 
 export class CompanyDepartmentsComponent implements OnInit {

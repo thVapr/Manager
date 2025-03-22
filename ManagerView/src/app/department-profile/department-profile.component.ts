@@ -3,9 +3,10 @@ import { CompanyDepartmentsService } from '../services/company-departments/compa
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-department-profile',
-  templateUrl: './department-profile.component.html',
-  styleUrls: ['./department-profile.component.scss']
+    selector: 'app-department-profile',
+    templateUrl: './department-profile.component.html',
+    styleUrls: ['./department-profile.component.scss'],
+    standalone: false
 })
 export class DepartmentProfileComponent implements OnInit {
   departmentName : string | undefined = "";

@@ -8,9 +8,10 @@ import { CompanyDepartmentsService } from '../services/company-departments/compa
 import { Department } from '../models/Department';
 
 @Component({
-  selector: 'app-project-employees',
-  templateUrl: './project-employees.component.html',
-  styleUrls: ['./project-employees.component.scss']
+    selector: 'app-project-employees',
+    templateUrl: './project-employees.component.html',
+    styleUrls: ['./project-employees.component.scss'],
+    standalone: false
 })
 export class ProjectEmployeesComponent implements OnInit{
   project: Project = new Project("","","","");
