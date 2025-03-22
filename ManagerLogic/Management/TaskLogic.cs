@@ -129,7 +129,7 @@ public class TaskLogic : ITaskLogic
         return await _repository.DeleteEntity(id);
     }
 
-    public async Task<bool> AddEmployeeToTask(Guid employeeId, Guid taskId)
+    public async Task<bool> AddMemberToTask(Guid employeeId, Guid taskId)
     {
         await _repository.UpdateEntity(new TaskDataModel
         {
@@ -141,7 +141,7 @@ public class TaskLogic : ITaskLogic
         return await _repository.LinkEntities(employeeId, taskId);
     }
 
-    public async Task<bool> RemoveEmployeeFromTask(Guid employeeId, Guid taskId)
+    public async Task<bool> RemoveMemberFromTask(Guid employeeId, Guid taskId)
     {
         await _repository.UpdateEntity(new TaskDataModel
         {
@@ -172,9 +172,9 @@ public class TaskLogic : ITaskLogic
         });
     }
 
-    public async Task<IEnumerable<TaskModel>> GetEmployeeTasks(Guid employeeId)
+    public async Task<IEnumerable<TaskModel>> GetMemberTasks(Guid employeeId)
     {
-        var tasks = await _repository.GetEmployeeTasks(employeeId);
+        var tasks = await _repository.GetMemberTasks(employeeId);
 
         return tasks.Select(t => new TaskModel
         {

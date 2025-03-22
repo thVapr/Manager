@@ -23,6 +23,8 @@ public class Authentication : IAuthentication {
     public async Task<Tuple<string,string>> Authenticate(LoginModel user)
     {
         var userFromQuery = await _authenticationData.GetUser(user.Email!);
+        if (String.IsNullOrEmpty(userFromQuery.Salt))
+            return new Tuple<string, string>(string.Empty, string.Empty);
         var passwordHash = _encrypt.HashPassword(user.Password!, userFromQuery.Salt);
 
         if (userFromQuery.Email == string.Empty ||

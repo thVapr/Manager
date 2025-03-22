@@ -5,11 +5,11 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class EmployeeLogic : IEmployeeLogic
+public class MemberLogic : IMemberLogic
 {
-    private readonly IEmployeeRepository _repository;
+    private readonly IMemberRepository _repository;
 
-    public EmployeeLogic(IEmployeeRepository repository)
+    public MemberLogic(IMemberRepository repository)
     {
         _repository = repository;
     }
@@ -49,7 +49,7 @@ public class EmployeeLogic : IEmployeeLogic
     {
         if (model.Id == null) return false;
 
-        var entity = new EmployeeDataModel
+        var entity = new MemberDataModel
         {
             Id = Guid.Parse(model.Id),
             FirstName = model.FirstName!,
@@ -62,7 +62,7 @@ public class EmployeeLogic : IEmployeeLogic
 
     public Task<bool> UpdateEntity(EmployeeModel model)
     {
-        return _repository.UpdateEntity(new EmployeeDataModel
+        return _repository.UpdateEntity(new MemberDataModel
         {
             Id = Guid.Parse(model.Id!),
             FirstName = model.FirstName!,
@@ -81,9 +81,10 @@ public class EmployeeLogic : IEmployeeLogic
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetEmployeesWithoutProjectByDepartmentId(Guid id)
+    public async Task<IEnumerable<EmployeeModel>> GetMembersWithoutPart()
     {
-        var employees = await _repository.GetEmployeesWithoutProjectsByDepartmentId(id);
+        // TODO: Нужно изменить структуру учитывая уровень части
+        var employees = await _repository.GetMembersWithoutPart(0);
 
         return employees.Select(v => new EmployeeModel
         {
@@ -94,9 +95,11 @@ public class EmployeeLogic : IEmployeeLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetEmployeesWithoutDepartment()
+    public async Task<IEnumerable<EmployeeModel>> GetFreeMembersInPart(Guid id)
     {
-        var employees = await _repository.GetEmployeesWithoutDepartments();
+        // TODO: Сейчас работает некорректно, нужно также фильтровать по наличию низкоуровневых частей
+        //       или пересмотреть необходимость данного метода
+        var employees = await _repository.GetMembersFromPart(id);
 
         return employees.Select(v => new EmployeeModel
         {
@@ -107,21 +110,18 @@ public class EmployeeLogic : IEmployeeLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetEmployeesFromProject(Guid id)
+    public async Task<IEnumerable<EmployeeModel>> GetMembersFromPart(Guid id)
     {
-        var employees = await _repository.GetEmployeesFromProject(id);
+        // TODO: Нужно подумать о том, какие участники должны быть возвращены,
+        //       в текущей части или включая все нижестоящие
+        var members = await _repository.GetMembersFromPart(id);
 
-        return employees.Select(v => new EmployeeModel
+        return members.Select(v => new EmployeeModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,
             LastName = v.LastName,
             Patronymic = v.Patronymic,
         }).ToList();
-    }
-
-    public Task<EmployeeLinks> GetEmployeeLinks(Guid id)
-    {
-        return _repository.GetEmployeeLinks(id);
     }
 }

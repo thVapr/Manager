@@ -13,7 +13,8 @@ namespace ManagerLogic.Authentication
                 Encoding.ASCII.GetBytes(salt),
                 KeyDerivationPrf.HMACSHA512,
                 500,
-                64)) ;
+                64)
+            );
         }
     }
 }

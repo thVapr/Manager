@@ -33,13 +33,13 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var project = database.Projects.FirstOrDefault(p => p.Id == id);
+            var project = database.Parts.FirstOrDefault(p => p.Id == id);
 
             if (project == null) return false;
 
-            await database.ProjectTasks.AddAsync(new ProjectTasksDataModel()
+            await database.PartTasks.AddAsync(new PartTasksDataModel()
             {
-                ProjectId = id,
+                PartId = id,
                 TaskId = model.Id,
             });
 
@@ -60,9 +60,9 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            await database.EmployeeTasks.AddAsync(new EmployeeTasksDataModel()
+            await database.MemberTasks.AddAsync(new MemberTasksDataModel()
             {
-                EmployeeId = firstId,
+                MemberId = firstId,
                 TaskId = secondId,
             });
             
@@ -83,13 +83,13 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var link = await database.EmployeeTasks
-                .Where(et => et.EmployeeId == firstId && et.TaskId == secondId)
+            var link = await database.MemberTasks
+                .Where(et => et.MemberId == firstId && et.TaskId == secondId)
                 .FirstOrDefaultAsync();
 
             if (link == null) return false;
 
-            database.EmployeeTasks.Remove(link);
+            database.MemberTasks.Remove(link);
             await database.SaveChangesAsync();
 
             return true;
@@ -139,8 +139,8 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var tasksId = await database.ProjectTasks
-                .Where(d => d.ProjectId == id)
+            var tasksId = await database.PartTasks
+                .Where(d => d.PartId == id)
                 .Select(d => d.TaskId)
                 .ToListAsync();
 
@@ -222,7 +222,7 @@ public class TaskRepository : ITaskRepository
         {
             var entities = await GetEntitiesById(projectId);
 
-            var tasksIds = await database.EmployeeTasks
+            var tasksIds = await database.MemberTasks
                 .Select(et => et.TaskId)
                 .ToListAsync();
 
@@ -237,14 +237,14 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<IEnumerable<TaskDataModel>> GetEmployeeTasks(Guid employeeId)
+    public async Task<IEnumerable<TaskDataModel>> GetMemberTasks(Guid employeeId)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var taskIds = await database.EmployeeTasks
-                .Where(et => et.EmployeeId == employeeId)
+            var taskIds = await database.MemberTasks
+                .Where(et => et.MemberId == employeeId)
                 .Select(et => et.TaskId)
                 .ToListAsync();
 

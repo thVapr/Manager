@@ -35,7 +35,7 @@ public class TaskController : ControllerBase
     [Route("get_employee_tasks")]
     public async Task<IActionResult> GetEmployeeTasks(string id)
     {
-        return Ok(await _taskLogic.GetEmployeeTasks(Guid.Parse(id)));
+        return Ok(await _taskLogic.GetMemberTasks(Guid.Parse(id)));
     }
 
     [HttpGet]
@@ -75,9 +75,9 @@ public class TaskController : ControllerBase
 
     [HttpPost]
     [Route("add")]
-    public async Task<IActionResult> AddEmployeeToProject(EmployeesTasks model)
+    public async Task<IActionResult> AddEmployeeToProject(MemberTasks model)
     {
-        if (await _taskLogic.AddEmployeeToTask(Guid.Parse(model.EmployeeId), Guid.Parse(model.TaskId)))
+        if (await _taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!)))
             return Ok();
 
         return BadRequest();

@@ -5,22 +5,22 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class DepartmentLogic : IDepartmentLogic
+public class PartLogic : IPartLogic
 {
-    private readonly IManagementRepository<DepartmentDataModel> _repository;
+    private readonly IManagementRepository<PartDataModel> _repository;
 
-    public DepartmentLogic(IManagementRepository<DepartmentDataModel> repository)
+    public PartLogic(IManagementRepository<PartDataModel> repository)
     {
         _repository = repository;
     }
 
-    public async Task<DepartmentModel> GetEntityById(Guid id)
+    public async Task<PartModel> GetEntityById(Guid id)
     {
         var entity = await _repository.GetEntityById(id);
 
-        if (entity.Id == Guid.Empty) return new DepartmentModel();
+        if (entity.Id == Guid.Empty) return new PartModel();
 
-        return new DepartmentModel
+        return new PartModel
         {
             Id = entity.Id.ToString(),
             Name = entity.Name,
@@ -29,19 +29,19 @@ public class DepartmentLogic : IDepartmentLogic
         };
     }
 
-    public Task<IEnumerable<DepartmentModel>> GetEntities()
+    public Task<IEnumerable<PartModel>> GetEntities()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<DepartmentModel>> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<PartModel>> GetEntitiesById(Guid id)
     {
         var entities = await _repository.GetEntitiesById(id);
-        var result = new List<DepartmentModel>();
+        var result = new List<PartModel>();
 
         if (entities == null) return result;
 
-        result.AddRange(entities.Where(e => e.Id != Guid.Empty).Select(e => new DepartmentModel
+        result.AddRange(entities.Where(e => e.Id != Guid.Empty).Select(e => new PartModel
         {
             Id = e.Id.ToString(),
             Name = e.Name,
@@ -52,9 +52,9 @@ public class DepartmentLogic : IDepartmentLogic
         return result;
     }
 
-    public async Task<bool> CreateEntity(DepartmentModel model)
+    public async Task<bool> CreateEntity(PartModel model)
     {
-        var entity = new DepartmentDataModel
+        var entity = new PartDataModel
         {
             Id = Guid.NewGuid(),
             Name = model.Name!,
@@ -64,9 +64,9 @@ public class DepartmentLogic : IDepartmentLogic
         return await _repository.CreateEntity(model.CompanyId, entity);
     }
 
-    public async Task<bool> UpdateEntity(DepartmentModel model)
+    public async Task<bool> UpdateEntity(PartModel model)
     {
-        return await _repository.UpdateEntity(new DepartmentDataModel
+        return await _repository.UpdateEntity(new PartDataModel
         {
             Id = Guid.Parse(model.Id!),
             Name = model.Name!,
@@ -75,7 +75,7 @@ public class DepartmentLogic : IDepartmentLogic
         });
     }
 
-    public Task<IEnumerable<DepartmentModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<IEnumerable<PartModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }

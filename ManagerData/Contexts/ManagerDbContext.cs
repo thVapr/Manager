@@ -12,68 +12,49 @@ public sealed class ManagerDbContext : DbContext
         Database.EnsureCreated();
     }
 
-    public DbSet<EmployeeDataModel> Employees { get; set; } = null!;
-    public DbSet<ProjectDataModel> Projects { get; set; } = null!;
+    public DbSet<MemberDataModel> Members { get; set; } = null!;
+    public DbSet<PartDataModel> Parts { get; set; } = null!;
     public DbSet<TaskDataModel> Tasks { get; set; } = null!;
-    public DbSet<CompanyDataModel> Companies { get; set; } = null!;
-    public DbSet<DepartmentDataModel> Departments { get; set; } = null!;
+    public DbSet<WorkspaceDataModel> Workspaces { get; set; } = null!;
 
-    public DbSet<CompanyDepartmentsDataModel> CompanyDepartments { get; set; } = null!;
-    public DbSet<DepartmentProjectsDataModel> DepartmentProjects { get; set; } = null!;
-    public DbSet<DepartmentEmployeesDataModel> DepartmentEmployees { get; set; } = null!;
-    public DbSet<ProjectTasksDataModel> ProjectTasks { get; set; } = null!;
-    public DbSet<ProjectEmployeesDataModel> ProjectEmployees { get; set; } = null!;
-    public DbSet<EmployeeTasksDataModel> EmployeeTasks { get; set; } = null!;
+    public DbSet<WorkspacePartsDataModel> WorkspaceParts { get; set; } = null!;
+    public DbSet<PartMembersDataModel> PartMembers { get; set; } = null!;
+    public DbSet<PartTasksDataModel> PartTasks { get; set; } = null!;
+    public DbSet<MemberTasksDataModel> MemberTasks { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<CompanyDepartmentsDataModel>()
-            .HasKey(k => new { k.CompanyId, k.DepartmentId });
+        modelBuilder.Entity<WorkspacePartsDataModel>()
+            .HasKey(k => new { k.WorkspaceId, k.PartId });
 
-        modelBuilder.Entity<CompanyDepartmentsDataModel>()
-            .HasOne(e => e.Company)
-            .WithMany(e => e.CompanyDepartments)
-            .HasForeignKey(fk => fk.CompanyId);
+        modelBuilder.Entity<WorkspacePartsDataModel>()
+            .HasOne(e => e.Workspace)
+            .WithMany(e => e.WorkspaceParts)
+            .HasForeignKey(fk => fk.WorkspaceId);
 
-        modelBuilder.Entity<DepartmentProjectsDataModel>()
-            .HasKey(k => new { k.DepartmentId, k.ProjectId });
+        modelBuilder.Entity<PartMembersDataModel>()
+            .HasKey(k => new { k.PartId, k.MemberId });
 
-        modelBuilder.Entity<DepartmentProjectsDataModel>()
-            .HasOne(e => e.Department)
-            .WithMany(e => e.DepartmentProjects)
-            .HasForeignKey(fk => fk.DepartmentId);
+        modelBuilder.Entity<PartMembersDataModel>()
+            .HasOne(e => e.Part)
+            .WithMany(e => e.PartMembers)
+            .HasForeignKey(fk => fk.PartId);
 
-        modelBuilder.Entity<DepartmentEmployeesDataModel>()
-            .HasKey(k => new { k.DepartmentId, k.EmployeeId });
+        modelBuilder.Entity<PartTasksDataModel>()
+            .HasKey(k => new {k.PartId, k.TaskId});
 
-        modelBuilder.Entity<DepartmentEmployeesDataModel>()
-            .HasOne(e => e.Department)
-            .WithMany(e => e.DepartmentEmployees)
-            .HasForeignKey(fk => fk.DepartmentId);
+        modelBuilder.Entity<PartTasksDataModel>()
+            .HasOne(e => e.Part)
+            .WithMany(e => e.PartTasks)
+            .HasForeignKey(fk => fk.PartId);
 
-        modelBuilder.Entity<ProjectTasksDataModel>()
-            .HasKey(k => new {k.ProjectId, k.TaskId});
+        modelBuilder.Entity<MemberTasksDataModel>()
+            .HasKey(k => new { k.MemberId, k.TaskId });
 
-        modelBuilder.Entity<ProjectTasksDataModel>()
-            .HasOne(e => e.Project)
-            .WithMany(e => e.ProjectTasks)
-            .HasForeignKey(fk => fk.ProjectId);
-
-        modelBuilder.Entity<ProjectEmployeesDataModel>()
-            .HasKey(k => new { k.ProjectId, k.EmployeeId });
-
-        modelBuilder.Entity<ProjectEmployeesDataModel>()
-            .HasOne(e => e.Project)
-            .WithMany(e => e.ProjectEmployees)
-            .HasForeignKey(fk => fk.ProjectId);
-
-        modelBuilder.Entity<EmployeeTasksDataModel>()
-            .HasKey(k => new { k.EmployeeId, k.TaskId });
-
-        modelBuilder.Entity<EmployeeTasksDataModel>()
-            .HasOne(e => e.Employee)
+        modelBuilder.Entity<MemberTasksDataModel>()
+            .HasOne(e => e.Member)
             .WithMany(e => e.EmployeeTasks)
-            .HasForeignKey(fk => fk.EmployeeId);
+            .HasForeignKey(fk => fk.MemberId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
