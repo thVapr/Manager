@@ -11,9 +11,10 @@ import { Task } from '../models/Task';
 
 
 @Component({
-  selector: 'app-task-profile',
-  templateUrl: './task-profile.component.html',
-  styleUrls: ['./task-profile.component.scss']
+    selector: 'app-task-profile',
+    templateUrl: './task-profile.component.html',
+    styleUrls: ['./task-profile.component.scss'],
+    standalone: false
 })
 export class TaskProfileComponent {
 

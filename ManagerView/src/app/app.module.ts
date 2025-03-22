@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -25,45 +25,39 @@ import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
 import { TaskProfileComponent } from './task-profile/task-profile.component';
 import { EmployeeProfileComponent } from './employee-profile/employee-profile.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    LoginComponent,
-    RegisterComponent,
-    CompanyComponent,
-    CompanyDepartmentsComponent,
-    EmployeeComponent,
-    ProjectComponent,
-    ProjectEmployeesComponent,
-    DepartmentEmployeesComponent,
-    TaskComponent,
-    CompanyProfileComponent,
-    DepartmentProfileComponent,
-    ProjectProfileComponent,
-    ProjectTasksComponent,
-    TaskProfileComponent,
-    EmployeeProfileComponent,
-  ],
-  imports: [
-    BrowserModule,   
-    AppRoutingModule,
-    FormsModule,
-    CommonModule,
-    HttpClientModule,
-    ReactiveFormsModule
-  ],
-  exports:[
-    LoginComponent,
-    RegisterComponent
-  ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true
-    }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        HomeComponent,
+        LoginComponent,
+        RegisterComponent,
+        CompanyComponent,
+        CompanyDepartmentsComponent,
+        EmployeeComponent,
+        ProjectComponent,
+        ProjectEmployeesComponent,
+        DepartmentEmployeesComponent,
+        TaskComponent,
+        CompanyProfileComponent,
+        DepartmentProfileComponent,
+        ProjectProfileComponent,
+        ProjectTasksComponent,
+        TaskProfileComponent,
+        EmployeeProfileComponent,
+    ],
+    exports: [
+        LoginComponent,
+        RegisterComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        CommonModule,
+        ReactiveFormsModule], providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: TokenInterceptor,
+            multi: true
+        },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {}

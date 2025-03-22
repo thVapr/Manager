@@ -3,9 +3,10 @@ import { ProjectService } from '../services/project/project.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-project-profile',
-  templateUrl: './project-profile.component.html',
-  styleUrls: ['./project-profile.component.scss']
+    selector: 'app-project-profile',
+    templateUrl: './project-profile.component.html',
+    styleUrls: ['./project-profile.component.scss'],
+    standalone: false
 })
 export class ProjectProfileComponent implements OnInit {
   projectName : string | undefined = "";

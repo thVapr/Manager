@@ -3,9 +3,10 @@ import { CompanyService } from '../services/company/company.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-company-profile',
-  templateUrl: './company-profile.component.html',
-  styleUrls: ['./company-profile.component.scss']
+    selector: 'app-company-profile',
+    templateUrl: './company-profile.component.html',
+    styleUrls: ['./company-profile.component.scss'],
+    standalone: false
 })
 export class CompanyProfileComponent implements OnInit {
 
