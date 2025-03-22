@@ -10,10 +10,9 @@ public class TaskDataModel : BaseDataModel
     public Guid ProjectId { get; set; }
     public Guid EmployeeId { get; set; }
     
-    public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     public int Level { get; set; } = 0;
     public int Status { get; set; } = 0;
 
-    public EmployeeTasksDataModel EmployeeTasks { get; set; } = null!;
-    public ProjectTasksDataModel ProjectTasks { get; set; } = null!;
+    public MemberTasksDataModel MemberTasks { get; set; } = null!;
+    public PartTasksDataModel PartTasks { get; set; } = null!;
 }

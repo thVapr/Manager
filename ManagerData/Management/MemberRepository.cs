@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class EmployeeRepository : IEmployeeRepository
+public class MemberRepository : IMemberRepository
 {
-    public async Task<bool> CreateEntity(EmployeeDataModel model)
+    public async Task<bool> CreateEntity(MemberDataModel model)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            await database.Employees.AddAsync(model);
+            await database.Members.AddAsync(model);
             await database.SaveChangesAsync();
 
             return true;
@@ -25,7 +25,7 @@ public class EmployeeRepository : IEmployeeRepository
         }
     }
 
-    public async Task<bool> CreateEntity(Guid id, EmployeeDataModel model)
+    public async Task<bool> CreateEntity(Guid id, MemberDataModel model)
     {
         await CreateEntity(model);
         await using var database = new ManagerDbContext();
@@ -48,15 +48,15 @@ public class EmployeeRepository : IEmployeeRepository
 
         try
         {
-            var department = await database.Departments.Where(e => e.Id == firstId).FirstOrDefaultAsync();
+            var department = await database.Parts.Where(e => e.Id == firstId).FirstOrDefaultAsync();
 
             if (department == null) return false;
 
-            await database.DepartmentEmployees.AddAsync(
-                new DepartmentEmployeesDataModel()
+            await database.PartMembers.AddAsync(
+                new PartMembersDataModel()
                 {
-                    DepartmentId = firstId,
-                    EmployeeId = secondId,
+                    PartId = firstId,
+                    MemberId = secondId,
                 }
             );
 
@@ -76,38 +76,38 @@ public class EmployeeRepository : IEmployeeRepository
         throw new NotImplementedException();
     }
 
-    public async Task<EmployeeDataModel> GetEntityById(Guid id)
+    public async Task<MemberDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            return await database.Employees.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new EmployeeDataModel();
+            return await database.Members.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new MemberDataModel();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return new EmployeeDataModel();
+            return new MemberDataModel();
         }
     }
 
-    public Task<IEnumerable<EmployeeDataModel>?> GetEntities()
+    public Task<IEnumerable<MemberDataModel>?> GetEntities()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<EmployeeDataModel>?> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<MemberDataModel>?> GetEntitiesById(Guid id)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var employeeIds = await database.DepartmentEmployees
-                .Where(d => d.DepartmentId == id)
-                .Select(de => de.EmployeeId)
+            var employeeIds = await database.PartMembers
+                .Where(d => d.PartId == id)
+                .Select(de => de.MemberId)
                 .ToListAsync();
 
-            var employees = await database.Employees
+            var employees = await database.Members
                 .Where(e => employeeIds.Contains(e.Id))
                 .ToListAsync();
 
@@ -116,17 +116,17 @@ public class EmployeeRepository : IEmployeeRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return new List<EmployeeDataModel>();
+            return new List<MemberDataModel>();
         }
     }
 
-    public async Task<bool> UpdateEntity(EmployeeDataModel model)
+    public async Task<bool> UpdateEntity(MemberDataModel model)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var employee = await database.Employees.FindAsync(model.Id);
+            var employee = await database.Members.FindAsync(model.Id);
 
             if (employee == null) return false;
 
@@ -154,11 +154,11 @@ public class EmployeeRepository : IEmployeeRepository
 
         try
         {
-            var existingEmployee = await database.Employees.FindAsync(id);
+            var existingEmployee = await database.Members.FindAsync(id);
 
             if (existingEmployee == null) return false;
 
-            database.Employees.Remove(existingEmployee);
+            database.Members.Remove(existingEmployee);
             await database.SaveChangesAsync();
 
             return true;
@@ -174,19 +174,19 @@ public class EmployeeRepository : IEmployeeRepository
     {
     }
 
-    public async Task<IEnumerable<EmployeeDataModel>> GetEmployeesWithoutProjectsByDepartmentId(Guid id)
+    public async Task<IEnumerable<MemberDataModel>> GetEmployeesWithoutProjectsByDepartmentId(Guid id)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var links = await database.ProjectEmployees.Select(pe => pe.EmployeeId).ToListAsync();
-            var departmentLinks = await database.DepartmentEmployees
-                .Where(d => d.DepartmentId == id)
-                .Select(de => de.EmployeeId)
+            var links = await database.PartMembers.Select(pe => pe.MemberId).ToListAsync();
+            var departmentLinks = await database.PartMembers
+                .Where(d => d.PartId == id)
+                .Select(de => de.MemberId)
                 .ToListAsync();
 
-            var employees = await database.Employees
+            var employees = await database.Members
                 .Where(e => !links.Contains(e.Id) && departmentLinks.Contains(e.Id))
                 .ToListAsync();
 
@@ -195,81 +195,44 @@ public class EmployeeRepository : IEmployeeRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return new List<EmployeeDataModel>();
+            return new List<MemberDataModel>();
         }
     }
 
-    public async Task<IEnumerable<EmployeeDataModel>> GetEmployeesWithoutDepartments()
+    public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart(int level)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var employeeIds = await database.DepartmentEmployees.Select(de => de.EmployeeId).ToListAsync();
+            var employeeIds = await database.PartMembers.Select(de => de.MemberId).ToListAsync();
 
-            return await database.Employees.Where(e => !employeeIds.Contains(e.Id)).ToListAsync();
+            return await database.Members.Where(e => !employeeIds.Contains(e.Id)).ToListAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return new List<EmployeeDataModel>();
+            return [];
 
         }
     }
 
-    public async Task<IEnumerable<EmployeeDataModel>> GetEmployeesFromProject(Guid id)
+    public async Task<IEnumerable<MemberDataModel>> GetMembersFromPart(Guid id)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var links = await database.ProjectEmployees.Where(pe => pe.ProjectId == id).ToListAsync();
-            var employeeIds = links.Select(l => l.EmployeeId);
+            var links = await database.PartMembers.Where(pe => pe.PartId == id).ToListAsync();
+            var employeeIds = links.Select(l => l.MemberId);
 
-            return await database.Employees.Where(e => employeeIds.Contains(e.Id)).ToListAsync();
+            return await database.Members.Where(e => employeeIds.Contains(e.Id)).ToListAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return new List<EmployeeDataModel>();
+            return [];
 
         }
-    }
-
-    public async Task<EmployeeLinks> GetEmployeeLinks(Guid id)
-    {
-        await using var database = new ManagerDbContext();
-
-        try
-        {
-            var projectId = await database.ProjectEmployees
-                .Where(pe => pe.EmployeeId == id)
-                .Select(pe => pe.ProjectId)
-                .FirstOrDefaultAsync();
-
-            var departmentId = await database.DepartmentEmployees
-                .Where(de => de.EmployeeId == id)
-                .Select(de => de.DepartmentId)
-                .FirstOrDefaultAsync();
-
-            var companyId = await database.CompanyDepartments
-                .Where(ce => ce.DepartmentId == departmentId)
-                .Select(ce => ce.CompanyId)
-                .FirstOrDefaultAsync();
-
-            return new EmployeeLinks
-            {
-                CompanyId = companyId,
-                DepartmentId = departmentId,
-                ProjectId = projectId,
-            };
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex);
-            return new EmployeeLinks();
-        }
-
-
     }
 }

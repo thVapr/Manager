@@ -12,20 +12,17 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class EmployeeController : ControllerBase
 {
-    private readonly IEmployeeLogic _employeeLogic;
-    private readonly IProjectLogic _projectLogic;
-    private readonly IDepartmentLogic _departmentLogic;
-    private readonly IManagementLogic<CompanyModel> _companyLogic;
+    private readonly IMemberLogic _employeeLogic;
+    private readonly IPartLogic _departmentLogic;
+    private readonly IManagementLogic<WorkspaceModel> _companyLogic;
     private readonly IAuthentication _authentication;
 
-    public EmployeeController(IEmployeeLogic employeeLogic,
-                              IProjectLogic projectLogic,
-                              IDepartmentLogic departmentLogic,
-                              IManagementLogic<CompanyModel> companyLogic,
+    public EmployeeController(IMemberLogic employeeLogic,
+                              IPartLogic departmentLogic,
+                              IManagementLogic<WorkspaceModel> companyLogic,
                               IAuthentication authentication)
     {
         _employeeLogic = employeeLogic;
-        _projectLogic = projectLogic;
         _departmentLogic = departmentLogic;
         _companyLogic = companyLogic;
         _authentication = authentication;
@@ -43,7 +40,7 @@ public class EmployeeController : ControllerBase
     public async Task<IActionResult> GetEmployeesWithoutProjects(string id)
     {
         var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetEmployeesWithoutProjectByDepartmentId(Guid.Parse(id));
+        var employees = await _employeeLogic.GetFreeMembersInPart(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -53,7 +50,7 @@ public class EmployeeController : ControllerBase
     public async Task<IActionResult> GetEmployeesWithoutDepartment()
     {
         var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetEmployeesWithoutDepartment();
+        var employees = await _employeeLogic.GetMembersWithoutPart();
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -69,46 +66,43 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    [Route("get_project_employees")]
+    [Route("get_part_members")]
     public async Task<IActionResult> GetAllEmployeesByProjectId(string id)
     {
         var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetEmployeesFromProject(Guid.Parse(id));
+        var employees = await _employeeLogic.GetMembersFromPart(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
 
     [HttpGet]
-    [Route("get_employee_profile")]
+    [Route("get_member_profile")]
     public async Task<IActionResult> GetEmployeeProfile(string id)
     {
         var employee = await _employeeLogic.GetEntityById(Guid.Parse(id));
 
         if (employee.Id != id) return BadRequest(); 
 
-        var employeeLinks = await _employeeLogic.GetEmployeeLinks(Guid.Parse(id));
+        //var employeeLinks = await _employeeLogic.GetEmployeeLinks(Guid.Parse(id));
 
-        var company = await _companyLogic.GetEntityById(employeeLinks.CompanyId);
-        var department = await _departmentLogic.GetEntityById(employeeLinks.DepartmentId);
-        var project = await _projectLogic.GetEntityById(employeeLinks.ProjectId);
+        //var company = await _companyLogic.GetEntityById(employeeLinks.CompanyId);
+        //var department = await _departmentLogic.GetEntityById(employeeLinks.DepartmentId);
 
-        return Ok(new EmployeeViewModel
-        {
-            Id = employee.Id,
+        return Ok(new EmployeeViewModel()
+        //{
+        //    Id = employee.Id,
             
-            FirstName = employee.FirstName!,
-            LastName = employee.LastName!,
-            Patronymic = employee.Patronymic!,
+        //    FirstName = employee.FirstName!,
+        //    LastName = employee.LastName!,
+        //    Patronymic = employee.Patronymic!,
 
-            CompanyId = company.Id!,
-            CompanyName = company.Name!,
+        //    CompanyId = company.Id!,
+        //    CompanyName = company.Name!,
 
-            DepartmentId = department.Id!,
-            DepartmentName = department.Name!,
-
-            ProjectId = project.Id!,
-            ProjectName = project.Name!,
-        });
+        //    DepartmentId = department.Id!,
+        //    DepartmentName = department.Name!,
+        //}
+        );
 
     }
 

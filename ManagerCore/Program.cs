@@ -9,8 +9,6 @@ using ManagerLogic.Management;
 using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Constants = ManagerCore.Constants;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +44,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Constants.SecureKey)), 
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecureKey"]!)), 
     };
 });
 
@@ -58,17 +56,14 @@ builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository
 builder.Services.AddSingleton<IAuthentication,Authentication>();
 builder.Services.AddSingleton<IEncrypt,Encrypt>();
 
-builder.Services.AddSingleton<IManagementRepository<CompanyDataModel>, CompanyRepository>();
-builder.Services.AddSingleton<IManagementLogic<CompanyModel>, CompanyLogic>();
+builder.Services.AddSingleton<IManagementRepository<WorkspaceDataModel>, WorkspaceRepository>();
+builder.Services.AddSingleton<IManagementLogic<WorkspaceModel>, WorkspaceLogic>();
 
-builder.Services.AddSingleton<IManagementRepository<DepartmentDataModel>, DepartmentRepository>();
-builder.Services.AddSingleton<IDepartmentLogic, DepartmentLogic>();
+builder.Services.AddSingleton<IManagementRepository<PartDataModel>, PartRepository>();
+builder.Services.AddSingleton<IPartLogic, PartLogic>();
 
-builder.Services.AddSingleton<IManagementRepository<ProjectDataModel>, ProjectRepository>();
-builder.Services.AddSingleton<IProjectLogic, ProjectLogic>();
-
-builder.Services.AddSingleton<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddSingleton<IEmployeeLogic, EmployeeLogic>();
+builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
+builder.Services.AddSingleton<IMemberLogic, MemberLogic>();
 
 builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();

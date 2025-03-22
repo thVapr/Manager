@@ -1,7 +1,7 @@
 ﻿namespace ManagerCore.Models;
 
-public class EmployeesTasks
+public class MemberTasks
 {
-    public string? EmployeeId { get; set; }
+    public string? MemberId { get; set; }
     public string? TaskId { get; set; }
 }

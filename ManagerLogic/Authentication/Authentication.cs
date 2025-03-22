@@ -23,6 +23,8 @@ public class Authentication : IAuthentication {
     public async Task<Tuple<string,string>> Authenticate(LoginModel user)
     {
         var userFromQuery = await _authenticationData.GetUser(user.Email!);
+        if (String.IsNullOrEmpty(userFromQuery.Salt))
+            return new Tuple<string, string>(string.Empty, string.Empty);
         var passwordHash = _encrypt.HashPassword(user.Password!, userFromQuery.Salt);
 
         if (userFromQuery.Email == string.Empty ||
@@ -129,7 +131,7 @@ public class Authentication : IAuthentication {
     {
         var userCheck = await _authenticationData.GetUser(user.Email);
 
-        if (!userCheck.Email.IsNullOrEmpty()) return false;
+        if (!string.IsNullOrEmpty(userCheck.Email)) return false;
 
         var salt = Guid.NewGuid().ToString();
         var hashPassword = _encrypt.HashPassword(user.Password, salt);

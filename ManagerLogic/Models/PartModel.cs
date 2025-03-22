@@ -1,9 +1,9 @@
 ﻿
 namespace ManagerLogic.Models;
 
-public class DepartmentModel : BaseModel
+public class PartModel : BaseModel
 {
     public Guid? ManagerId { get; set; }
     public Guid CompanyId { get; set; }
-    public IEnumerable<ProjectModel>? Projects { get; set; }
+    public IEnumerable<PartModel>? Parts { get; set; }
 }

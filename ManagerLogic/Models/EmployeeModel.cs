@@ -11,5 +11,5 @@ public class EmployeeModel
 
     public Guid? DepartmentId { get; set; }
 
-    public IEnumerable<DepartmentModel>? Departments { get; set; }
+    public IEnumerable<PartModel>? Departments { get; set; }
 }

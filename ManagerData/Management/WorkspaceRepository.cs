@@ -5,19 +5,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class CompanyRepository : IManagementRepository<CompanyDataModel>
+public class WorkspaceRepository : IManagementRepository<WorkspaceDataModel>
 {
-    public async Task<bool> CreateEntity(CompanyDataModel model)
+    public async Task<bool> CreateEntity(WorkspaceDataModel model)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var existingCompany = await database.Companies.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
+            var existingCompany = await database.Workspaces.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
 
             if (existingCompany != null) return false;
 
-            await database.Companies.AddAsync(model);
+            await database.Workspaces.AddAsync(model);
             await database.SaveChangesAsync();
 
             return true;
@@ -29,7 +29,7 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         }
     }
 
-    public Task<bool> CreateEntity(Guid id, CompanyDataModel model)
+    public Task<bool> CreateEntity(Guid id, WorkspaceDataModel model)
     {
         throw new NotImplementedException();
     }
@@ -44,27 +44,27 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
         throw new NotImplementedException();
     }
 
-    public async Task<CompanyDataModel> GetEntityById(Guid id)
+    public async Task<WorkspaceDataModel> GetEntityById(Guid id)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            return await database.Companies.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new CompanyDataModel();
+            return await database.Workspaces.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new WorkspaceDataModel();
         }
         catch 
         {
-            return new CompanyDataModel();
+            return new WorkspaceDataModel();
         }
     }
 
-    public async Task<IEnumerable<CompanyDataModel>?> GetEntities()
+    public async Task<IEnumerable<WorkspaceDataModel>?> GetEntities()
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            return await database.Companies.ToListAsync();
+            return await database.Workspaces.ToListAsync();
         }
         catch (Exception ex)
         {
@@ -72,19 +72,19 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
             return null;
         }
     }
-
-    public Task<IEnumerable<CompanyDataModel>?> GetEntitiesById(Guid id)
+        
+    public Task<IEnumerable<WorkspaceDataModel>?> GetEntitiesById(Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<bool> UpdateEntity(CompanyDataModel model)
+    public async Task<bool> UpdateEntity(WorkspaceDataModel model)
     {
         await using var database = new ManagerDbContext();
 
         try
         {
-            var company = await database.Companies.FindAsync(model.Id);
+            var company = await database.Workspaces.FindAsync(model.Id);
 
             if (company == null) return false;
             
@@ -107,11 +107,11 @@ public class CompanyRepository : IManagementRepository<CompanyDataModel>
 
         try
         {
-            var existingCompany = await database.Companies.FindAsync(id);
+            var existingCompany = await database.Workspaces.FindAsync(id);
 
             if (existingCompany == null) return false;
 
-            database.Companies.Remove(existingCompany);
+            database.Workspaces.Remove(existingCompany);
             await database.SaveChangesAsync();
             return true;
         }

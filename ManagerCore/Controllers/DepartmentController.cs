@@ -11,9 +11,9 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class DepartmentController : ControllerBase 
 {
-    private readonly IDepartmentLogic _departmentLogic;
+    private readonly IPartLogic _departmentLogic;
 
-    public DepartmentController(IDepartmentLogic departmentLogic)
+    public DepartmentController(IPartLogic departmentLogic)
     {
         _departmentLogic = departmentLogic;
     }
@@ -34,7 +34,7 @@ public class DepartmentController : ControllerBase
 
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateModel(DepartmentModel model)
+    public async Task<IActionResult> CreateModel(PartModel model)
     {
         if (await _departmentLogic.CreateEntity(model))
             return Ok();
@@ -44,9 +44,9 @@ public class DepartmentController : ControllerBase
 
     [HttpPost]
     [Route("add")]
-    public async Task<IActionResult> AddEmployeeToDepartment([FromBody] DepartmentEmployeesModel model)
+    public async Task<IActionResult> AddEmployeeToDepartment([FromBody] PartMembersModel model)
     {
-        if (await _departmentLogic.AddEmployeeToDepartment(Guid.Parse(model.DepartmentId), Guid.Parse(model.EmployeeId)))
+        if (await _departmentLogic.AddEmployeeToDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -54,9 +54,9 @@ public class DepartmentController : ControllerBase
 
     [HttpPost]
     [Route("remove")]
-    public async Task<IActionResult> RemoveEmployeeFromDepartment([FromBody] DepartmentEmployeesModel model)
+    public async Task<IActionResult> RemoveEmployeeFromDepartment([FromBody] PartMembersModel model)
     {
-        if (await _departmentLogic.RemoveEmployeeFromDepartment(Guid.Parse(model.DepartmentId), Guid.Parse(model.EmployeeId)))
+        if (await _departmentLogic.RemoveEmployeeFromDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -64,7 +64,7 @@ public class DepartmentController : ControllerBase
 
     [HttpPut]
     [Route("update")]
-    public async Task<IActionResult> UpdateDepartment([FromBody] DepartmentModel model)
+    public async Task<IActionResult> UpdateDepartment([FromBody] PartModel model)
     {
         if (await _departmentLogic.UpdateEntity(model))
             return Ok();

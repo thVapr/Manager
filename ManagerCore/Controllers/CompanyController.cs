@@ -11,9 +11,9 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class CompanyController : ControllerBase
 {
-    private readonly IManagementLogic<CompanyModel> _companyLogic;
+    private readonly IManagementLogic<WorkspaceModel> _companyLogic;
 
-    public CompanyController(IManagementLogic<CompanyModel> companyLogic)
+    public CompanyController(IManagementLogic<WorkspaceModel> companyLogic)
     {
         _companyLogic = companyLogic;
     }
@@ -35,7 +35,7 @@ public class CompanyController : ControllerBase
     [HttpPost]
     [Route("create")]
     [Authorize(Roles = RoleConstants.Admin)]
-    public async Task<IActionResult> CreateModel(CompanyModel model)
+    public async Task<IActionResult> CreateModel(WorkspaceModel model)
     {
         if (await _companyLogic.CreateEntity(model))
             return Ok();
