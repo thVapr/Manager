@@ -9,7 +9,7 @@ public class MemberRepository : IMemberRepository
 {
     public async Task<bool> CreateEntity(MemberDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -28,7 +28,7 @@ public class MemberRepository : IMemberRepository
     public async Task<bool> CreateEntity(Guid id, MemberDataModel model)
     {
         await CreateEntity(model);
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -44,7 +44,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -78,7 +78,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<MemberDataModel> GetEntityById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -98,7 +98,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -122,7 +122,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> UpdateEntity(MemberDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -150,7 +150,7 @@ public class MemberRepository : IMemberRepository
     
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -176,7 +176,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetEmployeesWithoutProjectsByDepartmentId(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -201,7 +201,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart(int level)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -219,7 +219,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetMembersFromPart(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {

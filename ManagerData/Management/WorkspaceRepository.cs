@@ -9,7 +9,7 @@ public class WorkspaceRepository : IManagementRepository<WorkspaceDataModel>
 {
     public async Task<bool> CreateEntity(WorkspaceDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -46,7 +46,7 @@ public class WorkspaceRepository : IManagementRepository<WorkspaceDataModel>
 
     public async Task<WorkspaceDataModel> GetEntityById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -60,7 +60,7 @@ public class WorkspaceRepository : IManagementRepository<WorkspaceDataModel>
 
     public async Task<IEnumerable<WorkspaceDataModel>?> GetEntities()
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -80,7 +80,7 @@ public class WorkspaceRepository : IManagementRepository<WorkspaceDataModel>
 
     public async Task<bool> UpdateEntity(WorkspaceDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -103,7 +103,7 @@ public class WorkspaceRepository : IManagementRepository<WorkspaceDataModel>
 
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {

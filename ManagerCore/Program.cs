@@ -27,7 +27,7 @@ builder.Services.AddControllers();
 
 // Adding database contexts
 builder.Services.AddDbContext<AuthenticationDbContext>();
-builder.Services.AddDbContext<ManagerDbContext>();
+builder.Services.AddDbContext<MainDbContext>();
 
 builder.Services.AddAuthentication(options =>
 {

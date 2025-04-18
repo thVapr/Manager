@@ -8,7 +8,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 {
     public async Task<bool> CreateEntity(PartDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -26,7 +26,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<bool> CreateEntity(Guid workspaceId, PartDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -59,7 +59,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -84,7 +84,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -109,7 +109,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<PartDataModel> GetEntityById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -128,7 +128,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<IEnumerable<PartDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -153,7 +153,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<bool> UpdateEntity(PartDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -181,7 +181,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {

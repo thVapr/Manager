@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Contexts;
 
-public sealed class ManagerDbContext : DbContext
+public sealed class MainDbContext : DbContext
 {
-    public ManagerDbContext()
+    public MainDbContext()
     {
         Database.EnsureCreated();
     }
@@ -43,6 +43,9 @@ public sealed class ManagerDbContext : DbContext
         modelBuilder.Entity<PartTasksDataModel>()
             .HasKey(k => new {k.PartId, k.TaskId});
 
+        modelBuilder.Entity<PartLinks>()
+            .HasKey(k => new { k.MasterId, k.SlaveId });
+        
         modelBuilder.Entity<PartTasksDataModel>()
             .HasOne(e => e.Part)
             .WithMany(e => e.PartTasks)
