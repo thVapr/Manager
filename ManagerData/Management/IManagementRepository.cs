@@ -1,7 +1,4 @@
-﻿
-using ManagerData.DataModels;
-
-namespace ManagerData.Management;
+﻿namespace ManagerData.Management;
 
 public interface IManagementRepository<T> : IDisposable
 {

@@ -1,35 +1,35 @@
-﻿using ManagerData.Constants;
+﻿using ManagerLogic.Models;
+using ManagerData.Constants;
 using ManagerLogic.Management;
-using ManagerLogic.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
-[Route("/api/company")]
+[Route("/api/workspaces")]
 [Authorize]
-public class CompanyController : ControllerBase
+public class WorkspaceController : ControllerBase
 {
-    private readonly IManagementLogic<WorkspaceModel> _companyLogic;
+    private readonly IManagementLogic<WorkspaceModel> _workspaceLogic;
 
-    public CompanyController(IManagementLogic<WorkspaceModel> companyLogic)
+    public WorkspaceController(IManagementLogic<WorkspaceModel> workspaceLogic)
     {
-        _companyLogic = companyLogic;
+        _workspaceLogic = workspaceLogic;
     }
 
     [HttpGet]
     [Route("all")]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _companyLogic.GetEntities());
+        return Ok(await _workspaceLogic.GetEntities());
     }
 
     [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetModel(string id)
     {
-        return Ok(await _companyLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await _workspaceLogic.GetEntityById(Guid.Parse(id)));
     }
 
     [HttpPost]
@@ -37,7 +37,7 @@ public class CompanyController : ControllerBase
     [Authorize(Roles = RoleConstants.Admin)]
     public async Task<IActionResult> CreateModel(WorkspaceModel model)
     {
-        if (await _companyLogic.CreateEntity(model))
+        if (await _workspaceLogic.CreateEntity(model))
             return Ok();
     
         return BadRequest();

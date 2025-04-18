@@ -1,23 +1,23 @@
-﻿using ManagerCore.ViewModels;
-using ManagerLogic.Authentication;
+﻿using ManagerLogic.Models;
+using ManagerCore.ViewModels;
 using ManagerLogic.Management;
-using ManagerLogic.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ManagerLogic.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
-[Route("/api/employee")]
+[Route("/api/members")]
 [Authorize]
-public class EmployeeController : ControllerBase
+public class MemberController : ControllerBase
 {
     private readonly IMemberLogic _employeeLogic;
     private readonly IPartLogic _departmentLogic;
     private readonly IManagementLogic<WorkspaceModel> _companyLogic;
     private readonly IAuthentication _authentication;
 
-    public EmployeeController(IMemberLogic employeeLogic,
+    public MemberController(IMemberLogic employeeLogic,
                               IPartLogic departmentLogic,
                               IManagementLogic<WorkspaceModel> companyLogic,
                               IAuthentication authentication)
@@ -36,7 +36,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    [Route("get_employees")]
+    [Route("get_members")]
     public async Task<IActionResult> GetEmployeesWithoutProjects(string id)
     {
         var adminIds = await _authentication.GetAdminIds();
@@ -46,7 +46,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    [Route("get_free_employees")]
+    [Route("get_free_members")]
     public async Task<IActionResult> GetEmployeesWithoutDepartment()
     {
         var adminIds = await _authentication.GetAdminIds();

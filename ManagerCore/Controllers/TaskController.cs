@@ -1,12 +1,12 @@
 ﻿using ManagerCore.Models;
-using ManagerLogic.Management;
 using ManagerLogic.Models;
+using ManagerLogic.Management;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
-[Route("/api/task")]
+[Route("/api/tasks")]
 
 public class TaskController : ControllerBase
 {
@@ -32,7 +32,7 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    [Route("get_employee_tasks")]
+    [Route("get_member_tasks")]
     public async Task<IActionResult> GetEmployeeTasks(string id)
     {
         return Ok(await _taskLogic.GetMemberTasks(Guid.Parse(id)));

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, firstValueFrom, tap } from 'rxjs';
 
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 
 @Injectable({
   providedIn: 'root'
@@ -50,14 +50,14 @@ export class AuthService {
 
   getRole() : string {
     const token = this.getAccessToken();
-    const decoded : any = jwt_decode(token!);
+    const decoded : any = jwtDecode(token!);
 
     return decoded.role;
   }
 
   getId() : string {
     const token = this.getAccessToken();
-    const decoded : any = jwt_decode(token!);
+    const decoded : any = jwtDecode(token!);
 
     return decoded.id;
   }
@@ -82,7 +82,7 @@ export class AuthService {
       return new Date(0);
     }
   
-    const tokenData = jwt_decode(token) as any;
+    const tokenData = jwtDecode(token) as any;
     const expirationDate = new Date(0);
 
     expirationDate.setUTCSeconds(tokenData.exp);

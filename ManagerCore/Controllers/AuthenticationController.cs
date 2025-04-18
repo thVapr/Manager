@@ -1,5 +1,4 @@
-﻿
-using ManagerLogic.Models;
+﻿using ManagerLogic.Models;
 using Microsoft.AspNetCore.Mvc;
 using ManagerLogic.Authentication;
 using Microsoft.AspNetCore.Authorization;

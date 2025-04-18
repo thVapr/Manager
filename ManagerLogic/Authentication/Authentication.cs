@@ -1,5 +1,4 @@
-﻿
-using ManagerLogic.Models;
+﻿using ManagerLogic.Models;
 using System.Security.Claims;
 using ManagerData.Authentication;
 using Microsoft.IdentityModel.Tokens;
