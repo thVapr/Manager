@@ -131,7 +131,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Status = (int)PublicConstants.Task.Doing
         });
 
-        return await repository.LinkEntities(employeeId, taskId);
+        return await repository.AddToEntity(employeeId, taskId);
     }
 
     public async Task<bool> RemoveMemberFromTask(Guid employeeId, Guid taskId)
@@ -142,7 +142,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Status = (int)PublicConstants.Task.Todo
         });
 
-        return await repository.UnlinkEntities(employeeId, taskId);
+        return await repository.RemoveFromEntity(employeeId, taskId);
     }
 
     public async Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId)

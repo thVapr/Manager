@@ -54,7 +54,7 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid firstId, Guid secondId)
     {
         await using var database = new MainDbContext();
 
@@ -77,7 +77,7 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
     {
         await using var database = new MainDbContext();
 
@@ -99,6 +99,16 @@ public class TaskRepository : ITaskRepository
             Console.WriteLine(ex);
             return false;
         }
+    }
+
+    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<TaskDataModel> GetEntityById(Guid id)
@@ -255,7 +265,7 @@ public class TaskRepository : ITaskRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            return [];
         }
     }
 }

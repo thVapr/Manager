@@ -18,7 +18,6 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
             Id = entity.Id.ToString(),
             Name = entity.Name,
             Description = entity.Description,
-            ManagerId = entity.ManagerId,
         };
     }
 
@@ -39,7 +38,6 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
             Id = e.Id.ToString(),
             Name = e.Name,
             Description = e.Description,
-            ManagerId = e.ManagerId,
         }));
 
         return result;
@@ -64,7 +62,6 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
             Id = Guid.Parse(model.Id!),
             Name = model.Name!,
             Description = model.Description!,
-            ManagerId = model.ManagerId,
         });
     }
 
@@ -80,11 +77,11 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
 
     public async Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId)
     {
-        return await repository.LinkEntities(departmentId, employeeId);
+        return await repository.AddToEntity(departmentId, employeeId);
     }
 
     public async Task<bool> RemoveEmployeeFromDepartment(Guid departmentId, Guid employeeId)
     {
-        return await repository.UnlinkEntities(departmentId, employeeId);
+        return await repository.RemoveFromEntity(departmentId, employeeId);
     }
 }

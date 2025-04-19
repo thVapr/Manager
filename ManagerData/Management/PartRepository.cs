@@ -31,8 +31,8 @@ public class PartRepository : IManagementRepository<PartDataModel>
         try
         {
             var existingPart = await database.Parts.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
-
-            if (existingPart != null) return false;
+            if (existingPart != null) 
+                return false;
 
             await CreateEntity(model);
 
@@ -55,7 +55,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
         }
     }
 
-    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid firstId, Guid secondId)
     {
         await using var database = new MainDbContext();
 
@@ -80,7 +80,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
         }
     }
 
-    public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
     {
         await using var database = new MainDbContext();
 
@@ -93,6 +93,61 @@ public class PartRepository : IManagementRepository<PartDataModel>
             if (link == null) return false;
 
             database.PartMembers.Remove(link);
+            
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+
+    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var master = await database.Parts.Where(m => m.Id == masterId).FirstOrDefaultAsync();
+            var slave = await database.Parts.Where(m => m.Id == slaveId).FirstOrDefaultAsync();
+            if (master is null || slave is null)
+                return false;
+
+            await database.PartLinks.AddAsync(
+                new PartLinks
+                {
+                    MasterId = masterId,
+                    SlaveId = slaveId,
+                }
+            );
+            slave.Level = master.Level + 1;
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+
+    public async Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var link = await database.PartLinks
+                .Where(pl => pl.MasterId == masterId && pl.SlaveId == slaveId)
+                .FirstOrDefaultAsync();
+
+            if (link == null) return false;
+
+            database.PartLinks.Remove(link);
             
             await database.SaveChangesAsync();
 
@@ -158,13 +213,12 @@ public class PartRepository : IManagementRepository<PartDataModel>
             var department = await database.Parts.Where(c => c.Id == model.Id).FirstOrDefaultAsync();
 
             if (department == null) return false;
-
+            
+            // TODO: Нужно написать метод, принимающий множество параметров для их валидации
             if (!string.IsNullOrEmpty(model.Name))
                 department.Name = model.Name;
             if (!string.IsNullOrEmpty(model.Description))
                 department.Description = model.Description;
-            if (model.ManagerId != null)
-                department.ManagerId = model.ManagerId;
 
             await database.SaveChangesAsync();
 

@@ -32,7 +32,7 @@ public class MemberRepository : IMemberRepository
 
         try
         {
-            await LinkEntities(id, model.Id);
+            await AddToEntity(id, model.Id);
             return true;
         }
         catch (Exception ex)
@@ -42,7 +42,7 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid firstId, Guid secondId)
     {
         await using var database = new MainDbContext();
 
@@ -71,7 +71,17 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    public Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
