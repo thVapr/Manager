@@ -9,34 +9,27 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/parts")]
 [Authorize]
-public class PartController : ControllerBase 
+public class PartController(IPartLogic partLogic) : ControllerBase
 {
-    private readonly IPartLogic _partLogic;
-
-    public PartController(IPartLogic partLogic)
-    {
-        _partLogic = partLogic;
-    }
-
     [HttpGet]
     [Route("all")]
     public async Task<IActionResult> GetAll(string id)
     {
-        return Ok(await _partLogic.GetEntitiesById(Guid.Parse(id)));
+        return Ok(await partLogic.GetEntitiesById(Guid.Parse(id)));
     }
 
     [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetModel(string id)
     {
-        return Ok(await _partLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await partLogic.GetEntityById(Guid.Parse(id)));
     }
 
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(PartModel model)
     {
-        if (await _partLogic.CreateEntity(model))
+        if (await partLogic.CreateEntity(model))
             return Ok();
 
         return BadRequest();
@@ -46,7 +39,7 @@ public class PartController : ControllerBase
     [Route("add")]
     public async Task<IActionResult> AddMemberToPart([FromBody] PartMembersModel model)
     {
-        if (await _partLogic.AddEmployeeToDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.AddEmployeeToDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -56,7 +49,7 @@ public class PartController : ControllerBase
     [Route("remove")]
     public async Task<IActionResult> RemoveMemberFromPart([FromBody] PartMembersModel model)
     {
-        if (await _partLogic.RemoveEmployeeFromDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.RemoveEmployeeFromDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -66,7 +59,7 @@ public class PartController : ControllerBase
     [Route("update")]
     public async Task<IActionResult> UpdatePart([FromBody] PartModel model)
     {
-        if (await _partLogic.UpdateEntity(model))
+        if (await partLogic.UpdateEntity(model))
             return Ok();
         return BadRequest();
     }

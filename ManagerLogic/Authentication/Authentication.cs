@@ -7,30 +7,21 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace ManagerLogic.Authentication;
 
-public class Authentication : IAuthentication {
-    private readonly IEncrypt _encrypt;
-    private readonly IAuthenticationRepository _authenticationData;
-    private readonly IJwtCreator _jwtCreator;
-
-    public Authentication(IEncrypt encrypt, IAuthenticationRepository authenticationData, IJwtCreator jwtCreator)
-    {
-        _encrypt = encrypt;
-        _authenticationData = authenticationData;
-        _jwtCreator = jwtCreator;
-    }
-
+public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenticationData, IJwtCreator jwtCreator)
+    : IAuthentication
+{
     public async Task<Tuple<string,string>> Authenticate(LoginModel user)
     {
-        var userFromQuery = await _authenticationData.GetUser(user.Email!);
+        var userFromQuery = await authenticationData.GetUser(user.Email!);
         if (string.IsNullOrEmpty(userFromQuery.Salt))
             return new Tuple<string, string>(string.Empty, string.Empty);
-        var passwordHash = _encrypt.HashPassword(user.Password!, userFromQuery.Salt);
+        var passwordHash = encrypt.HashPassword(user.Password!, userFromQuery.Salt);
 
         if (userFromQuery.Email == string.Empty ||
             userFromQuery.PasswordHash != passwordHash) 
             return new Tuple<string, string>(string.Empty, string.Empty);
 
-        var role = await _authenticationData.GetUserRole(userFromQuery.Email);
+        var role = await authenticationData.GetUserRole(userFromQuery.Email);
 
         var claims = new List<Claim>
         {
@@ -39,7 +30,7 @@ public class Authentication : IAuthentication {
             new (PublicConstants.Role, role)
         };
 
-        var token = _jwtCreator.GenerateToken
+        var token = jwtCreator.GenerateToken
         (
             claims,
             Constants.Issuer,
@@ -52,12 +43,12 @@ public class Authentication : IAuthentication {
 
         var tokenModel = new RefreshTokenDataModel
         {
-            Token = _jwtCreator.GenerateRefreshToken(),
+            Token = jwtCreator.GenerateRefreshToken(),
             ExpireTime = DateTime.UtcNow.AddDays(Constants.ExpiryMinutes),
             UserId = userFromQuery.Id,
         };
 
-        await _authenticationData.AddToken(tokenModel);
+        await authenticationData.AddToken(tokenModel);
 
         return new Tuple<string, string>(tokenHandler.WriteToken(token),tokenModel.Token);
     }
@@ -67,10 +58,10 @@ public class Authentication : IAuthentication {
         if (model is null) 
             throw new SecurityTokenException();
         
-        var existingToken = await _authenticationData.GetToken(model.RefreshToken!);
-        var email = _jwtCreator.GetEmailFromToken(model.AccessToken);
-        var user = await _authenticationData.GetUser(email!);
-        var role = await _authenticationData.GetUserRole(email!);
+        var existingToken = await authenticationData.GetToken(model.RefreshToken!);
+        var email = jwtCreator.GetEmailFromToken(model.AccessToken);
+        var user = await authenticationData.GetUser(email!);
+        var role = await authenticationData.GetUserRole(email!);
 
         if (user is null ||
             existingToken is null ||
@@ -84,7 +75,7 @@ public class Authentication : IAuthentication {
             new (PublicConstants.Role, role)
         };
 
-        var newAccessToken = _jwtCreator.GenerateToken
+        var newAccessToken = jwtCreator.GenerateToken
         (
             claims,
             Constants.Issuer,
@@ -97,43 +88,43 @@ public class Authentication : IAuthentication {
 
         var tokenModel = new RefreshTokenDataModel
         {
-            Token = _jwtCreator.GenerateRefreshToken(),
+            Token = jwtCreator.GenerateRefreshToken(),
             ExpireTime = DateTime.UtcNow.AddDays(Constants.ExpiryMinutes),
             UserId = user.Id,
         };
 
-        await _authenticationData.UpdateToken(tokenModel, model.RefreshToken!);
+        await authenticationData.UpdateToken(tokenModel, model.RefreshToken!);
 
         return new Tuple<string, string>(tokenHandler.WriteToken(newAccessToken), tokenModel.Token);
     }
 
     public Task<UserDataModel> GetUser(string email)
     {
-        return _authenticationData.GetUser(email);
+        return authenticationData.GetUser(email);
     }
 
     public async Task<IEnumerable<string>> GetAdminIds()
     {
-        var adminIds = await _authenticationData.GetAdminIds();
+        var adminIds = await authenticationData.GetAdminIds();
 
         return adminIds.Select(x => x.ToString());
     }
 
     public async Task<bool> Logout(string token)
     {
-        var qToken = await _authenticationData.GetToken(token);
+        var qToken = await authenticationData.GetToken(token);
 
-        return qToken != null && await _authenticationData.DeleteToken(token);
+        return qToken != null && await authenticationData.DeleteToken(token);
     }
 
     public async Task<bool> CreateUser(LoginModel user)
     {
-        var userCheck = await _authenticationData.GetUser(user.Email!);
+        var userCheck = await authenticationData.GetUser(user.Email!);
 
         if (!string.IsNullOrEmpty(userCheck.Email)) return false;
 
         var salt = Guid.NewGuid().ToString();
-        var hashPassword = _encrypt.HashPassword(user.Password!, salt);
+        var hashPassword = encrypt.HashPassword(user.Password!, salt);
 
         if (string.IsNullOrEmpty(hashPassword) ||
             string.IsNullOrEmpty(salt) ||
@@ -150,13 +141,13 @@ public class Authentication : IAuthentication {
             Salt = salt
         };
 
-        await _authenticationData.AddUser(newUser);
+        await authenticationData.AddUser(newUser);
 
         return true;
     }
 
     public Task<bool> RemoveUser(Guid id)
     {
-        return _authenticationData.DeleteUser(id);
+        return authenticationData.DeleteUser(id);
     }
 }

@@ -8,34 +8,27 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/tasks")]
 
-public class TaskController : ControllerBase
+public class TaskController(ITaskLogic taskLogic) : ControllerBase
 {
-    private readonly ITaskLogic _taskLogic;
-
-    public TaskController(ITaskLogic taskLogic)
-    {
-        _taskLogic = taskLogic;
-    }
-
     [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetModel(string id)
     {
-        return Ok(await _taskLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await taskLogic.GetEntityById(Guid.Parse(id)));
     }
 
     [HttpGet]
     [Route("get_free_tasks")]
     public async Task<IActionResult> GetFreeTasks(string id)
     {
-        return Ok(await _taskLogic.GetFreeTasks(Guid.Parse(id)));
+        return Ok(await taskLogic.GetFreeTasks(Guid.Parse(id)));
     }
 
     [HttpGet]
     [Route("get_member_tasks")]
     public async Task<IActionResult> GetEmployeeTasks(string id)
     {
-        return Ok(await _taskLogic.GetMemberTasks(Guid.Parse(id)));
+        return Ok(await taskLogic.GetMemberTasks(Guid.Parse(id)));
     }
 
     [HttpGet]
@@ -43,7 +36,7 @@ public class TaskController : ControllerBase
     public async Task<IActionResult> GetModels(string id)
     {
 
-        return Ok((await _taskLogic.GetEntitiesById(Guid.Parse(id)))
+        return Ok((await taskLogic.GetEntitiesById(Guid.Parse(id)))
             .Select(t => new TaskModel()
             {
                 Id = t.Id,
@@ -60,14 +53,14 @@ public class TaskController : ControllerBase
     [Route("search")]
     public async Task<IActionResult> SearchTasks(string query, string id)
     {
-        return Ok(await _taskLogic.GetEntitiesByQuery(query, Guid.Parse(id)));
+        return Ok(await taskLogic.GetEntitiesByQuery(query, Guid.Parse(id)));
     }
 
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(TaskModel model)
     {
-        if (await _taskLogic.CreateEntity(model))
+        if (await taskLogic.CreateEntity(model))
             return Ok();
 
         return BadRequest();
@@ -77,7 +70,7 @@ public class TaskController : ControllerBase
     [Route("add")]
     public async Task<IActionResult> AddEmployeeToProject(MemberTasks model)
     {
-        if (await _taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!)))
+        if (await taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!)))
             return Ok();
 
         return BadRequest();
@@ -87,7 +80,7 @@ public class TaskController : ControllerBase
     [Route("update")]
     public async Task<IActionResult> UpdateTask(TaskModel model)
     {
-        if (await _taskLogic.UpdateEntity(model))
+        if (await taskLogic.UpdateEntity(model))
             return Ok();
 
         return BadRequest();

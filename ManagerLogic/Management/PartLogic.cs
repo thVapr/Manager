@@ -5,18 +5,11 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class PartLogic : IPartLogic
+public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartLogic
 {
-    private readonly IManagementRepository<PartDataModel> _repository;
-
-    public PartLogic(IManagementRepository<PartDataModel> repository)
-    {
-        _repository = repository;
-    }
-
     public async Task<PartModel> GetEntityById(Guid id)
     {
-        var entity = await _repository.GetEntityById(id);
+        var entity = await repository.GetEntityById(id);
 
         if (entity.Id == Guid.Empty) return new PartModel();
 
@@ -36,7 +29,7 @@ public class PartLogic : IPartLogic
 
     public async Task<IEnumerable<PartModel>> GetEntitiesById(Guid id)
     {
-        var entities = await _repository.GetEntitiesById(id);
+        var entities = await repository.GetEntitiesById(id);
         var result = new List<PartModel>();
 
         if (entities == null) return result;
@@ -61,12 +54,12 @@ public class PartLogic : IPartLogic
             Description = model.Description!,
         };
 
-        return await _repository.CreateEntity(model.WorkspaceId, entity);
+        return await repository.CreateEntity(model.WorkspaceId, entity);
     }
 
     public async Task<bool> UpdateEntity(PartModel model)
     {
-        return await _repository.UpdateEntity(new PartDataModel
+        return await repository.UpdateEntity(new PartDataModel
         {
             Id = Guid.Parse(model.Id!),
             Name = model.Name!,
@@ -87,11 +80,11 @@ public class PartLogic : IPartLogic
 
     public async Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId)
     {
-        return await _repository.LinkEntities(departmentId, employeeId);
+        return await repository.LinkEntities(departmentId, employeeId);
     }
 
     public async Task<bool> RemoveEmployeeFromDepartment(Guid departmentId, Guid employeeId)
     {
-        return await _repository.UnlinkEntities(departmentId, employeeId);
+        return await repository.UnlinkEntities(departmentId, employeeId);
     }
 }

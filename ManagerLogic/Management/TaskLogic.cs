@@ -4,18 +4,11 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class TaskLogic : ITaskLogic
+public class TaskLogic(ITaskRepository repository) : ITaskLogic
 {
-    private readonly ITaskRepository _repository;
-
-    public TaskLogic(ITaskRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async Task<TaskModel> GetEntityById(Guid id)
     {
-        var entity = await _repository.GetEntityById(id);
+        var entity = await repository.GetEntityById(id);
 
         return new TaskModel
         {
@@ -35,7 +28,7 @@ public class TaskLogic : ITaskLogic
 
     public async Task<IEnumerable<TaskModel>> GetEntities()
     {
-        var entities = await _repository.GetEntities();
+        var entities = await repository.GetEntities();
 
         if (entities == null) return Enumerable.Empty<TaskModel>();
 
@@ -57,7 +50,7 @@ public class TaskLogic : ITaskLogic
 
     public async Task<IEnumerable<TaskModel>> GetEntitiesById(Guid id)
     {
-        var entities = await _repository.GetEntitiesById(id);
+        var entities = await repository.GetEntitiesById(id);
 
         if (entities == null) return Enumerable.Empty<TaskModel>();
 
@@ -92,12 +85,12 @@ public class TaskLogic : ITaskLogic
             Level = model.Level,
         };
 
-        return await _repository.CreateEntity(model.ProjectId, entity);
+        return await repository.CreateEntity(model.ProjectId, entity);
     }
 
     public async Task<bool> UpdateEntity(TaskModel model)
     {
-        return await _repository.UpdateEntity(new TaskDataModel
+        return await repository.UpdateEntity(new TaskDataModel
         {
             Id = Guid.Parse(model.Id ?? ""),
             Name = model.Name!,
@@ -126,35 +119,35 @@ public class TaskLogic : ITaskLogic
 
     public async Task<bool> DeleteEntity(Guid id)
     {
-        return await _repository.DeleteEntity(id);
+        return await repository.DeleteEntity(id);
     }
 
     public async Task<bool> AddMemberToTask(Guid employeeId, Guid taskId)
     {
-        await _repository.UpdateEntity(new TaskDataModel
+        await repository.UpdateEntity(new TaskDataModel
         {
             Id = taskId,
             EmployeeId = employeeId,
             Status = (int)PublicConstants.Task.Doing
         });
 
-        return await _repository.LinkEntities(employeeId, taskId);
+        return await repository.LinkEntities(employeeId, taskId);
     }
 
     public async Task<bool> RemoveMemberFromTask(Guid employeeId, Guid taskId)
     {
-        await _repository.UpdateEntity(new TaskDataModel
+        await repository.UpdateEntity(new TaskDataModel
         {
             Id = taskId,
             Status = (int)PublicConstants.Task.Todo
         });
 
-        return await _repository.UnlinkEntities(employeeId, taskId);
+        return await repository.UnlinkEntities(employeeId, taskId);
     }
 
     public async Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId)
     {
-        var tasks = await _repository.GetFreeTasks(projectId);
+        var tasks = await repository.GetFreeTasks(projectId);
 
         return tasks.Select(t => new TaskModel
         {
@@ -174,7 +167,7 @@ public class TaskLogic : ITaskLogic
 
     public async Task<IEnumerable<TaskModel>> GetMemberTasks(Guid employeeId)
     {
-        var tasks = await _repository.GetMemberTasks(employeeId);
+        var tasks = await repository.GetMemberTasks(employeeId);
 
         return tasks.Select(t => new TaskModel
         {

@@ -48,7 +48,7 @@ public class AuthenticationController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Logout(RefreshTokenModel model)
     {
-        return await _authentication.Logout(model.RefreshToken) ? Ok() : BadRequest();
+        return await _authentication.Logout(model.RefreshToken!) ? Ok() : BadRequest();
     }
 
     [HttpPost("refresh")]

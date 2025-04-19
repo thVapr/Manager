@@ -10,34 +10,27 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/members")]
 [Authorize]
-public class MemberController : ControllerBase
+public class MemberController(
+    IMemberLogic employeeLogic,
+    IPartLogic departmentLogic,
+    IAuthentication authentication)
+    : ControllerBase
 {
-    private readonly IMemberLogic _employeeLogic;
-    private readonly IPartLogic _departmentLogic;
-    private readonly IAuthentication _authentication;
-
-    public MemberController(IMemberLogic employeeLogic,
-                              IPartLogic departmentLogic,
-                              IAuthentication authentication)
-    {
-        _employeeLogic = employeeLogic;
-        _departmentLogic = departmentLogic;
-        _authentication = authentication;
-    }
+    private readonly IPartLogic _departmentLogic = departmentLogic;
 
     [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetEmployee(string id)
     {
-        return Ok(await _employeeLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await employeeLogic.GetEntityById(Guid.Parse(id)));
     }
 
     [HttpGet]
     [Route("get_members")]
     public async Task<IActionResult> GetEmployeesWithoutProjects(string id)
     {
-        var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetFreeMembersInPart(Guid.Parse(id));
+        var adminIds = await authentication.GetAdminIds();
+        var employees = await employeeLogic.GetFreeMembersInPart(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -46,8 +39,8 @@ public class MemberController : ControllerBase
     [Route("get_free_members")]
     public async Task<IActionResult> GetEmployeesWithoutDepartment()
     {
-        var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetMembersWithoutPart();
+        var adminIds = await authentication.GetAdminIds();
+        var employees = await employeeLogic.GetMembersWithoutPart();
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -56,8 +49,8 @@ public class MemberController : ControllerBase
     [Route("all")]
     public async Task<IActionResult> GetAll(string id)
     {
-        var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetEntitiesById(Guid.Parse(id));
+        var adminIds = await authentication.GetAdminIds();
+        var employees = await employeeLogic.GetEntitiesById(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -66,8 +59,8 @@ public class MemberController : ControllerBase
     [Route("get_part_members")]
     public async Task<IActionResult> GetAllEmployeesByProjectId(string id)
     {
-        var adminIds = await _authentication.GetAdminIds();
-        var employees = await _employeeLogic.GetMembersFromPart(Guid.Parse(id));
+        var adminIds = await authentication.GetAdminIds();
+        var employees = await employeeLogic.GetMembersFromPart(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -76,7 +69,7 @@ public class MemberController : ControllerBase
     [Route("get_member_profile")]
     public async Task<IActionResult> GetEmployeeProfile(string id)
     {
-        var employee = await _employeeLogic.GetEntityById(Guid.Parse(id));
+        var employee = await employeeLogic.GetEntityById(Guid.Parse(id));
 
         if (employee.Id != id) return BadRequest(); 
 
@@ -107,7 +100,7 @@ public class MemberController : ControllerBase
     [Route("create")]
     public async Task<IActionResult> CreateEmployee(EmployeeModel model)
     {
-        if (await _employeeLogic.CreateEntity(model))
+        if (await employeeLogic.CreateEntity(model))
             return Ok();
         return BadRequest();
     }
@@ -116,7 +109,7 @@ public class MemberController : ControllerBase
     [Route("update")]
     public async Task<IActionResult> UpdateEmployee(EmployeeModel model)
     {
-        if (await _employeeLogic.UpdateEntity(model))
+        if (await employeeLogic.UpdateEntity(model))
             return Ok();
         return BadRequest();
     }
