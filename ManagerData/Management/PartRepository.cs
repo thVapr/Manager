@@ -24,28 +24,26 @@ public class PartRepository : IManagementRepository<PartDataModel>
         }
     }
 
-    public async Task<bool> CreateEntity(Guid workspaceId, PartDataModel model)
+    public async Task<bool> CreateEntity(Guid masterPartId, PartDataModel model)
     {
         await using var database = new MainDbContext();
 
         try
         {
-            var existingDepartment = await database.Parts.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
-            var existingLink = await database.WorkspaceParts.Where(m => m.WorkspaceId == workspaceId).FirstOrDefaultAsync();
+            var existingPart = await database.Parts.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
 
-            if (existingDepartment != null && existingLink != null) return false;
+            if (existingPart != null) return false;
 
             await CreateEntity(model);
 
-            var company = await database.Workspaces.Where(e => e.Id == workspaceId).FirstOrDefaultAsync();
-
-            if (company == null) return false;
-
-            await database.WorkspaceParts.AddAsync(
-                new WorkspacePartsDataModel
-                {
-                    WorkspaceId = workspaceId, PartId = model.Id
-                });
+            if (model.Level > 0)
+            {
+                await database.PartLinks.AddAsync(
+                    new PartLinks
+                    {
+                        MasterId = masterPartId, SlaveId = model.Id
+                    });
+            }
             await database.SaveChangesAsync();
 
             return true;
@@ -132,14 +130,14 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
         try
         {
-            var departments = await database.WorkspaceParts.Where(c => c.WorkspaceId == id).ToListAsync();
+            var departments = await database.PartLinks.Where(c => c.MasterId == id).ToListAsync();
             List<PartDataModel?> result = new();
 
             if (result == null) throw new ArgumentNullException(nameof(result));
 
             foreach (var v in departments)
             {
-                result.Add(await database.Parts.Where(d => d.Id == v.PartId).FirstOrDefaultAsync());
+                result.Add(await database.Parts.Where(d => d.Id == v.SlaveId).FirstOrDefaultAsync());
             }
 
             return result!;
@@ -147,7 +145,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<PartDataModel>();
+            return [];
         }
     }
 
@@ -185,11 +183,11 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
         try
         {
-            var existingCompany = await database.Workspaces.FindAsync(id);
+            var existingPart = await database.Parts.FindAsync(id);
 
-            if (existingCompany == null) return false;
+            if (existingPart == null) return false;
 
-            database.Workspaces.Remove(existingCompany);
+            database.Parts.Remove(existingPart);
             await database.SaveChangesAsync();
 
             return true;

@@ -1,5 +1,4 @@
-﻿
-using ManagerData.Constants;
+﻿using ManagerData.Constants;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,23 +14,13 @@ public sealed class MainDbContext : DbContext
     public DbSet<MemberDataModel> Members { get; set; } = null!;
     public DbSet<PartDataModel> Parts { get; set; } = null!;
     public DbSet<TaskDataModel> Tasks { get; set; } = null!;
-    public DbSet<WorkspaceDataModel> Workspaces { get; set; } = null!;
-
-    public DbSet<WorkspacePartsDataModel> WorkspaceParts { get; set; } = null!;
     public DbSet<PartMembersDataModel> PartMembers { get; set; } = null!;
+    public DbSet<PartLinks> PartLinks { get; set; } = null!;
     public DbSet<PartTasksDataModel> PartTasks { get; set; } = null!;
     public DbSet<MemberTasksDataModel> MemberTasks { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<WorkspacePartsDataModel>()
-            .HasKey(k => new { k.WorkspaceId, k.PartId });
-
-        modelBuilder.Entity<WorkspacePartsDataModel>()
-            .HasOne(e => e.Workspace)
-            .WithMany(e => e.WorkspaceParts)
-            .HasForeignKey(fk => fk.WorkspaceId);
-
         modelBuilder.Entity<PartMembersDataModel>()
             .HasKey(k => new { k.PartId, k.MemberId });
 

@@ -61,7 +61,7 @@ public class PartLogic : IPartLogic
             Description = model.Description!,
         };
 
-        return await _repository.CreateEntity(model.CompanyId, entity);
+        return await _repository.CreateEntity(model.WorkspaceId, entity);
     }
 
     public async Task<bool> UpdateEntity(PartModel model)

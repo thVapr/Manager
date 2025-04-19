@@ -1,7 +1,7 @@
-﻿using ManagerLogic.Models;
-using Microsoft.AspNetCore.Mvc;
-using ManagerLogic.Authentication;
+﻿using ManagerLogic.Authentication;
+using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
 

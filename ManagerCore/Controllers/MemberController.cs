@@ -1,9 +1,9 @@
-﻿using ManagerLogic.Models;
-using ManagerCore.ViewModels;
-using ManagerLogic.Management;
-using Microsoft.AspNetCore.Mvc;
+﻿using ManagerCore.ViewModels;
 using ManagerLogic.Authentication;
+using ManagerLogic.Management;
+using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
 
@@ -14,17 +14,14 @@ public class MemberController : ControllerBase
 {
     private readonly IMemberLogic _employeeLogic;
     private readonly IPartLogic _departmentLogic;
-    private readonly IManagementLogic<WorkspaceModel> _companyLogic;
     private readonly IAuthentication _authentication;
 
     public MemberController(IMemberLogic employeeLogic,
                               IPartLogic departmentLogic,
-                              IManagementLogic<WorkspaceModel> companyLogic,
                               IAuthentication authentication)
     {
         _employeeLogic = employeeLogic;
         _departmentLogic = departmentLogic;
-        _companyLogic = companyLogic;
         _authentication = authentication;
     }
 

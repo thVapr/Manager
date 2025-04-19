@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ManagerData.DataModels;
 
-[Table("Employees")]
+[Table("Members")]
 public class MemberDataModel
 {
     [Key] public Guid Id { get; init; }

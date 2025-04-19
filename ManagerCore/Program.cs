@@ -1,4 +1,3 @@
-
 using System.Text;
 using ManagerData.Authentication;
 using ManagerData.Contexts;
@@ -6,13 +5,11 @@ using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Authentication;
 using ManagerLogic.Management;
-using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", 
     policy =>
@@ -25,7 +22,6 @@ builder.Services.AddCors(options => options.AddPolicy("CorsPolicy",
 
 builder.Services.AddControllers();
 
-// Adding database contexts
 builder.Services.AddDbContext<AuthenticationDbContext>();
 builder.Services.AddDbContext<MainDbContext>();
 
@@ -49,15 +45,38 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            []
+        }
+    });
+});
 
 builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
 builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository>();
 builder.Services.AddSingleton<IAuthentication,Authentication>();
 builder.Services.AddSingleton<IEncrypt,Encrypt>();
-
-builder.Services.AddSingleton<IManagementRepository<WorkspaceDataModel>, WorkspaceRepository>();
-builder.Services.AddSingleton<IManagementLogic<WorkspaceModel>, WorkspaceLogic>();
 
 builder.Services.AddSingleton<IManagementRepository<PartDataModel>, PartRepository>();
 builder.Services.AddSingleton<IPartLogic, PartLogic>();

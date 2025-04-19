@@ -1,9 +1,9 @@
-﻿using ManagerLogic.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ManagerData.Authentication;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using ManagerData.DataModels.Authentication;
+using ManagerLogic.Models;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ManagerLogic.Authentication;
 
@@ -22,7 +22,7 @@ public class Authentication : IAuthentication {
     public async Task<Tuple<string,string>> Authenticate(LoginModel user)
     {
         var userFromQuery = await _authenticationData.GetUser(user.Email!);
-        if (String.IsNullOrEmpty(userFromQuery.Salt))
+        if (string.IsNullOrEmpty(userFromQuery.Salt))
             return new Tuple<string, string>(string.Empty, string.Empty);
         var passwordHash = _encrypt.HashPassword(user.Password!, userFromQuery.Salt);
 
@@ -67,7 +67,7 @@ public class Authentication : IAuthentication {
         if (model is null) 
             throw new SecurityTokenException();
         
-        var existingToken = await _authenticationData.GetToken(model.RefreshToken);
+        var existingToken = await _authenticationData.GetToken(model.RefreshToken!);
         var email = _jwtCreator.GetEmailFromToken(model.AccessToken);
         var user = await _authenticationData.GetUser(email!);
         var role = await _authenticationData.GetUserRole(email!);
@@ -102,7 +102,7 @@ public class Authentication : IAuthentication {
             UserId = user.Id,
         };
 
-        await _authenticationData.UpdateToken(tokenModel, model.RefreshToken);
+        await _authenticationData.UpdateToken(tokenModel, model.RefreshToken!);
 
         return new Tuple<string, string>(tokenHandler.WriteToken(newAccessToken), tokenModel.Token);
     }
@@ -128,12 +128,12 @@ public class Authentication : IAuthentication {
 
     public async Task<bool> CreateUser(LoginModel user)
     {
-        var userCheck = await _authenticationData.GetUser(user.Email);
+        var userCheck = await _authenticationData.GetUser(user.Email!);
 
         if (!string.IsNullOrEmpty(userCheck.Email)) return false;
 
         var salt = Guid.NewGuid().ToString();
-        var hashPassword = _encrypt.HashPassword(user.Password, salt);
+        var hashPassword = _encrypt.HashPassword(user.Password!, salt);
 
         if (string.IsNullOrEmpty(hashPassword) ||
             string.IsNullOrEmpty(salt) ||

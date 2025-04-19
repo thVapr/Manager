@@ -1,6 +1,6 @@
 ﻿using ManagerCore.Models;
-using ManagerLogic.Models;
 using ManagerLogic.Management;
+using ManagerLogic.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ManagerCore.Controllers;
