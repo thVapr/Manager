@@ -12,11 +12,11 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class MemberController(
     IMemberLogic employeeLogic,
-    IPartLogic departmentLogic,
+    IPartLogic partLogic,
     IAuthentication authentication)
     : ControllerBase
 {
-    private readonly IPartLogic _departmentLogic = departmentLogic;
+    private readonly IPartLogic _partLogic = partLogic;
 
     [HttpGet]
     [Route("get")]
@@ -73,12 +73,13 @@ public class MemberController(
 
         if (employee.Id != id) return BadRequest(); 
 
+        // TODO: Добавить логику
         //var employeeLinks = await _employeeLogic.GetEmployeeLinks(Guid.Parse(id));
 
         //var company = await _companyLogic.GetEntityById(employeeLinks.CompanyId);
         //var department = await _departmentLogic.GetEntityById(employeeLinks.DepartmentId);
 
-        return Ok(new EmployeeViewModel()
+        return Ok(new MemberViewModel()
         //{
         //    Id = employee.Id,
             
@@ -98,7 +99,7 @@ public class MemberController(
 
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateEmployee(EmployeeModel model)
+    public async Task<IActionResult> CreateEmployee(MemberModel model)
     {
         if (await employeeLogic.CreateEntity(model))
             return Ok();
@@ -107,7 +108,7 @@ public class MemberController(
 
     [HttpPut]
     [Route("update")]
-    public async Task<IActionResult> UpdateEmployee(EmployeeModel model)
+    public async Task<IActionResult> UpdateEmployee(MemberModel model)
     {
         if (await employeeLogic.UpdateEntity(model))
             return Ok();

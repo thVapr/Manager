@@ -7,15 +7,8 @@ namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/authentication")]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController(IAuthentication authentication) : ControllerBase
 {
-    private readonly IAuthentication _authentication;
-
-    public AuthenticationController(IAuthentication authentication)
-    {
-        _authentication = authentication;
-    }
-
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register(LoginModel user)
@@ -25,7 +18,7 @@ public class AuthenticationController : ControllerBase
             return BadRequest();
         }
 
-        if (await _authentication.CreateUser(user))
+        if (await authentication.CreateUser(user))
         {
             return await Login(user);
         }
@@ -41,14 +34,14 @@ public class AuthenticationController : ControllerBase
             return BadRequest();
         }
 
-        return Ok(await _authentication.Authenticate(user));
+        return Ok(await authentication.Authenticate(user));
     }
 
     [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout(RefreshTokenModel model)
     {
-        return await _authentication.Logout(model.RefreshToken!) ? Ok() : BadRequest();
+        return await authentication.Logout(model.RefreshToken!) ? Ok() : BadRequest();
     }
 
     [HttpPost("refresh")]
@@ -57,7 +50,7 @@ public class AuthenticationController : ControllerBase
         if (model is null)
             return BadRequest();
 
-        return Ok(await _authentication.UpdateToken(model));
+        return Ok(await authentication.UpdateToken(model));
 
     }
 }

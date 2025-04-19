@@ -7,11 +7,11 @@ namespace ManagerLogic.Management;
 
 public class MemberLogic(IMemberRepository repository) : IMemberLogic
 {
-    public async Task<EmployeeModel> GetEntityById(Guid id)
+    public async Task<MemberModel> GetEntityById(Guid id)
     {
         var entity = await repository.GetEntityById(id);
 
-        return new EmployeeModel
+        return new MemberModel
         {
             Id = entity.Id.ToString(),
             FirstName = entity.FirstName,
@@ -20,16 +20,16 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         };
     }
 
-    public Task<IEnumerable<EmployeeModel>> GetEntities()
+    public Task<IEnumerable<MemberModel>> GetEntities()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<MemberModel>> GetEntitiesById(Guid id)
     { 
-        var employees = await repository.GetEntitiesById(id);
+        var members = await repository.GetEntitiesById(id);
 
-        return employees!.Select(e => new EmployeeModel
+        return members!.Select(e => new MemberModel
         {
             Id = e.Id.ToString(),
             FirstName = e.FirstName,
@@ -38,7 +38,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         });
     }
 
-    public async Task<bool> CreateEntity(EmployeeModel model)
+    public async Task<bool> CreateEntity(MemberModel model)
     {
         if (model.Id == null) return false;
 
@@ -53,7 +53,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         return await repository.CreateEntity(entity);
     }
 
-    public Task<bool> UpdateEntity(EmployeeModel model)
+    public Task<bool> UpdateEntity(MemberModel model)
     {
         return repository.UpdateEntity(new MemberDataModel
         {
@@ -64,7 +64,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         });
     }
 
-    public Task<IEnumerable<EmployeeModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<IEnumerable<MemberModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }
@@ -74,12 +74,12 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetMembersWithoutPart()
+    public async Task<IEnumerable<MemberModel>> GetMembersWithoutPart()
     {
         // TODO: Нужно изменить структуру учитывая уровень части
-        var employees = await repository.GetMembersWithoutPart(0);
+        var members = await repository.GetMembersWithoutPart(0);
 
-        return employees.Select(v => new EmployeeModel
+        return members.Select(v => new MemberModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,
@@ -88,13 +88,13 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetFreeMembersInPart(Guid id)
+    public async Task<IEnumerable<MemberModel>> GetFreeMembersInPart(Guid id)
     {
         // TODO: Сейчас работает некорректно, нужно также фильтровать по наличию низкоуровневых частей
         //       или пересмотреть необходимость данного метода
-        var employees = await repository.GetMembersFromPart(id);
+        var members = await repository.GetMembersFromPart(id);
 
-        return employees.Select(v => new EmployeeModel
+        return members.Select(v => new MemberModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,
@@ -103,13 +103,13 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetMembersFromPart(Guid id)
+    public async Task<IEnumerable<MemberModel>> GetMembersFromPart(Guid id)
     {
         // TODO: Нужно подумать о том, какие участники должны быть возвращены,
         //       в текущей части или включая все нижестоящие
         var members = await repository.GetMembersFromPart(id);
 
-        return members.Select(v => new EmployeeModel
+        return members.Select(v => new MemberModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,

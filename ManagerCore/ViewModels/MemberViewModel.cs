@@ -1,7 +1,6 @@
-﻿
-namespace ManagerLogic.Models;
+﻿namespace ManagerCore.ViewModels;
 
-public class EmployeeModel
+public class MemberViewModel
 {
     public string? Id { get; set; }
 
@@ -9,7 +8,6 @@ public class EmployeeModel
     public string? LastName { get; set; }
     public string? Patronymic { get; set; }
 
-    public Guid? DepartmentId { get; set; }
-
-    public IEnumerable<PartModel>? Departments { get; set; }
+    public string? PartId { get; set; }
+    public string? PartName { get; set; }
 }

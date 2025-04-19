@@ -4,10 +4,10 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public interface IMemberLogic : IManagementLogic<EmployeeModel>
+public interface IMemberLogic : IManagementLogic<MemberModel>
 {
-    Task<IEnumerable<EmployeeModel>> GetMembersWithoutPart();
-    Task<IEnumerable<EmployeeModel>> GetFreeMembersInPart(Guid id);
+    Task<IEnumerable<MemberModel>> GetMembersWithoutPart();
+    Task<IEnumerable<MemberModel>> GetFreeMembersInPart(Guid id);
 
-    Task<IEnumerable<EmployeeModel>> GetMembersFromPart(Guid id);
+    Task<IEnumerable<MemberModel>> GetMembersFromPart(Guid id);
 }
