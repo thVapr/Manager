@@ -14,7 +14,6 @@ public class TaskRepository : ITaskRepository
         try
         {
             await database.Tasks.AddAsync(model);
-
             await database.SaveChangesAsync();
 
             return true;
@@ -180,8 +179,8 @@ public class TaskRepository : ITaskRepository
             if (!string.IsNullOrEmpty(model.Description))
                 task.Description = model.Description;
 
-            if (model.EmployeeId != Guid.Empty)
-                task.EmployeeId = model.EmployeeId; 
+            if (model.MemberId != Guid.Empty)
+                task.MemberId = model.MemberId; 
             
             task.Level = model.Level;
 

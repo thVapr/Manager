@@ -4,11 +4,11 @@ namespace ManagerLogic.Management;
 
 public interface ITaskLogic : IManagementLogic<TaskModel>
 {
-    Task<bool> AddMemberToTask(Guid employeeId, Guid taskId);
-    Task<bool> RemoveMemberFromTask(Guid employeeId, Guid taskId);
+    Task<bool> AddMemberToTask(Guid memberId, Guid taskId);
+    Task<bool> RemoveMemberFromTask(Guid memberId, Guid taskId);
     //TODO: Добавить AddMemberToNotify
 
     Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId);
-    Task<IEnumerable<TaskModel>> GetMemberTasks(Guid employeeId);
+    Task<IEnumerable<TaskModel>> GetMemberTasks(Guid memberId);
 
 }

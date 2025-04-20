@@ -7,11 +7,12 @@ namespace ManagerData.DataModels;
 public class TaskDataModel : BaseDataModel
 {
     public Guid CreatorId { get; init; }
-    public Guid ProjectId { get; set; }
-    public Guid EmployeeId { get; set; }
+    public Guid? PartId { get; set; }
+    public Guid? MemberId { get; set; }
     
     public int Level { get; set; } = 0;
     public int Status { get; set; } = 0;
+    public int Priority { get; set; } = 0;
 
     public MemberTasksDataModel MemberTasks { get; set; } = null!;
     public PartTasksDataModel PartTasks { get; set; } = null!;

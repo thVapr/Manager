@@ -9,7 +9,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
     public async Task<TaskModel> GetEntityById(Guid id)
     {
         var entity = await repository.GetEntityById(id);
-
+        // TODO: В данном классе куча однотипных приведений
         return new TaskModel
         {
             Id = entity.Id.ToString(),
@@ -18,11 +18,12 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Description = entity.Description,
             
             CreatorId = entity.CreatorId,
-            ProjectId = entity.ProjectId,
-            EmployeeId = entity.EmployeeId,
+            PartId = entity.PartId,
+            MemberId = entity.MemberId,
 
             Level = entity.Level,
             Status = entity.Status,
+            Priority = entity.Priority,
         };
     }
 
@@ -30,7 +31,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
     {
         var entities = await repository.GetEntities();
 
-        if (entities == null) return Enumerable.Empty<TaskModel>();
+        if (entities == null) return [];
 
         return entities.Select(e => new TaskModel
         {
@@ -40,11 +41,12 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Description = e.Description,
 
             CreatorId = e.CreatorId,
-            ProjectId = e.ProjectId,
-            EmployeeId = e.EmployeeId,
+            PartId = e.PartId,
+            MemberId = e.PartId,
 
             Level = e.Level,
             Status = e.Status,
+            Priority = e.Priority,
         }).ToList();
     }
 
@@ -52,7 +54,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
     {
         var entities = await repository.GetEntitiesById(id);
 
-        if (entities == null) return Enumerable.Empty<TaskModel>();
+        if (entities == null) return [];
 
         return entities.Select(e => new TaskModel
         {
@@ -62,11 +64,12 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Description = e.Description,
 
             CreatorId = e.CreatorId,
-            ProjectId = e.ProjectId,
-            EmployeeId = e.EmployeeId,
+            PartId = e.PartId,
+            MemberId = e.PartId,
 
             Level = e.Level,
             Status = e.Status,
+            Priority = e.Priority,
         }).ToList();
     }
 
@@ -80,12 +83,13 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Description = model.Description ?? "",
 
             CreatorId = model.CreatorId,
-            ProjectId = model.ProjectId,
+            PartId = model.PartId,
 
             Level = model.Level,
+            Priority = model.Priority,
         };
 
-        return await repository.CreateEntity(model.ProjectId, entity);
+        return await repository.CreateEntity((Guid)model.PartId!, entity);
     }
 
     public async Task<bool> UpdateEntity(TaskModel model)
@@ -96,7 +100,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Name = model.Name!,
             Description = model.Description!,
 
-            EmployeeId = model.EmployeeId,
+            MemberId = model.MemberId,
 
             Level = model.Level,
             Status = model.Status,
@@ -110,9 +114,9 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         var queries = query.ToLower().Split(' ');
 
         return entities.Where(e => 
-            queries.Any(q => e.Name!.ToLower().Contains(q)) &&
+            queries.Any(q => e.Name!.Contains(q, StringComparison.CurrentCultureIgnoreCase)) &&
                                    !string.IsNullOrEmpty(e.Name) ||
-            queries.Any(q => e.Description!.ToLower().Contains(q)) &&
+            queries.Any(q => e.Description!.Contains(q, StringComparison.CurrentCultureIgnoreCase)) &&
                                    !string.IsNullOrEmpty(e.Description)
             );
     }
@@ -122,16 +126,16 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         return await repository.DeleteEntity(id);
     }
 
-    public async Task<bool> AddMemberToTask(Guid employeeId, Guid taskId)
+    public async Task<bool> AddMemberToTask(Guid memberId, Guid taskId)
     {
         await repository.UpdateEntity(new TaskDataModel
         {
             Id = taskId,
-            EmployeeId = employeeId,
+            MemberId = memberId,
             Status = (int)PublicConstants.Task.Doing
         });
 
-        return await repository.AddToEntity(employeeId, taskId);
+        return await repository.AddToEntity(memberId, taskId);
     }
 
     public async Task<bool> RemoveMemberFromTask(Guid employeeId, Guid taskId)
@@ -157,11 +161,12 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Description = t.Description,
             
             CreatorId = t.CreatorId,
-            ProjectId = t.ProjectId,
-            EmployeeId = t.EmployeeId,
+            PartId = t.PartId,
+            MemberId = t.MemberId,
 
             Level = t.Level,
-            Status = t.Status
+            Status = t.Status,
+            Priority = t.Priority,
         });
     }
 
@@ -177,11 +182,12 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Description = t.Description,
             
             CreatorId = t.CreatorId,
-            ProjectId = t.ProjectId,
-            EmployeeId = t.EmployeeId,
+            PartId = t.PartId,
+            MemberId = t.MemberId,
 
             Level = t.Level,
             Status = t.Status,
+            Priority = t.Priority,
         });
     }
 }

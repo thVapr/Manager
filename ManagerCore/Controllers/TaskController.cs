@@ -43,9 +43,10 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
                 Name = t.Name,
                 Description = t.Description,
                 CreatorId = t.CreatorId,
-                EmployeeId = t.EmployeeId,
+                MemberId = t.MemberId,
                 Level = t.Level,
                 Status = t.Status,
+                Priority = t.Priority,
             }));
     }
 
