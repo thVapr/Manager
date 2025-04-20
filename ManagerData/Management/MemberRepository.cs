@@ -42,21 +42,21 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<bool> AddToEntity(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
         await using var database = new MainDbContext();
 
         try
         {
-            var department = await database.Parts.Where(e => e.Id == firstId).FirstOrDefaultAsync();
+            var part = await database.Parts.Where(e => e.Id == destinationId).FirstOrDefaultAsync();
 
-            if (department == null) return false;
+            if (part == null) return false;
 
             await database.PartMembers.AddAsync(
                 new PartMembersDataModel()
                 {
-                    PartId = firstId,
-                    MemberId = secondId,
+                    PartId = destinationId,
+                    MemberId = sourceId,
                 }
             );
 

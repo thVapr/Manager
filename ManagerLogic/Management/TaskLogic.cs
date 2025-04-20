@@ -107,6 +107,26 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         });
     }
 
+    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<IEnumerable<TaskModel>> GetEntitiesByQuery(string query, Guid id)
     {
         var entities = await GetEntitiesById(id);

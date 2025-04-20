@@ -53,7 +53,7 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<bool> AddToEntity(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
         await using var database = new MainDbContext();
 
@@ -61,8 +61,8 @@ public class TaskRepository : ITaskRepository
         {
             await database.MemberTasks.AddAsync(new MemberTasksDataModel()
             {
-                MemberId = firstId,
-                TaskId = secondId,
+                MemberId = destinationId,
+                TaskId = sourceId,
             });
             
             await database.SaveChangesAsync();
@@ -76,14 +76,14 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
+    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
     {
         await using var database = new MainDbContext();
 
         try
         {
             var link = await database.MemberTasks
-                .Where(et => et.MemberId == firstId && et.TaskId == secondId)
+                .Where(et => et.MemberId == destinationId && et.TaskId == sourceId)
                 .FirstOrDefaultAsync();
 
             if (link == null) return false;

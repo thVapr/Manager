@@ -64,6 +64,26 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         });
     }
 
+    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IEnumerable<MemberModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();

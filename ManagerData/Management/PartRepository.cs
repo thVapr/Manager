@@ -55,7 +55,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
         }
     }
 
-    public async Task<bool> AddToEntity(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
         await using var database = new MainDbContext();
 
@@ -64,8 +64,8 @@ public class PartRepository : IManagementRepository<PartDataModel>
             await database.PartMembers.AddAsync(
                 new PartMembersDataModel()
                 {
-                    PartId = firstId,
-                    MemberId = secondId,
+                    PartId = destinationId,
+                    MemberId = sourceId,
                 }
             );
 
@@ -80,14 +80,14 @@ public class PartRepository : IManagementRepository<PartDataModel>
         }
     }
 
-    public async Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
+    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
     {
         await using var database = new MainDbContext();
 
         try
         {
             var link = await database.PartMembers
-                .Where(de => de.PartId == firstId && de.MemberId == secondId)
+                .Where(de => de.PartId == destinationId && de.MemberId == sourceId)
                 .FirstOrDefaultAsync();
 
             if (link == null) return false;
