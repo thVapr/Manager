@@ -75,14 +75,14 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
         throw new NotImplementedException();
     }
 
-    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
     {
-        throw new NotImplementedException();
+        return await repository.LinkEntities(masterId, slaveId);
     }
 
-    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
     {
-        throw new NotImplementedException();
+        return await repository.UnlinkEntities(masterId, slaveId);
     }
 
     public Task<IEnumerable<PartModel>> GetEntitiesByQuery(string query, Guid id)

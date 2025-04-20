@@ -42,21 +42,31 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
     {
         await using var database = new MainDbContext();
 
         try
         {
-            var part = await database.Parts.Where(e => e.Id == destinationId).FirstOrDefaultAsync();
+            var part = await database.Parts.Where(e => e.Id == masterId).FirstOrDefaultAsync();
 
             if (part == null) return false;
 
             await database.PartMembers.AddAsync(
                 new PartMembersDataModel()
                 {
-                    PartId = destinationId,
-                    MemberId = sourceId,
+                    PartId = masterId,
+                    MemberId = slaveId,
                 }
             );
 
@@ -69,16 +79,6 @@ public class MemberRepository : IMemberRepository
             Console.WriteLine(ex);
             return false;
         }
-    }
-
-    public Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
-    {
-        throw new NotImplementedException();
     }
 
     public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
@@ -112,16 +112,16 @@ public class MemberRepository : IMemberRepository
 
         try
         {
-            var employeeIds = await database.PartMembers
+            var memberIds = await database.PartMembers
                 .Where(d => d.PartId == id)
                 .Select(de => de.MemberId)
                 .ToListAsync();
 
-            var employees = await database.Members
-                .Where(e => employeeIds.Contains(e.Id))
+            var members = await database.Members
+                .Where(e => memberIds.Contains(e.Id))
                 .ToListAsync();
 
-            return employees;
+            return members;
         }
         catch (Exception ex)
         {

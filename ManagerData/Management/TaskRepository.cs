@@ -138,7 +138,7 @@ public class TaskRepository : ITaskRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            return [];
         }
     }
 
@@ -160,7 +160,7 @@ public class TaskRepository : ITaskRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            return [];
         }
     }
 
@@ -218,11 +218,7 @@ public class TaskRepository : ITaskRepository
             return false;
         }
     }
-
-    public void Dispose()
-    {
-    }
-
+    
     public async Task<IEnumerable<TaskDataModel>> GetFreeTasks(Guid projectId)
     {
         await using var database = new MainDbContext();
@@ -266,5 +262,9 @@ public class TaskRepository : ITaskRepository
             Console.WriteLine(ex);
             return [];
         }
+    }
+    
+    public void Dispose()
+    {
     }
 }

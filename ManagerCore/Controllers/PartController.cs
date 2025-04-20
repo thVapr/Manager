@@ -68,13 +68,17 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("link")]
     public async Task<IActionResult> LinkParts(string masterId, string slaveId)
     {
-        return StatusCode(501);
+        if (await partLogic.LinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
+            return Ok();
+        return BadRequest();
     }
     
     [HttpPost]
     [Route("move")]
-    public async Task<IActionResult> MovePart(string slaveId)
+    public async Task<IActionResult> MovePart(string masterId, string slaveId)
     {
-        return StatusCode(501);
+        if (await partLogic.UnlinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
+            return Ok();
+        return BadRequest();
     }
 }

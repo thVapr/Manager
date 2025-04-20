@@ -186,8 +186,8 @@ public class PartRepository : IManagementRepository<PartDataModel>
         try
         {
             var departments = await database.PartLinks.Where(c => c.MasterId == id).ToListAsync();
-            List<PartDataModel?> result = new();
-
+            List<PartDataModel?> result = [];
+            
             if (result == null) throw new ArgumentNullException(nameof(result));
 
             foreach (var v in departments)
