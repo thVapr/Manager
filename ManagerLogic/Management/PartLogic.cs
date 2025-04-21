@@ -50,9 +50,13 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
             Id = Guid.NewGuid(),
             Name = model.Name!,
             Description = model.Description!,
+            Level = model.Level!,
+            TypeId = model.TypeId!,
         };
-
-        return await repository.CreateEntity(model.WorkspaceId, entity);
+        
+        if (model.MasterId.HasValue)
+            return await repository.CreateEntity((Guid)model.MasterId, entity);
+        return await repository.CreateEntity(entity);
     }
 
     public async Task<bool> UpdateEntity(PartModel model)
