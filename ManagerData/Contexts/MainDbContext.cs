@@ -29,12 +29,19 @@ public sealed class MainDbContext : DbContext
             .WithMany(e => e.PartMembers)
             .HasForeignKey(fk => fk.PartId);
 
+        modelBuilder.Entity<PartLinks>()
+            .HasKey(k => new {k.MasterId, k.SlaveId});
+        modelBuilder.Entity<PartLinks>()
+            .HasOne(e => e.MasterPart)
+            .WithMany(e => e.Subparts)
+            .HasForeignKey(fk => fk.MasterId);
+        modelBuilder.Entity<PartLinks>()
+            .HasOne(e => e.SlavePart)
+            .WithMany(e => e.Subparts)
+            .HasForeignKey(fk => fk.SlaveId);
+        
         modelBuilder.Entity<PartTasksDataModel>()
             .HasKey(k => new {k.PartId, k.TaskId});
-
-        modelBuilder.Entity<PartLinks>()
-            .HasKey(k => new { k.MasterId, k.SlaveId });
-        
         modelBuilder.Entity<PartTasksDataModel>()
             .HasOne(e => e.Part)
             .WithMany(e => e.PartTasks)
@@ -42,7 +49,6 @@ public sealed class MainDbContext : DbContext
 
         modelBuilder.Entity<MemberTasksDataModel>()
             .HasKey(k => new { k.MemberId, k.TaskId });
-
         modelBuilder.Entity<MemberTasksDataModel>()
             .HasOne(e => e.Member)
             .WithMany(e => e.EmployeeTasks)
@@ -51,8 +57,9 @@ public sealed class MainDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        var secretProvider = new SecretProvider();
         optionsBuilder.UseNpgsql(
-            DataConstants.ManagerConnectionString
+            secretProvider.GetMainConnection()
         );
     }
 }

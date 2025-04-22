@@ -46,8 +46,9 @@ public sealed class AuthenticationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        var secretProvider = new SecretProvider();
         optionsBuilder.UseNpgsql(
-            DataConstants.AuthConnectionString                
+            secretProvider.GetAuthConnection()
         );
     }
 }
