@@ -8,7 +8,7 @@ public sealed class AuthenticationDbContext : DbContext
 {
     public AuthenticationDbContext()
     {
-        Database.EnsureCreated();
+        Database.Migrate();
     }
 
     public DbSet<UserDataModel> Users { get; set; } = null!;

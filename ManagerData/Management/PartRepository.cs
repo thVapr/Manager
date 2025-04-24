@@ -39,7 +39,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
             if (model.Level > 0)
             {
                 await database.PartLinks.AddAsync(
-                    new PartLinks
+                    new PartLink
                     {
                         MasterId = masterPartId, SlaveId = model.Id
                     });
@@ -117,7 +117,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
                 return false;
 
             await database.PartLinks.AddAsync(
-                new PartLinks
+                new PartLink
                 {
                     MasterId = masterId,
                     SlaveId = slaveId,

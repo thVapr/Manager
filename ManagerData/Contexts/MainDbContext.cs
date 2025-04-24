@@ -8,14 +8,14 @@ public sealed class MainDbContext : DbContext
 {
     public MainDbContext()
     {
-        Database.EnsureCreated();
+        Database.Migrate();
     }
 
     public DbSet<MemberDataModel> Members { get; set; } = null!;
     public DbSet<PartDataModel> Parts { get; set; } = null!;
     public DbSet<TaskDataModel> Tasks { get; set; } = null!;
     public DbSet<PartMembersDataModel> PartMembers { get; set; } = null!;
-    public DbSet<PartLinks> PartLinks { get; set; } = null!;
+    public DbSet<PartLink> PartLinks { get; set; } = null!;
     public DbSet<PartTasksDataModel> PartTasks { get; set; } = null!;
     public DbSet<MemberTasksDataModel> MemberTasks { get; set; } = null!;
 
@@ -29,16 +29,18 @@ public sealed class MainDbContext : DbContext
             .WithMany(e => e.PartMembers)
             .HasForeignKey(fk => fk.PartId);
 
-        modelBuilder.Entity<PartLinks>()
+        modelBuilder.Entity<PartLink>()
             .HasKey(k => new {k.MasterId, k.SlaveId});
-        modelBuilder.Entity<PartLinks>()
+        modelBuilder.Entity<PartLink>()
             .HasOne(e => e.MasterPart)
-            .WithMany(e => e.Subparts)
-            .HasForeignKey(fk => fk.MasterId);
-        modelBuilder.Entity<PartLinks>()
+            .WithMany(e => e.SubParts)
+            .HasForeignKey(fk => fk.MasterId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<PartLink>()
             .HasOne(e => e.SlavePart)
-            .WithMany(e => e.Subparts)
-            .HasForeignKey(fk => fk.SlaveId);
+            .WithOne(e => e.MainPart)
+            .HasForeignKey<PartLink>(fk => fk.SlaveId)
+            .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<PartTasksDataModel>()
             .HasKey(k => new {k.PartId, k.TaskId});

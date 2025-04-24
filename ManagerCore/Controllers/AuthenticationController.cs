@@ -34,7 +34,8 @@ public class AuthenticationController(IAuthentication authentication) : Controll
             return BadRequest();
         }
 
-        return Ok(await authentication.Authenticate(user));
+        var tokenPair = await authentication.Authenticate(user);
+        return !string.IsNullOrWhiteSpace(tokenPair.Item1) ? Ok() : StatusCode(401, "Invalid username or password");
     }
 
     [HttpPost("logout")]

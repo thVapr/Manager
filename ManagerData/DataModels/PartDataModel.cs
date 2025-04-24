@@ -9,7 +9,8 @@ public class PartDataModel: BaseDataModel
     public int Level { get; set; } = 0;
     public Guid? TypeId { get; set; }
     
-    public IEnumerable<PartDataModel>? Subparts { get; set; }
+    public IEnumerable<PartLink>? SubParts { get; set; }
+    public PartLink? MainPart { get; set; }
     public IEnumerable<PartTasksDataModel>? PartTasks { get; set; }
     public IEnumerable<PartMembersDataModel>? PartMembers { get; set; }
 }

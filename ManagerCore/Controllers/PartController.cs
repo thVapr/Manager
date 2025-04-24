@@ -24,7 +24,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     {
         return Ok(await partLogic.GetEntityById(Guid.Parse(id)));
     }
-
+    
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(PartModel model)
