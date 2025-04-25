@@ -21,3 +21,9 @@ docker run \
     -e "MINIO_ROOT_USER=user" \
     -e "MINIO_ROOT_PASSWORD=password" \
     quay.io/minio/minio server /data --console-address ":9001"
+
+## Secrets
+
+dotnet user-secrets init
+dotnet user-secrets set "ManagerAuth" "Host=localhost;Port=5432;Database=manager_auth;Username=postgres;Password=password"
+dotnet user-secrets set "ManagerData" "Host=localhost;Port=5432;Database=manager_data;Username=postgres;Password=password"
