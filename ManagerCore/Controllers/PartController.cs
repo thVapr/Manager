@@ -1,4 +1,5 @@
 ﻿using ManagerCore.Models;
+using ManagerCore.Utils;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +10,7 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/parts")]
 [Authorize]
-public class PartController(IPartLogic partLogic) : ControllerBase
+public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAccessor) : ControllerBase
 {
     [HttpGet]
     [Route("all")]
@@ -18,6 +19,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
         return Ok(await partLogic.GetEntitiesById(Guid.Parse(id)));
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [1])]
     [HttpGet]
     [Route("get")]
     public async Task<IActionResult> GetModel(string id)
@@ -34,12 +36,22 @@ public class PartController(IPartLogic partLogic) : ControllerBase
 
         return BadRequest();
     }
+    
+    [HttpPost]
+    [Route("change_privilege")]
+    public async Task<IActionResult> ChangePrivilege(string userId, string partId, int privilege)
+    {
+        if (await partLogic.ChangePrivilege(Guid.Parse(userId), Guid.Parse(partId), privilege))
+            return Ok();
+
+        return BadRequest();
+    }
 
     [HttpPost]
     [Route("add")]
     public async Task<IActionResult> AddMemberToPart([FromBody] PartMembersModel model)
     {
-        if (await partLogic.AddEmployeeToDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.AddToEntity(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -49,7 +61,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("remove")]
     public async Task<IActionResult> RemoveMemberFromPart([FromBody] PartMembersModel model)
     {
-        if (await partLogic.RemoveEmployeeFromDepartment(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.RemoveFromEntity(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -78,6 +90,15 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     public async Task<IActionResult> MovePart(string masterId, string slaveId)
     {
         if (await partLogic.UnlinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
+            return Ok();
+        return BadRequest();
+    }
+
+    [HttpDelete]
+    [Route("delete")]
+    public async Task<IActionResult> DeletePart(string id)
+    {
+        if (await partLogic.DeleteEntity(Guid.Parse(id)))
             return Ok();
         return BadRequest();
     }

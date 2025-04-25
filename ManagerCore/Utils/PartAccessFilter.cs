@@ -1,0 +1,40 @@
+﻿using System.Security.Claims;
+using ManagerLogic.Management;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace ManagerCore.Utils;
+
+public class PartAccessFilter(IPartLogic partLogic, int requiredLevel) : IAsyncActionFilter
+{
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        var userId = GetUserId(context.HttpContext.User);
+        var partId = GetPartId(context);
+
+        if (!await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
+        {
+            context.Result = new ForbidResult();
+            return;
+        }
+
+        await next();
+    }
+
+    private Guid GetUserId(ClaimsPrincipal user)
+    {
+        return Guid.TryParse(user.FindFirst("id")?.Value, out var id)
+            ? id
+            : Guid.Empty;
+    }
+
+    private Guid GetPartId(ActionExecutingContext context)
+    {
+        var partId = context.ActionArguments.TryGetValue("id", out var id) 
+            ? id :
+            string.Empty;
+        return Guid.TryParse(partId?.ToString(), out var parsedId)
+            ? parsedId
+            : Guid.Empty;
+    }
+}

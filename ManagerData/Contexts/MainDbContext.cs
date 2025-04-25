@@ -23,7 +23,6 @@ public sealed class MainDbContext : DbContext
     {
         modelBuilder.Entity<PartMembersDataModel>()
             .HasKey(k => new { k.PartId, k.MemberId });
-
         modelBuilder.Entity<PartMembersDataModel>()
             .HasOne(e => e.Part)
             .WithMany(e => e.PartMembers)
@@ -35,12 +34,12 @@ public sealed class MainDbContext : DbContext
             .HasOne(e => e.MasterPart)
             .WithMany(e => e.SubParts)
             .HasForeignKey(fk => fk.MasterId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<PartLink>()
             .HasOne(e => e.SlavePart)
             .WithOne(e => e.MainPart)
             .HasForeignKey<PartLink>(fk => fk.SlaveId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<PartTasksDataModel>()
             .HasKey(k => new {k.PartId, k.TaskId});

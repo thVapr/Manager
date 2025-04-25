@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class PartRepository : IManagementRepository<PartDataModel>
+//TODO: Нужно вынести всю логику в следующий слой
+public class PartRepository : IPartRepository
 {
     public async Task<bool> CreateEntity(PartDataModel model)
     {
@@ -36,13 +37,9 @@ public class PartRepository : IManagementRepository<PartDataModel>
 
             await CreateEntity(model);
 
-            if (model.Level > 0)
+            if (masterPartId != Guid.Empty)
             {
-                await database.PartLinks.AddAsync(
-                    new PartLink
-                    {
-                        MasterId = masterPartId, SlaveId = model.Id
-                    });
+                await LinkEntities(masterPartId, model.Id);
             }
             await database.SaveChangesAsync();
 
@@ -66,6 +63,7 @@ public class PartRepository : IManagementRepository<PartDataModel>
                 {
                     PartId = destinationId,
                     MemberId = sourceId,
+                    Privileges = 1 //TODO: Определить уровни привилегий
                 }
             );
 
@@ -238,7 +236,6 @@ public class PartRepository : IManagementRepository<PartDataModel>
         try
         {
             var existingPart = await database.Parts.FindAsync(id);
-
             if (existingPart == null) return false;
 
             database.Parts.Remove(existingPart);
@@ -249,6 +246,59 @@ public class PartRepository : IManagementRepository<PartDataModel>
         catch (Exception ex)
         {
             Console.WriteLine(ex);
+            return false;
+        }
+    }
+
+    public async Task<IEnumerable<PartLink>> GetLinks(Guid partId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            return await database.PartLinks.Where(pl => pl.MasterId == partId || pl.SlaveId == partId).ToListAsync();;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return [];
+        }
+    }
+
+    public async Task<IEnumerable<PartMembersDataModel>> GetPartMembers(Guid partId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            return await database.PartMembers.Where(pm => pm.PartId == partId).ToListAsync();;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return [];
+        }
+    }
+
+    public async Task<bool> SetPrivileges(Guid userId, Guid partId, int privilege)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var partMember = await database.PartMembers
+                .Where(pm => pm.PartId == partId && pm.MemberId == userId)
+                .FirstOrDefaultAsync();
+            if (partMember == null) return false;
+            
+            partMember.Privileges = privilege;
+            await database.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
             return false;
         }
     }

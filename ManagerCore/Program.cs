@@ -72,13 +72,13 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
-
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
 builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository>();
 builder.Services.AddSingleton<IAuthentication,Authentication>();
 builder.Services.AddSingleton<IEncrypt,Encrypt>();
 
-builder.Services.AddSingleton<IManagementRepository<PartDataModel>, PartRepository>();
+builder.Services.AddSingleton<IPartRepository, PartRepository>();
 builder.Services.AddSingleton<IPartLogic, PartLogic>();
 
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();

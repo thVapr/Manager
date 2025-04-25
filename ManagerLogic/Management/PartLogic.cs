@@ -1,11 +1,11 @@
-﻿
+﻿using ManagerLogic.Models;
 using ManagerData.DataModels;
 using ManagerData.Management;
-using ManagerLogic.Models;
+using ManagerData.Authentication;
 
 namespace ManagerLogic.Management;
 
-public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartLogic
+public class PartLogic(IPartRepository repository) : IPartLogic
 {
     public async Task<PartModel> GetEntityById(Guid id)
     {
@@ -53,9 +53,11 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
             Level = model.Level!,
             TypeId = model.TypeId!,
         };
-        
+
         if (model.MasterId.HasValue)
+        {
             return await repository.CreateEntity((Guid)model.MasterId, entity);
+        }
         return await repository.CreateEntity(entity);
     }
 
@@ -69,9 +71,9 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
         });
     }
 
-    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
-        throw new NotImplementedException();
+        return await repository.AddToEntity(destinationId, sourceId);
     }
 
     public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
@@ -94,18 +96,22 @@ public class PartLogic(IManagementRepository<PartDataModel> repository) : IPartL
         throw new NotImplementedException();
     }
 
-    public Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> DeleteEntity(Guid id)
     {
-        throw new NotImplementedException();
+        return await repository.DeleteEntity(id);
     }
 
-    public async Task<bool> AddEmployeeToDepartment(Guid departmentId, Guid employeeId)
+    public async Task<bool> ChangePrivilege(Guid userId, Guid partId, int privilege)
     {
-        return await repository.AddToEntity(departmentId, employeeId);
+        return await repository.SetPrivileges(userId, partId, privilege); 
     }
 
-    public async Task<bool> RemoveEmployeeFromDepartment(Guid departmentId, Guid employeeId)
+    public async Task<bool> IsUserHasPrivileges(Guid userId, Guid partId, int privilege)
     {
-        return await repository.RemoveFromEntity(departmentId, employeeId);
+        var usersPrivileges = (await repository.GetPartMembers(partId))
+            .Where(up => up.MemberId == userId)
+            .Select(up => up.Privileges)
+            .ToList();
+        return usersPrivileges.Contains(privilege);
     }
 }
