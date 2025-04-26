@@ -3,8 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../services/task/task.service';
 import { Task } from '../models/Task';
 import { AuthService } from '../services/auth/auth.service';
-import { CompanyDepartmentsService } from '../services/company-departments/company-departments.service';
-import { ProjectService } from '../services/project/project.service';
+import { PartLinksService } from '../services/part-links/part-links.service';
+import { PartService } from '../services/part/part.service';
 import { Status } from '../status'
 
 @Component({
@@ -23,34 +23,22 @@ export class TaskComponent implements OnInit {
 
   constructor(private taskService : TaskService,
     public authService: AuthService,
-    public departmentService: CompanyDepartmentsService,
-    public projectService: ProjectService) {}
+    public partLinksService: PartLinksService,
+    public partService: PartService) {}
 
   ngOnInit(): void {
     this.Update();
 
     const id = this.authService.getId();
-    const departmentId = this.departmentService.getDepartmentId();
+    const departmentId = this.partService.getPartId();
 
     if (departmentId !== null) {
-      this.departmentService.getDepartment(departmentId).subscribe({
+      this.partLinksService.getPart(departmentId).subscribe({
         next: (department) => {
           if (department.managerId !== null && department.managerId !== undefined && department.managerId == id)
             this.isDepartmentManager = true;
         },
         error: () => this.isDepartmentManager = false
-      });
-    }
-
-    const projectId = this.projectService.getProjectId();
-
-    if (projectId !== null) {
-      this.projectService.getProjectById(projectId).subscribe({
-        next: (project) => {
-          if (project.managerId !== null && project.managerId !== undefined && project.managerId == id)
-            this.isProjectManager = true;
-        },
-        error: () => this.isProjectManager = false
       });
     }
   }

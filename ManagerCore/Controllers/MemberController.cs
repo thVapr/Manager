@@ -11,7 +11,7 @@ namespace ManagerCore.Controllers;
 [Route("/api/members")]
 [Authorize]
 public class MemberController(
-    IMemberLogic employeeLogic,
+    IMemberLogic memberLogic,
     IPartLogic partLogic,
     IAuthentication authentication)
     : ControllerBase
@@ -20,27 +20,27 @@ public class MemberController(
 
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetEmployee(string id)
+    public async Task<IActionResult> GetMember(string id)
     {
-        return Ok(await employeeLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await memberLogic.GetEntityById(Guid.Parse(id)));
     }
 
     [HttpGet]
     [Route("get_members")]
-    public async Task<IActionResult> GetEmployeesWithoutProjects(string id)
+    public async Task<IActionResult> GetMembersWithoutPart(string id)
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await employeeLogic.GetFreeMembersInPart(Guid.Parse(id));
+        var employees = await memberLogic.GetFreeMembersInPart(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
 
     [HttpGet]
     [Route("get_free_members")]
-    public async Task<IActionResult> GetEmployeesWithoutDepartment()
+    public async Task<IActionResult> GetMembersWithoutAnyPart()
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await employeeLogic.GetMembersWithoutPart();
+        var employees = await memberLogic.GetMembersWithoutPart();
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -50,26 +50,26 @@ public class MemberController(
     public async Task<IActionResult> GetAll(string id)
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await employeeLogic.GetEntitiesById(Guid.Parse(id));
+        var employees = await memberLogic.GetEntitiesById(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
 
     [HttpGet]
     [Route("get_part_members")]
-    public async Task<IActionResult> GetAllEmployeesByProjectId(string id)
+    public async Task<IActionResult> GetAllMembersByPartId(string id)
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await employeeLogic.GetMembersFromPart(Guid.Parse(id));
+        var employees = await memberLogic.GetMembersFromPart(Guid.Parse(id));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
 
     [HttpGet]
     [Route("get_member_profile")]
-    public async Task<IActionResult> GetEmployeeProfile(string id)
+    public async Task<IActionResult> GetMemberProfile(string id)
     {
-        var employee = await employeeLogic.GetEntityById(Guid.Parse(id));
+        var employee = await memberLogic.GetEntityById(Guid.Parse(id));
 
         if (employee.Id != id) return BadRequest(); 
 
@@ -99,18 +99,18 @@ public class MemberController(
 
     [HttpPost]
     [Route("create")]
-    public async Task<IActionResult> CreateEmployee(MemberModel model)
+    public async Task<IActionResult> CreateMember(MemberModel model)
     {
-        if (await employeeLogic.CreateEntity(model))
+        if (await memberLogic.CreateEntity(model))
             return Ok();
         return BadRequest();
     }
 
     [HttpPut]
     [Route("update")]
-    public async Task<IActionResult> UpdateEmployee(MemberModel model)
+    public async Task<IActionResult> UpdateMember(MemberModel model)
     {
-        if (await employeeLogic.UpdateEntity(model))
+        if (await memberLogic.UpdateEntity(model))
             return Ok();
         return BadRequest();
     }

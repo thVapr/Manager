@@ -11,38 +11,30 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { CompanyComponent } from './company/company.component';
-import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
-import { EmployeeComponent } from './employee/employee.component';
-import { ProjectComponent } from './project/project.component';
-import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
-import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
+import { PartComponent } from './part/part.component';
+import { PartLinksComponent } from './part-links/part-links.component';
+import { MemberComponent } from './member/member.component';
+import { PartMembersComponent } from './part-members/part-members.component';
 import { TaskComponent } from './task/task.component';
-import { CompanyProfileComponent } from './company-profile/company-profile.component';
-import { DepartmentProfileComponent } from './department-profile/department-profile.component';
-import { ProjectProfileComponent } from './project-profile/project-profile.component';
-import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
+import { PartProfileComponent } from './part-profile/part-profile.component';
+import { PartTasksComponent } from './part-tasks/part-tasks.component';
 import { TaskProfileComponent } from './task-profile/task-profile.component';
-import { EmployeeProfileComponent } from './employee-profile/employee-profile.component';
+import { MemberProfileComponent } from './member-profile/member-profile.component';
 
 @NgModule({ declarations: [
         AppComponent,
         HomeComponent,
         LoginComponent,
         RegisterComponent,
-        CompanyComponent,
-        CompanyDepartmentsComponent,
-        EmployeeComponent,
-        ProjectComponent,
-        ProjectEmployeesComponent,
-        DepartmentEmployeesComponent,
+        PartComponent,
+        PartLinksComponent,
+        MemberComponent,
+        PartMembersComponent,
         TaskComponent,
-        CompanyProfileComponent,
-        DepartmentProfileComponent,
-        ProjectProfileComponent,
-        ProjectTasksComponent,
+        PartProfileComponent,
         TaskProfileComponent,
-        EmployeeProfileComponent,
+        PartTasksComponent,
+        MemberProfileComponent,
     ],
     exports: [
         LoginComponent,

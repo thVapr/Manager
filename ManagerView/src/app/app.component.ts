@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './services/auth/auth.service';
-import { CompanyService } from './services/company/company.service';
-import { CompanyDepartmentsService } from './services/company-departments/company-departments.service';
-import { EmployeeService } from './services/employee/employee.service';
-import { ProjectService } from './services/project/project.service';
+import { PartLinksService } from './services/part-links/part-links.service';
+import { MemberService } from './services/member/member.service';
+import { PartService } from './services/part/part.service';
 
 @Component({
     selector: 'app-root',
@@ -19,7 +18,7 @@ export class AppComponent implements OnInit {
   isDepartmentManager : boolean = false;
 
   get companyName() {
-    const name = this.companyService.getCompanyName();
+    const name = this.partService.getPartName();
 
     if (name !== null)
       return name;
@@ -30,7 +29,7 @@ export class AppComponent implements OnInit {
   }
 
   get departmentName() {
-    const name = this.companyDepartmentsService.getDepartmentName();
+    const name = this.partLinksService.getDepartmentName();
 
     if (name !== null && name !== '')
       return name;
@@ -41,7 +40,7 @@ export class AppComponent implements OnInit {
   }
 
   get projectName() {
-    const name = this.projectService.getProjectName();
+    const name = this.partService.getPartName();
 
     if (name !== null && name !== '')
       return name;
@@ -52,39 +51,25 @@ export class AppComponent implements OnInit {
   }
 
   constructor (public authService: AuthService,
-               public companyService : CompanyService,
-               public companyDepartmentsService : CompanyDepartmentsService,
-               public employeeService : EmployeeService,
-               public projectService: ProjectService) {}
+               public partService : PartService,
+               public partLinksService : PartLinksService,
+               public memberService : MemberService) {}
 
   ngOnInit(): void {
     const id = this.authService.getId();
 
     if (id !== null ) {
-      this.employeeService.getEmployeeById(id).subscribe({
+      this.memberService.getEmployeeById(id).subscribe({
         next: (employee) => {
           if (employee.lastName !== null && employee.firstName !== null) {
             this.employeeProfileString = employee.lastName + ' ' + employee.firstName;
             this.isEmployeeExist = true;
 
             if(employee.companyId !== null && employee.companyId !== undefined) {
-              this.companyService.setCompanyId(employee.companyId);
+              this.partService.setPartId(employee.companyId);
               if (employee.companyName !== "" && employee.companyName !== undefined)
-                this.companyService.setCompanyName(employee.companyName);
+                this.partService.setPartName(employee.companyName);
             }
-            
-            if(employee.projectId !== null && employee.projectId !== undefined) {
-              this.projectService.setProjectId(employee.projectId);
-              if (employee.projectName !== "" && employee.projectName !== undefined)
-                this.projectService.setProjectName(employee.projectName);
-            }
-
-            if(employee.departmentId !== null && employee.departmentId !== undefined) {
-              this.companyDepartmentsService.setDepartmentId(employee.departmentId);
-              if (employee.departmentName !== "" && employee.departmentName !== undefined)
-                this.companyDepartmentsService.setDepartmentName(employee.departmentName);
-            }
-
           }
         },
         error: () => {
@@ -94,10 +79,10 @@ export class AppComponent implements OnInit {
       });
     }
 
-    const departmentId = this.companyDepartmentsService.getDepartmentId();
+    const departmentId = this.partLinksService.getDepartmentId();
 
     if (departmentId !== null) {
-      this.companyDepartmentsService.getDepartment(departmentId).subscribe({
+      this.partLinksService.getPart(departmentId).subscribe({
         next: (department) => {
           if (department.managerId !== null && department.managerId !== undefined && department.managerId == id)
             this.isDepartmentManager = true;
@@ -105,19 +90,6 @@ export class AppComponent implements OnInit {
         error: () => this.isDepartmentManager = false
       });
     }
-
-    const projectId = this.projectService.getProjectId();
-
-    if (projectId !== null) {
-      this.projectService.getProjectById(projectId).subscribe({
-        next: (project) => {
-          if (project.managerId !== null && project.managerId !== undefined && project.managerId == id)
-            this.isProjectManager = true;
-        },
-        error: () => this.isProjectManager = false
-      });
-    }
-
   }
 
   async logout() {

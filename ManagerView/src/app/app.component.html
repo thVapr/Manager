@@ -21,17 +21,17 @@
       <a class="text-white" href="home" *ngIf="!authService.isAuthenticated()||!isEmployeeExist">Добро пожаловать</a>
       <div *ngIf="authService.isAuthenticated()&&isEmployeeExist">
         <a class="text-white" 
-           [href]="'company/about/' + companyService.getCompanyId()" 
+           [href]="'company/about/' + partService.getPartId()" 
            *ngIf="!authService.isAdmin()">
             {{ companyName }} 
         </a>
         <a class="text-white m-2" 
-           [href]="'department/about/' + companyDepartmentsService.getDepartmentId()" 
-           *ngIf="companyService.isCompanySelected()&&!authService.isAdmin()">
+           [href]="'department/about/' + partLinksService.getDepartmentId()" 
+           *ngIf="partService.isPartSelected()&&!authService.isAdmin()">
             {{ departmentName }}</a>
         <a class="text-white m-2" 
-           [href]="'project/about/' + projectService.getProjectId()" 
-           *ngIf="companyDepartmentsService.isDepartmentSelected()&&!authService.isAdmin() && !isDepartmentManager">
+           [href]="'project/about/' + partService.getPartId()" 
+           *ngIf="partLinksService.isDepartmentSelected()&&!authService.isAdmin() && !isDepartmentManager">
             {{ projectName }}
         </a>
 
@@ -42,12 +42,12 @@
         </a>
         <a class="text-white m-2"
            href="company/departments" 
-           *ngIf="companyService.isCompanySelected()&&authService.isAdmin()">
+           *ngIf="partService.isPartSelected()&&authService.isAdmin()">
             {{ departmentName }}
         </a>
         <a class="text-white m-2"
            href="project"
-           *ngIf="companyDepartmentsService.isDepartmentSelected()&&(authService.isAdmin() || isDepartmentManager)">
+           *ngIf="partLinksService.isDepartmentSelected()&&(authService.isAdmin() || isDepartmentManager)">
             {{ projectName }}
         </a>
       </div>
@@ -78,22 +78,22 @@
         <span>{{ employeeProfileString }}</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="department/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager)&&companyDepartmentsService.isDepartmentSelected()">
+      <a class="card" rel="noopener" routerLink="department/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager)&&partLinksService.isDepartmentSelected()">
         <i class="bi bi-cup-hot"></i>
         <span>Отдел</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="project/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager || isProjectManager)&&projectService.isProjectSelected()">
+      <a class="card" rel="noopener" routerLink="project/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager || isProjectManager)&&partService.isPartSelected()">
         <i class="bi bi-cup-hot"></i>
         <span>Проект</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="employee/tasks" *ngIf="authService.isAuthenticated()&&projectService.isProjectSelected()">
+      <a class="card" rel="noopener" routerLink="employee/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected()">
         <i class="bi bi-list-task"></i>
         <span>Задачи</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="project/tasks" *ngIf="authService.isAuthenticated()&&projectService.isProjectSelected()">
+      <a class="card" rel="noopener" routerLink="project/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected">
         <i class="bi bi-list-task"></i>
         <span>Задачи проекта</span>
       </a>

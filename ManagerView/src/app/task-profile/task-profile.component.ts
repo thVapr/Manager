@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TaskService } from '../services/task/task.service';
 import { ActivatedRoute } from '@angular/router';
-import { EmployeeService } from '../services/employee/employee.service';
+import { MemberService } from '../services/member/member.service';
 import { Employee } from '../models/Employee';
 import { Status } from '../status';
 import { Constants } from '../constants';
@@ -37,7 +37,7 @@ export class TaskProfileComponent {
 
   constructor(private taskService : TaskService,
               private route : ActivatedRoute,
-              private employeeService : EmployeeService,
+              private memberService : MemberService,
               private authService : AuthService) {}
 
   ngOnInit(): void {
@@ -69,7 +69,7 @@ export class TaskProfileComponent {
       }
       
       if (task.creatorId !== undefined)
-        this.employeeService.getEmployeeById(task.creatorId).subscribe((employee) => {
+        this.memberService.getEmployeeById(task.creatorId).subscribe((employee) => {
           this.creator = employee;
 
           const id = this.authService.getId();
@@ -86,7 +86,7 @@ export class TaskProfileComponent {
           }
         });
       if (task.employeeId !== undefined)
-        this.employeeService.getEmployeeById(task.employeeId).subscribe((employee) => {
+        this.memberService.getEmployeeById(task.employeeId).subscribe((employee) => {
           this.employee = employee;
         });
 
