@@ -1,0 +1,30 @@
+<h2 class="mb-5 text-center">Проекты</h2>
+
+<form [formGroup]="addProjectForm" (ngSubmit)="OnSubmit()" class="row mb-5" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager)">
+    <div class="form-outline mb-2">
+      <input type="text" class="form-control form-control-lg"
+        placeholder="Название" formControlName="name"/>
+    </div>
+
+    <div class="form-outline mb-2">
+      <textarea type="text" class="form-control form-control-lg"
+        placeholder="Описание" formControlName="description"></textarea>
+    </div>
+    <div class="text-center text-lg-start">
+      <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+    </div>
+</form>
+
+
+<div class="container">
+  <table class="row" *ngFor="let project of projects">
+    <td class="col">
+      <a class="btn btn-light w-100" [href]="'project/about/' + project.id">{{project.name}}</a>
+    </td>
+    <td class="col mb-3">
+      <button class="col" class="btn btn-primary" (click)="ChooseProject(project.id, project.name)">Выбрать</button>
+    </td>
+
+    <hr>
+  </table>
+</div>

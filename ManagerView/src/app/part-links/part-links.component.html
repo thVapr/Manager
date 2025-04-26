@@ -1,0 +1,29 @@
+  
+<h2 class="mb-5 text-center">Отделы</h2>
+
+<form [formGroup]="addCompanyForm" (ngSubmit)="OnSubmit()" class="row mb-5" *ngIf="authService.isAuthenticated()&&authService.isAdmin()">
+    <div class="form-outline mb-2">
+      <input type="text" class="form-control form-control-lg"
+        placeholder="Название" formControlName="name"/>
+    </div>
+
+    <div class="form-outline mb-2">
+      <textarea type="text" class="form-control form-control-lg"
+        placeholder="Описание" formControlName="description"></textarea>
+    </div>
+    <div class="text-center text-lg-start">
+      <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+    </div>
+</form>
+
+<div class="container">
+  <table class="row" *ngFor="let department of departments">
+    <td class="col">
+      <a class="btn btn-light w-100" [href]="'department/about/' + department.id">{{department.name}}</a>
+    </td>
+    <td class="col mb-3">
+      <button class="col" class="btn btn-primary" (click)="ChooseDepartment(department.id, department.name)">Выбрать</button>
+    </td>
+    <hr>
+  </table>
+</div>
