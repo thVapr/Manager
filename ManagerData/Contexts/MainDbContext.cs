@@ -16,6 +16,7 @@ public sealed class MainDbContext : DbContext
     public DbSet<TaskDataModel> Tasks { get; set; } = null!;
     public DbSet<PartMembersDataModel> PartMembers { get; set; } = null!;
     public DbSet<PartLink> PartLinks { get; set; } = null!;
+    public DbSet<PartType> PartTypes { get; set; } = null!;
     public DbSet<PartTasksDataModel> PartTasks { get; set; } = null!;
     public DbSet<MemberTasksDataModel> MemberTasks { get; set; } = null!;
 
@@ -54,6 +55,7 @@ public sealed class MainDbContext : DbContext
             .HasOne(e => e.Member)
             .WithMany(e => e.EmployeeTasks)
             .HasForeignKey(fk => fk.MemberId);
+       
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

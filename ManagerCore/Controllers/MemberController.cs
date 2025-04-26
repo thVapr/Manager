@@ -69,9 +69,9 @@ public class MemberController(
     [Route("get_member_profile")]
     public async Task<IActionResult> GetMemberProfile(string id)
     {
-        var employee = await memberLogic.GetEntityById(Guid.Parse(id));
+        var member = await memberLogic.GetEntityById(Guid.Parse(id));
 
-        if (employee.Id != id) return BadRequest(); 
+        if (member.Id != id) return BadRequest(); 
 
         // TODO: Добавить логику
         //var employeeLinks = await _employeeLogic.GetEmployeeLinks(Guid.Parse(id));
@@ -80,19 +80,13 @@ public class MemberController(
         //var department = await _departmentLogic.GetEntityById(employeeLinks.DepartmentId);
 
         return Ok(new MemberViewModel()
-        //{
-        //    Id = employee.Id,
-            
-        //    FirstName = employee.FirstName!,
-        //    LastName = employee.LastName!,
-        //    Patronymic = employee.Patronymic!,
-
-        //    CompanyId = company.Id!,
-        //    CompanyName = company.Name!,
-
-        //    DepartmentId = department.Id!,
-        //    DepartmentName = department.Name!,
-        //}
+        {
+            Id = member.Id,
+          
+            FirstName = member.FirstName!,
+            LastName = member.LastName!,
+            Patronymic = member.Patronymic!,
+        }
         );
 
     }

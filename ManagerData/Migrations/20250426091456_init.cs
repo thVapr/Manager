@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace ManagerData.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,19 +27,16 @@ namespace ManagerData.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Parts",
+                name: "PartTypes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Level = table.Column<int>(type: "integer", nullable: false),
-                    TypeId = table.Column<Guid>(type: "uuid", nullable: true),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Parts", x => x.Id);
+                    table.PrimaryKey("PK_PartTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -62,6 +60,52 @@ namespace ManagerData.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Parts",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Level = table.Column<int>(type: "integer", nullable: false),
+                    TypeId = table.Column<int>(type: "integer", nullable: false),
+                    PartTypeId = table.Column<int>(type: "integer", nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Parts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Parts_PartTypes_PartTypeId",
+                        column: x => x.PartTypeId,
+                        principalTable: "PartTypes",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MemberTasks",
+                columns: table => new
+                {
+                    MemberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TaskId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MemberTasks", x => new { x.MemberId, x.TaskId });
+                    table.ForeignKey(
+                        name: "FK_MemberTasks_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MemberTasks_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PartLinks",
                 columns: table => new
                 {
@@ -76,13 +120,13 @@ namespace ManagerData.Migrations
                         column: x => x.MasterId,
                         principalTable: "Parts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_PartLinks_Parts_SlaveId",
                         column: x => x.SlaveId,
                         principalTable: "Parts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -106,30 +150,6 @@ namespace ManagerData.Migrations
                         name: "FK_PartMembers_Parts_PartId",
                         column: x => x.PartId,
                         principalTable: "Parts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MemberTasks",
-                columns: table => new
-                {
-                    MemberId = table.Column<Guid>(type: "uuid", nullable: false),
-                    TaskId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MemberTasks", x => new { x.MemberId, x.TaskId });
-                    table.ForeignKey(
-                        name: "FK_MemberTasks_Members_MemberId",
-                        column: x => x.MemberId,
-                        principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MemberTasks_Tasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "Tasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -177,6 +197,11 @@ namespace ManagerData.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Parts_PartTypeId",
+                table: "Parts",
+                column: "PartTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PartTasks_TaskId",
                 table: "PartTasks",
                 column: "TaskId",
@@ -206,6 +231,9 @@ namespace ManagerData.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tasks");
+
+            migrationBuilder.DropTable(
+                name: "PartTypes");
         }
     }
 }

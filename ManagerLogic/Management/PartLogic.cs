@@ -51,7 +51,7 @@ public class PartLogic(IPartRepository repository) : IPartLogic
             Name = model.Name!,
             Description = model.Description!,
             Level = model.Level!,
-            TypeId = model.TypeId!,
+            TypeId = model.TypeId,
         };
 
         if (model.MasterId.HasValue)

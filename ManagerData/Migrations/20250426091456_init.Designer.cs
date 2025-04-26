@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20250424160204_ChangeOnDelete")]
-    partial class ChangeOnDelete
+    [Migration("20250426091456_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,10 +84,15 @@ namespace ManagerData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TypeId")
-                        .HasColumnType("uuid");
+                    b.Property<int?>("PartTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PartTypeId");
 
                     b.ToTable("Parts");
                 });
@@ -141,6 +146,23 @@ namespace ManagerData.Migrations
                         .IsUnique();
 
                     b.ToTable("PartTasks");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PartTypes");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.TaskDataModel", b =>
@@ -200,6 +222,15 @@ namespace ManagerData.Migrations
                     b.Navigation("Member");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartDataModel", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.PartType", "PartType")
+                        .WithMany("Parts")
+                        .HasForeignKey("PartTypeId");
+
+                    b.Navigation("PartType");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.PartLink", b =>
@@ -275,6 +306,11 @@ namespace ManagerData.Migrations
                     b.Navigation("PartTasks");
 
                     b.Navigation("SubParts");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartType", b =>
+                {
+                    b.Navigation("Parts");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.TaskDataModel", b =>
