@@ -9,16 +9,26 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel) : IAsyncA
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var userId = GetUserId(context.HttpContext.User);
-        var partId = GetPartId(context);
-
-        if (!await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
+        var role = GetRole(context.HttpContext.User);
+        if (string.CompareOrdinal(role, "Admin") == 0
+            && string.CompareOrdinal(role, "Moderator") == 0)
         {
-            context.Result = new ForbidResult();
-            return;
+            var userId = GetUserId(context.HttpContext.User);
+            var partId = GetPartId(context);
+
+            if (!await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
+            {
+                context.Result = new ForbidResult();
+                return;
+            }
         }
 
         await next();
+    }
+
+    private string? GetRole(ClaimsPrincipal user)
+    {
+        return user.FindFirst(ClaimTypes.Role)?.Value;
     }
 
     private Guid GetUserId(ClaimsPrincipal user)

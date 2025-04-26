@@ -12,6 +12,7 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAccessor) : ControllerBase
 {
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [1])]
     [HttpGet]
     [Route("all")]
     public async Task<IActionResult> GetAll(string id)
@@ -27,6 +28,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return Ok(await partLogic.GetEntityById(Guid.Parse(id)));
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [3])]
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(PartModel model)
@@ -37,6 +39,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("change_privilege")]
     public async Task<IActionResult> ChangePrivilege(string userId, string partId, int privilege)
@@ -47,6 +50,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("add")]
     public async Task<IActionResult> AddMemberToPart([FromBody] PartMembersModel model)
@@ -57,6 +61,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("remove")]
     public async Task<IActionResult> RemoveMemberFromPart([FromBody] PartMembersModel model)
@@ -67,6 +72,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPut]
     [Route("update")]
     public async Task<IActionResult> UpdatePart([FromBody] PartModel model)
@@ -76,6 +82,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("link")]
     public async Task<IActionResult> LinkParts(string masterId, string slaveId)
@@ -85,6 +92,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("move")]
     public async Task<IActionResult> MovePart(string masterId, string slaveId)
@@ -94,6 +102,7 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpDelete]
     [Route("delete")]
     public async Task<IActionResult> DeletePart(string id)
