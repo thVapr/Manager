@@ -19,7 +19,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             
             CreatorId = entity.CreatorId,
             PartId = entity.PartId,
-            MemberId = entity.MemberId,
+            //MemberId = entity.MemberId,
 
             Level = entity.Level,
             Status = entity.Status,
@@ -27,7 +27,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         };
     }
 
-    public async Task<IEnumerable<TaskModel>> GetEntities()
+    public async Task<ICollection<TaskModel>> GetEntities()
     {
         var entities = await repository.GetEntities();
 
@@ -50,7 +50,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<TaskModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<TaskModel>> GetEntitiesById(Guid id)
     {
         var entities = await repository.GetEntitiesById(id);
 
@@ -100,7 +100,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Name = model.Name!,
             Description = model.Description!,
 
-            MemberId = model.MemberId,
+            //MemberId = model.MemberId,
 
             Level = model.Level,
             Status = model.Status,
@@ -127,7 +127,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<TaskModel>> GetEntitiesByQuery(string query, Guid id)
+    public async Task<ICollection<TaskModel>> GetEntitiesByQuery(string query, Guid id)
     {
         var entities = await GetEntitiesById(id);
 
@@ -138,7 +138,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
                                    !string.IsNullOrEmpty(e.Name) ||
             queries.Any(q => e.Description!.Contains(q, StringComparison.CurrentCultureIgnoreCase)) &&
                                    !string.IsNullOrEmpty(e.Description)
-            );
+            ).ToList();
     }
 
     public async Task<bool> DeleteEntity(Guid id)
@@ -151,7 +151,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         await repository.UpdateEntity(new TaskDataModel
         {
             Id = taskId,
-            MemberId = memberId,
+            //MemberId = memberId,
             Status = (int)PublicConstants.Task.Doing
         });
 
@@ -169,7 +169,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         return await repository.RemoveFromEntity(employeeId, taskId);
     }
 
-    public async Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId)
+    public async Task<ICollection<TaskModel>> GetFreeTasks(Guid projectId)
     {
         var tasks = await repository.GetFreeTasks(projectId);
 
@@ -182,15 +182,15 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             
             CreatorId = t.CreatorId,
             PartId = t.PartId,
-            MemberId = t.MemberId,
+            //MemberId = t.MemberId,
 
             Level = t.Level,
             Status = t.Status,
             Priority = t.Priority,
-        });
+        }).ToList();
     }
 
-    public async Task<IEnumerable<TaskModel>> GetMemberTasks(Guid employeeId)
+    public async Task<ICollection<TaskModel>> GetMemberTasks(Guid employeeId)
     {
         var tasks = await repository.GetMemberTasks(employeeId);
 
@@ -203,11 +203,11 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             
             CreatorId = t.CreatorId,
             PartId = t.PartId,
-            MemberId = t.MemberId,
+            //MemberId = t.MemberId,
 
             Level = t.Level,
             Status = t.Status,
             Priority = t.Priority,
-        });
+        }).ToList();
     }
 }

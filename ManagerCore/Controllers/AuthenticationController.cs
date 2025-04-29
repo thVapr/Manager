@@ -40,7 +40,6 @@ public class AuthenticationController(IAuthentication authentication) : Controll
     }
 
     [HttpPost("logout")]
-    [Authorize]
     public async Task<IActionResult> Logout(RefreshTokenModel model)
     {
         return await authentication.Logout(model.RefreshToken!) ? Ok() : BadRequest();

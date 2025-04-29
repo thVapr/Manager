@@ -32,18 +32,15 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var project = database.Parts.FirstOrDefault(p => p.Id == id);
+            var part = database.Parts.FirstOrDefault(p => p.Id == id);
+            if (part is null) return false;
 
-            if (project == null) return false;
-
-            await database.PartTasks.AddAsync(new PartTasksDataModel()
-            {
-                PartId = id,
-                TaskId = model.Id,
-            });
-
+            var task = await database.Tasks
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (task is null) return false;
+            
+            task!.PartId = id;
             await database.SaveChangesAsync();
-
             return true;
         }
         catch (Exception ex)
@@ -59,10 +56,11 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            await database.MemberTasks.AddAsync(new MemberTasksDataModel()
+            await database.TaskMembers.AddAsync(new TaskMember()
             {
                 MemberId = destinationId,
                 TaskId = sourceId,
+                ParticipationPurpose = 1
             });
             
             await database.SaveChangesAsync();
@@ -82,13 +80,13 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var link = await database.MemberTasks
+            var link = await database.TaskMembers
                 .Where(et => et.MemberId == destinationId && et.TaskId == sourceId)
                 .FirstOrDefaultAsync();
 
             if (link == null) return false;
 
-            database.MemberTasks.Remove(link);
+            database.TaskMembers.Remove(link);
             await database.SaveChangesAsync();
 
             return true;
@@ -148,9 +146,9 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var tasksId = await database.PartTasks
+            var tasksId = await database.Tasks
                 .Where(d => d.PartId == id)
-                .Select(d => d.TaskId)
+                .Select(d => d.Id)
                 .ToListAsync();
 
             return await database.Tasks
@@ -179,11 +177,7 @@ public class TaskRepository : ITaskRepository
             if (!string.IsNullOrEmpty(model.Description))
                 task.Description = model.Description;
 
-            if (model.MemberId != Guid.Empty)
-                task.MemberId = model.MemberId; 
-            
             task.Level = model.Level;
-
             task.Status = model.Status;
 
             await database.SaveChangesAsync();
@@ -227,7 +221,7 @@ public class TaskRepository : ITaskRepository
         {
             var entities = await GetEntitiesById(projectId);
 
-            var tasksIds = await database.MemberTasks
+            var tasksIds = await database.TaskMembers
                 .Select(et => et.TaskId)
                 .ToListAsync();
 
@@ -248,7 +242,7 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var taskIds = await database.MemberTasks
+            var taskIds = await database.TaskMembers
                 .Where(et => et.MemberId == employeeId)
                 .Select(et => et.TaskId)
                 .ToListAsync();

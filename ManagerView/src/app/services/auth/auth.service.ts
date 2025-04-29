@@ -104,10 +104,15 @@ export class AuthService {
   }
 
   async logout() {
-    const refreshToken = localStorage.getItem('refresh_token');
+    try {      
+      const refreshToken = localStorage.getItem('refresh_token');
 
-    await firstValueFrom(this.http.post<any>(`${this.apiUrl}/logout`, { refreshToken }));
-
-    localStorage.clear();
+      await firstValueFrom(this.http.post<any>(`${this.apiUrl}/logout`, { refreshToken }));
+      localStorage.clear();
+ 
+    } catch (error) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    }
   }
 }

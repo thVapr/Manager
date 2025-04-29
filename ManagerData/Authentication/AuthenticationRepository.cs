@@ -294,11 +294,9 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     private async Task SeedRoles()
     {
-        await using var database = new AuthenticationDbContext();
-
-        await AddRole(Constants.RoleConstants.Moderator);
-        await AddRole(Constants.RoleConstants.Default);
-        await AddRole(Constants.RoleConstants.Admin);
+        await AddRole(RoleConstants.Moderator);
+        await AddRole(RoleConstants.Default);
+        await AddRole(RoleConstants.Admin);
     }
 
     public void Dispose()

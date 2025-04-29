@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Project } from 'src/app/models/Project';
-import { PartLinksService } from '../part-links/part-links.service';
+import { Part } from 'src/app/components/models/Part';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable({
@@ -12,77 +11,84 @@ export class PartService {
   private apiUrl = 'http://localhost:6732/api/parts';
 
   constructor(private http: HttpClient,
-     private partLinksService : PartLinksService,
      private authService: AuthService) { }
 
-  addManager(employeeId: string | undefined) : Observable<any> {
+  addLeader(employeeId: string | undefined) : Observable<any> {
     const id = this.getPartId();
 
-    return this.updateProject(new Project(
+    return this.updatePart(new Part(
       id!,
       "",
       "",
-      employeeId!,
+      0,
+      [employeeId!],
     ));
   }
 
-  isManagerExist(managerId : string | undefined): boolean {
-    console.log(managerId);
-    if (managerId !== null &&
-        managerId !== "" &&
-        managerId !== "00000000-0000-0000-0000-000000000000" &&
-        managerId !== undefined)
+  isLeaderExist(leadersId : string[] | undefined): boolean {
+    if (leadersId?.length != 0)
       return true;
     return false;
   }
   
-  isManager(id : string | undefined, managerId : string | undefined) : boolean {
-    if (this.isManagerExist(managerId) && managerId == id) {
+  isLeader(id : string | undefined, leadersId : string[] | undefined) : boolean {
+    if (this.isLeaderExist(leadersId) && leadersId?.includes(id!)) {
       return true;
     }
     return false;    
   }
 
-  removeManager() : Observable<any> {
+  removeLeader() : Observable<any> {
     const id = this.getPartId();
     const emptyId = "00000000-0000-0000-0000-000000000000";
 
-    return this.updateProject(new Project(
+    return this.updatePart(new Part(
       id!,
       "",
       "",
-      emptyId,
+      0,
+      [emptyId],
     ));
   }
 
-  getAll(): Observable<Project[]> {
-    const id = this.partLinksService.getDepartmentId();
-
-    return this.http.get<Project[]>(`${this.apiUrl}/all?id=${id}`);
+  updateHierarchy(parts: Part[]) : Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/update_hierarchy`,parts);
   }
 
-  getProjectById(id : string): Observable<Project> {
-    return this.http.get<Project>(`${this.apiUrl}/get?id=${id}`);
+  getAllAccessible(): Observable<Part[]> {
+    return this.http.get<Part[]>(`${this.apiUrl}/all_accessible`);
   }
 
-  addProject(name : string, description : string ) : Observable<any> {
-    const departmentId = this.partLinksService.getDepartmentId();
+  getAll(): Observable<Part[]> {
+    const id = this.getPartId();
+
+    return this.http.get<Part[]>(`${this.apiUrl}/all?id=${id}`);
+  }
+
+  getPartById(id : string): Observable<Part> {
+    return this.http.get<Part>(`${this.apiUrl}/get?id=${id}`);
+  }
+
+  addPart(name : string, description : string, typeId : number ) : Observable<any> {
+    const departmentId = this.getPartId();
     const managerId = this.authService.getId();
+    const level = 0;
 
-    return this.http.post<any>(`${this.apiUrl}/create`, { departmentId, name, description, managerId });
+    return this.http.post<any>(`${this.apiUrl}/create`, 
+      { departmentId, name, description, managerId, typeId, level });
   }
 
-  updateProject(project: Project) : Observable<any> {
+  updatePart(project: Part) : Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/update`, project);
   }
 
-  addEmployeeToProject(employeeId : string) : Observable<any> {
+  addMemberToPart(employeeId : string) : Observable<any> {
     const projectId = this.getPartId();
 
     return this.http.post<any>(`${this.apiUrl}/add`,{ projectId, employeeId });
   }
   
-  removeEmployeeFromProject(employeeId : string) : Observable<any> {
+  removeMemberFromPart(employeeId : string) : Observable<any> {
     const projectId = this.getPartId();
 
     return this.http.post<any>(`${this.apiUrl}/remove`,{ projectId, employeeId });
@@ -96,26 +102,26 @@ export class PartService {
   }
 
   setPartId(id : string) : void {
-    localStorage.setItem('project_id',id);
+    localStorage.setItem('part_id',id);
   }
 
   getPartId() : string | null {
-    const id = localStorage.getItem('project_id');
+    const id = localStorage.getItem('part_id');
     
     return id;
   }
 
   setPartName(name : string) : void {
-    localStorage.setItem('project_name', name);
+    localStorage.setItem('part_name', name);
   }
 
   removePartData() : void {
-    localStorage.removeItem('project_id');
-    localStorage.removeItem('project_name');
+    localStorage.removeItem('part_id');
+    localStorage.removeItem('part_name');
   }
 
   getPartName() : string | null {
-    const name = localStorage.getItem('project_name');
+    const name = localStorage.getItem('part_name');
 
     return name;
   }

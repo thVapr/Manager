@@ -20,12 +20,12 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         };
     }
 
-    public Task<IEnumerable<MemberModel>> GetEntities()
+    public Task<ICollection<MemberModel>> GetEntities()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<MemberModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<MemberModel>> GetEntitiesById(Guid id)
     { 
         var members = await repository.GetEntitiesById(id);
 
@@ -35,7 +35,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
             FirstName = e.FirstName,
             LastName = e.LastName,
             Patronymic = e.Patronymic,
-        });
+        }).ToList();
     }
 
     public async Task<bool> CreateEntity(MemberModel model)
@@ -84,7 +84,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<MemberModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<ICollection<MemberModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }
@@ -94,7 +94,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<MemberModel>> GetMembersWithoutPart()
+    public async Task<ICollection<MemberModel>> GetMembersWithoutPart()
     {
         // TODO: Нужно изменить структуру учитывая уровень части
         var members = await repository.GetMembersWithoutPart(0);
@@ -108,7 +108,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<MemberModel>> GetFreeMembersInPart(Guid id)
+    public async Task<ICollection<MemberModel>> GetFreeMembersInPart(Guid id)
     {
         // TODO: Сейчас работает некорректно, нужно также фильтровать по наличию низкоуровневых частей
         //       или пересмотреть необходимость данного метода
@@ -123,7 +123,7 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<MemberModel>> GetMembersFromPart(Guid id)
+    public async Task<ICollection<MemberModel>> GetMembersFromPart(Guid id)
     {
         // TODO: Нужно подумать о том, какие участники должны быть возвращены,
         //       в текущей части или включая все нижестоящие

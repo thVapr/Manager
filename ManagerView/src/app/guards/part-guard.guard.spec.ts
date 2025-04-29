@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { DepartmentGuard } from './part-guard.guard';
+import { PartGuard } from './part-guard.guard';
 
 describe('DepartmentGuard', () => {
-  let guard: DepartmentGuard;
+  let guard: PartGuard;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    guard = TestBed.inject(DepartmentGuard);
+    guard = TestBed.inject(PartGuard);
   });
 
   it('should be created', () => {

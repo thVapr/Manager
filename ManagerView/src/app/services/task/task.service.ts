@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PartService } from '../part/part.service';
 import { HttpClient } from '@angular/common/http';
-import { Task } from 'src/app/models/Task';
-import { PartLinksService } from '../part-links/part-links.service';
+import { Task } from 'src/app/components/models/Task';
 import { AuthService } from '../auth/auth.service';
 import { Status } from 'src/app/status'
 
@@ -15,7 +14,6 @@ export class TaskService {
 
   constructor(private http: HttpClient,
               private partService : PartService,
-              private PartLinksService: PartLinksService,
               private authService: AuthService) { }
 
 

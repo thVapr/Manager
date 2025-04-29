@@ -63,7 +63,7 @@ public class MemberRepository : IMemberRepository
             if (part == null) return false;
 
             await database.PartMembers.AddAsync(
-                new PartMembersDataModel()
+                new PartMemberDataModel()
                 {
                     PartId = masterId,
                     MemberId = slaveId,

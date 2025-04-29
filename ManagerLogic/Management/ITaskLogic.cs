@@ -8,7 +8,7 @@ public interface ITaskLogic : IManagementLogic<TaskModel>
     Task<bool> RemoveMemberFromTask(Guid memberId, Guid taskId);
     //TODO: Добавить AddMemberToNotify
 
-    Task<IEnumerable<TaskModel>> GetFreeTasks(Guid projectId);
-    Task<IEnumerable<TaskModel>> GetMemberTasks(Guid memberId);
+    Task<ICollection<TaskModel>> GetFreeTasks(Guid projectId);
+    Task<ICollection<TaskModel>> GetMemberTasks(Guid memberId);
 
 }

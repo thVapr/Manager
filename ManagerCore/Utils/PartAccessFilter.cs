@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using ManagerData.Constants;
 using ManagerLogic.Management;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -10,8 +11,8 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel) : IAsyncA
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var role = GetRole(context.HttpContext.User);
-        if (string.CompareOrdinal(role, "Admin") == 0
-            && string.CompareOrdinal(role, "Moderator") == 0)
+        if (string.CompareOrdinal(role, RoleConstants.Admin) != 0
+            && string.CompareOrdinal(role, RoleConstants.Moderator) != 0)
         {
             var userId = GetUserId(context.HttpContext.User);
             var partId = GetPartId(context);

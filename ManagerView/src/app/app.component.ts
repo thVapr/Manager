@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './services/auth/auth.service';
-import { PartLinksService } from './services/part-links/part-links.service';
 import { MemberService } from './services/member/member.service';
 import { PartService } from './services/part/part.service';
 
@@ -12,82 +11,57 @@ import { PartService } from './services/part/part.service';
 })
 
 export class AppComponent implements OnInit {
-  employeeProfileString = 'Создайте профиль сотрудника';
-  isEmployeeExist : boolean = false;
-  isProjectManager : boolean = false;
-  isDepartmentManager : boolean = false;
+  memberProfileString : string = 'Создайте профиль сотрудника';
+  isMemberExist : boolean = false;
+  isPartLeader : boolean = false;
+  isMainPartLeader : boolean = false;
 
-  get companyName() {
+  get partName() {
     const name = this.partService.getPartName();
 
     if (name !== null)
       return name;
 
-    if(!this.authService.isAdmin())
-      return 'Ожидайте распределения в компанию';
-    return 'Выберите компанию';
-  }
-
-  get departmentName() {
-    const name = this.partLinksService.getDepartmentName();
-
-    if (name !== null && name !== '')
-      return name;
-
-    if(!this.authService.isAdmin())
-      return 'Ожидайте распределения в отдел';
-    return 'Выберите отдел'
-  }
-
-  get projectName() {
-    const name = this.partService.getPartName();
-
-    if (name !== null && name !== '')
-      return name;
-
-    if(!this.authService.isAdmin() && !this.isDepartmentManager)
-      return 'Ожидайте распределения в проект';
-    return 'Выберите проект';
+    return 'Выберите сущность';
   }
 
   constructor (public authService: AuthService,
                public partService : PartService,
-               public partLinksService : PartLinksService,
                public memberService : MemberService) {}
 
   ngOnInit(): void {
     const id = this.authService.getId();
 
     if (id !== null ) {
-      this.memberService.getEmployeeById(id).subscribe({
-        next: (employee) => {
-          if (employee.lastName !== null && employee.firstName !== null) {
-            this.employeeProfileString = employee.lastName + ' ' + employee.firstName;
-            this.isEmployeeExist = true;
+      this.memberService.getMemberById(id).subscribe({
+        next: (member) => {
+          if (member.lastName !== null && member.firstName !== null) {
+            this.memberProfileString = member.lastName + ' ' + member.firstName;
+            this.isMemberExist = true;
 
-            if(employee.companyId !== null && employee.companyId !== undefined) {
-              this.partService.setPartId(employee.companyId);
-              if (employee.companyName !== "" && employee.companyName !== undefined)
-                this.partService.setPartName(employee.companyName);
+            if(member.companyId !== null && member.companyId !== undefined) {
+              this.partService.setPartId(member.companyId);
+              if (member.companyName !== "" && member.companyName !== undefined)
+                this.partService.setPartName(member.companyName);
             }
           }
         },
         error: () => {
-          this.employeeProfileString = 'Создайте профиль сотрудника';
-          this.isEmployeeExist = false;
+          this.memberProfileString = 'Создайте профиль сотрудника';
+          this.isMemberExist = false;
         }
       });
     }
 
-    const departmentId = this.partLinksService.getDepartmentId();
+    const partId = this.partService.getPartId();
 
-    if (departmentId !== null) {
-      this.partLinksService.getPart(departmentId).subscribe({
-        next: (department) => {
-          if (department.managerId !== null && department.managerId !== undefined && department.managerId == id)
-            this.isDepartmentManager = true;
+    if (partId !== null) {
+      this.partService.getPartById(partId).subscribe({
+        next: (part) => {
+          if (part.leaderIds?.includes(id))
+            this.isMainPartLeader = true;
         },
-        error: () => this.isDepartmentManager = false
+        error: () => this.isMainPartLeader = false
       });
     }
   }

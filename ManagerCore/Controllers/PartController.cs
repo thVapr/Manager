@@ -1,5 +1,6 @@
 ﻿using ManagerCore.Models;
 using ManagerCore.Utils;
+using ManagerData.Constants;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +11,25 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/parts")]
 [Authorize]
-public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAccessor) : ControllerBase
+public class PartController(IPartLogic partLogic) : ControllerBase
 {
+    [HttpGet]
+    [Route("all_accessible")]
+    public async Task<IActionResult> GetAll()
+    {
+        if (User.IsInRole(RoleConstants.Admin))
+            return Ok(await partLogic.GetEntities());
+        var userId = User.FindFirst("id")?.Value;
+        return Ok(await partLogic.GetAllAccessibleParts(Guid.Parse(userId!)));
+    }
+    
+    [HttpPost]
+    [Route("update_hierarchy")]
+    public async Task<IActionResult> UpdateHierarchy(List<PartModel> models)
+    {
+        return Ok(await partLogic.UpdateHierarchy(models));
+    }
+    
     [TypeFilter(typeof(PartAccessFilter), Arguments = [1])]
     [HttpGet]
     [Route("all")]
@@ -33,9 +51,9 @@ public class PartController(IPartLogic partLogic, IHttpContextAccessor contextAc
     [Route("create")]
     public async Task<IActionResult> CreateModel(PartModel model)
     {
-        if (await partLogic.CreateEntity(model))
+        var userId = User.FindFirst("id")?.Value;
+        if (await partLogic.CreatePart(Guid.Parse(userId!),model))
             return Ok();
-
         return BadRequest();
     }
     

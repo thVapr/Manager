@@ -1,7 +1,6 @@
 ﻿using ManagerLogic.Models;
 using ManagerData.DataModels;
 using ManagerData.Management;
-using ManagerData.Authentication;
 
 namespace ManagerLogic.Management;
 
@@ -13,32 +12,27 @@ public class PartLogic(IPartRepository repository) : IPartLogic
 
         if (entity.Id == Guid.Empty) return new PartModel();
 
-        return new PartModel
-        {
-            Id = entity.Id.ToString(),
-            Name = entity.Name,
-            Description = entity.Description,
-        };
+        return ConvertDataModelToLogic(entity);
     }
 
-    public Task<IEnumerable<PartModel>> GetEntities()
+    public async Task<ICollection<PartModel>> GetEntities()
     {
-        throw new NotImplementedException();
+        var entity = await repository.GetEntities();
+        
+        return entity!.Where(e => e.Level == 0).Select(e =>
+            ConvertDataModelToLogic(e!)).ToList() ?? [];
     }
 
-    public async Task<IEnumerable<PartModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<PartModel>> GetEntitiesById(Guid id)
     {
         var entities = await repository.GetEntitiesById(id);
         var result = new List<PartModel>();
 
         if (entities == null) return result;
 
-        result.AddRange(entities.Where(e => e.Id != Guid.Empty).Select(e => new PartModel
-        {
-            Id = e.Id.ToString(),
-            Name = e.Name,
-            Description = e.Description,
-        }));
+        result.AddRange(entities.Where(e => e.Id != Guid.Empty).Select(e => 
+            ConvertDataModelToLogic(e!))
+        );
 
         return result;
     }
@@ -54,9 +48,9 @@ public class PartLogic(IPartRepository repository) : IPartLogic
             TypeId = model.TypeId,
         };
 
-        if (model.MasterId.HasValue)
+        if (model.MainPartId.HasValue)
         {
-            return await repository.CreateEntity((Guid)model.MasterId, entity);
+            return await repository.CreateEntity((Guid)model.MainPartId, entity);
         }
         return await repository.CreateEntity(entity);
     }
@@ -91,7 +85,7 @@ public class PartLogic(IPartRepository repository) : IPartLogic
         return await repository.UnlinkEntities(masterId, slaveId);
     }
 
-    public Task<IEnumerable<PartModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<ICollection<PartModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }
@@ -113,5 +107,85 @@ public class PartLogic(IPartRepository repository) : IPartLogic
             .Select(up => up.Privileges)
             .ToList();
         return usersPrivileges.Contains(privilege);
+    }
+
+    public async Task<bool> UpdateHierarchy(ICollection<PartModel> models)
+    {
+        foreach (var model in models)
+        {
+            await UpdateOneNode(model);
+        }
+        return true;
+    }
+
+    public async Task<bool> CreatePart(Guid userId, PartModel model)
+    {
+        var id = Guid.NewGuid();
+        var entity = new PartDataModel
+        {
+            Id = id,
+            Name = model.Name!,
+            Description = model.Description!,
+            Level = model.Level!,
+            TypeId = model.TypeId,
+        };
+
+        if (model.MainPartId.HasValue)
+        {
+            return await repository.CreateEntity((Guid)model.MainPartId, entity);
+        }
+        var isEntityCreated = await repository.CreateEntity(entity);
+        if (!isEntityCreated) 
+            return false;
+        
+        var part = await repository.GetEntityById(id);
+        return await ChangePrivilege(userId, part.Id, 5);
+    }
+
+    private async Task UpdateOneNode(PartModel model)
+    {
+        if (model.Parts != null && model.Parts!.Count() != 0)
+        {
+            foreach (var part in model.Parts!)
+            {
+                await UpdateOneNode(part);
+            }
+        }
+        await repository.UpdateEntity(new PartDataModel
+        {
+            Id = Guid.Parse(model.Id!),
+            MainPartId = model.MainPartId,
+            Level = model.Level,
+        });
+    }
+    
+    public async Task<ICollection<PartModel>> GetAllAccessibleParts(Guid userId)
+    {
+        var parts = await repository.GetEntities();
+        var result = new List<PartModel>();
+
+        foreach (var part in parts!)
+        {
+            if (await IsUserHasPrivileges(userId, part.Id, 1))
+            {
+                result.Add(ConvertDataModelToLogic(part));
+            }
+        }
+
+        return result;
+    }
+
+    private PartModel ConvertDataModelToLogic(PartDataModel model)
+    {
+        return new PartModel
+        {
+            Id = model.Id.ToString(),
+            Name = model.Name,
+            Description = model.Description,
+            Level = model.Level,
+            TypeId = model.TypeId,
+            MainPartId = model.MainPartId,
+            Parts = model.Parts.Select(ConvertDataModelToLogic).ToList()
+        };
     }
 }

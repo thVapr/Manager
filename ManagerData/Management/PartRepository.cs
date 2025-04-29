@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-//TODO: Нужно вынести всю логику в следующий слой
 public class PartRepository : IPartRepository
 {
     public async Task<bool> CreateEntity(PartDataModel model)
@@ -13,6 +12,14 @@ public class PartRepository : IPartRepository
 
         try
         {
+            var partType = await database.PartTypes.FindAsync(model.TypeId);
+            if (partType is null)
+            {
+                if (new [] {1,2,3}.Contains(model.TypeId))
+                    await SeedPartTypes();
+                else
+                    return false;
+            }
             await database.Parts.AddAsync(model);
             await database.SaveChangesAsync();
 
@@ -59,7 +66,7 @@ public class PartRepository : IPartRepository
         try
         {
             await database.PartMembers.AddAsync(
-                new PartMembersDataModel()
+                new PartMemberDataModel()
                 {
                     PartId = destinationId,
                     MemberId = sourceId,
@@ -114,13 +121,7 @@ public class PartRepository : IPartRepository
             if (master is null || slave is null)
                 return false;
 
-            await database.PartLinks.AddAsync(
-                new PartLink
-                {
-                    MasterId = masterId,
-                    SlaveId = slaveId,
-                }
-            );
+            slave.MainPartId = master.Id;
             slave.Level = master.Level + 1;
             await database.SaveChangesAsync();
 
@@ -139,14 +140,11 @@ public class PartRepository : IPartRepository
 
         try
         {
-            var link = await database.PartLinks
-                .Where(pl => pl.MasterId == masterId && pl.SlaveId == slaveId)
-                .FirstOrDefaultAsync();
+            var link = await database.Parts.FindAsync(slaveId);
 
-            if (link == null) return false;
+            if (link == null && link!.MainPartId == masterId) return false;
 
-            database.PartLinks.Remove(link);
-            
+            link.MainPartId = null;
             await database.SaveChangesAsync();
 
             return true;
@@ -172,9 +170,18 @@ public class PartRepository : IPartRepository
         }
     }
 
-    public Task<IEnumerable<PartDataModel>?> GetEntities()
+    public async Task<IEnumerable<PartDataModel>?> GetEntities()
     {
-        throw new NotImplementedException();
+        await using var database = new MainDbContext();
+
+        try
+        {
+            return await database.Parts.ToListAsync();
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     public async Task<IEnumerable<PartDataModel>?> GetEntitiesById(Guid id)
@@ -183,17 +190,11 @@ public class PartRepository : IPartRepository
 
         try
         {
-            var departments = await database.PartLinks.Where(c => c.MasterId == id).ToListAsync();
-            List<PartDataModel?> result = [];
-            
-            if (result == null) throw new ArgumentNullException(nameof(result));
+            var parts = await database.Parts
+                .Where(c => c.MainPartId == id)
+                .ToListAsync();
 
-            foreach (var v in departments)
-            {
-                result.Add(await database.Parts.Where(d => d.Id == v.SlaveId).FirstOrDefaultAsync());
-            }
-
-            return result!;
+            return parts;
         }
         catch (Exception ex)
         {
@@ -217,7 +218,11 @@ public class PartRepository : IPartRepository
                 department.Name = model.Name;
             if (!string.IsNullOrEmpty(model.Description))
                 department.Description = model.Description;
-
+            if (model.Level >= 0)
+                department.Level = model.Level;
+            if (model.MainPartId.HasValue)
+                department.MainPartId = model.MainPartId == Guid.Empty ? null : model.MainPartId;
+            
             await database.SaveChangesAsync();
 
             return true;
@@ -250,13 +255,15 @@ public class PartRepository : IPartRepository
         }
     }
 
-    public async Task<IEnumerable<PartLink>> GetLinks(Guid partId)
+    public async Task<List<PartDataModel>> GetLinks(Guid partId)
     {
         await using var database = new MainDbContext();
 
         try
         {
-            return await database.PartLinks.Where(pl => pl.MasterId == partId || pl.SlaveId == partId).ToListAsync();;
+            return await database.Parts
+                .Where(pl => pl.MainPartId == partId ||
+                    pl.Parts.Any(p => p.Id == partId)).ToListAsync();
         }
         catch (Exception e)
         {
@@ -265,7 +272,7 @@ public class PartRepository : IPartRepository
         }
     }
 
-    public async Task<IEnumerable<PartMembersDataModel>> GetPartMembers(Guid partId)
+    public async Task<IEnumerable<PartMemberDataModel>> GetPartMembers(Guid partId)
     {
         await using var database = new MainDbContext();
 
@@ -289,6 +296,17 @@ public class PartRepository : IPartRepository
             var partMember = await database.PartMembers
                 .Where(pm => pm.PartId == partId && pm.MemberId == userId)
                 .FirstOrDefaultAsync();
+            if (partMember == null)
+            {
+                var member = await database.Members
+                    .Where(m => m.Id == userId).FirstOrDefaultAsync();
+                if (member == null)
+                    return false;
+                await AddToEntity(partId, member.Id);
+            }
+            partMember = await database.PartMembers
+                .Where(pm => pm.PartId == partId && pm.MemberId == userId)
+                .FirstOrDefaultAsync();
             if (partMember == null) return false;
             
             partMember.Privileges = privilege;
@@ -303,6 +321,40 @@ public class PartRepository : IPartRepository
         }
     }
 
+    private async Task SeedPartTypes()
+    {
+        await AddPartType(Constants.PartTypeConstants.Root);
+        await AddPartType(Constants.PartTypeConstants.Group);
+        await AddPartType(Constants.PartTypeConstants.Project);
+    }
+
+    private async Task<bool> AddPartType(string name)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var partType = await database.PartTypes.FirstOrDefaultAsync(r => r.Name == name);
+
+            if (partType != null) return false;
+
+            var part = new PartType
+            {
+                Name = name
+            };
+
+            await database.PartTypes.AddAsync(part);
+            await database.SaveChangesAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return false;
+        }
+    }
+    
     public void Dispose()
     {
     }

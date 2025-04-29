@@ -6,8 +6,8 @@ namespace ManagerLogic.Management;
 
 public interface IMemberLogic : IManagementLogic<MemberModel>
 {
-    Task<IEnumerable<MemberModel>> GetMembersWithoutPart();
-    Task<IEnumerable<MemberModel>> GetFreeMembersInPart(Guid id);
+    Task<ICollection<MemberModel>> GetMembersWithoutPart();
+    Task<ICollection<MemberModel>> GetFreeMembersInPart(Guid id);
 
-    Task<IEnumerable<MemberModel>> GetMembersFromPart(Guid id);
+    Task<ICollection<MemberModel>> GetMembersFromPart(Guid id);
 }

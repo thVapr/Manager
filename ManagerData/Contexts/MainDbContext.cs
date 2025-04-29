@@ -14,48 +14,62 @@ public sealed class MainDbContext : DbContext
     public DbSet<MemberDataModel> Members { get; set; } = null!;
     public DbSet<PartDataModel> Parts { get; set; } = null!;
     public DbSet<TaskDataModel> Tasks { get; set; } = null!;
-    public DbSet<PartMembersDataModel> PartMembers { get; set; } = null!;
-    public DbSet<PartLink> PartLinks { get; set; } = null!;
+    public DbSet<PartMemberDataModel> PartMembers { get; set; } = null!;
+    public DbSet<TaskMember> TaskMembers { get; set; } = null!;
     public DbSet<PartType> PartTypes { get; set; } = null!;
-    public DbSet<PartTasksDataModel> PartTasks { get; set; } = null!;
-    public DbSet<MemberTasksDataModel> MemberTasks { get; set; } = null!;
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PartMembersDataModel>()
-            .HasKey(k => new { k.PartId, k.MemberId });
-        modelBuilder.Entity<PartMembersDataModel>()
-            .HasOne(e => e.Part)
-            .WithMany(e => e.PartMembers)
-            .HasForeignKey(fk => fk.PartId);
-
-        modelBuilder.Entity<PartLink>()
-            .HasKey(k => new {k.MasterId, k.SlaveId});
-        modelBuilder.Entity<PartLink>()
-            .HasOne(e => e.MasterPart)
-            .WithMany(e => e.SubParts)
-            .HasForeignKey(fk => fk.MasterId)
-            .OnDelete(DeleteBehavior.Cascade);
-        modelBuilder.Entity<PartLink>()
-            .HasOne(e => e.SlavePart)
-            .WithOne(e => e.MainPart)
-            .HasForeignKey<PartLink>(fk => fk.SlaveId)
+        modelBuilder.Entity<PartDataModel>()
+            .HasMany(fk => fk.Members)
+            .WithMany(sk => sk.Parts)
+            .UsingEntity<PartMemberDataModel>(
+                pm => pm
+                    .HasOne(fk => fk.Member)
+                    .WithMany(sk => sk.PartLinks)
+                    .HasForeignKey(fk => fk.MemberId),
+            pm => pm
+                    .HasOne(fk => fk.Part)
+                    .WithMany(sk => sk.PartMembers)
+                    .HasForeignKey(fk => fk.PartId),
+            pm =>
+                    {
+                        pm.Property(fk => fk.Privileges).HasDefaultValue(1);
+                        pm.HasKey(k => new { k.MemberId, k.PartId });
+                        pm.ToTable("PartMembers");
+                    }
+        );
+        
+        modelBuilder.Entity<PartDataModel>()
+            .HasOne(fk => fk.MainPart)
+            .WithMany(sk => sk.Parts)
+            .HasForeignKey(fk => fk.MainPartId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        modelBuilder.Entity<PartTasksDataModel>()
-            .HasKey(k => new {k.PartId, k.TaskId});
-        modelBuilder.Entity<PartTasksDataModel>()
-            .HasOne(e => e.Part)
-            .WithMany(e => e.PartTasks)
-            .HasForeignKey(fk => fk.PartId);
-
-        modelBuilder.Entity<MemberTasksDataModel>()
-            .HasKey(k => new { k.MemberId, k.TaskId });
-        modelBuilder.Entity<MemberTasksDataModel>()
-            .HasOne(e => e.Member)
-            .WithMany(e => e.EmployeeTasks)
-            .HasForeignKey(fk => fk.MemberId);
-       
+        modelBuilder.Entity<PartDataModel>()
+            .HasOne(p => p.PartType)
+            .WithMany()
+            .HasForeignKey(p => p.TypeId);
+        
+        modelBuilder.Entity<TaskDataModel>()
+            .HasMany(fk => fk.Members)
+            .WithMany(sk => sk.Tasks)
+            .UsingEntity<TaskMember>(
+                pm => pm
+                    .HasOne(fk => fk.Member)
+                    .WithMany(sk => sk.MemberTasks)
+                    .HasForeignKey(fk => fk.MemberId),
+                pm => pm
+                    .HasOne(fk => fk.Task)
+                    .WithMany(sk => sk.TaskMembers)
+                    .HasForeignKey(fk => fk.TaskId),
+                pm =>
+                {
+                    pm.Property(fk => fk.ParticipationPurpose).HasDefaultValue(0);
+                    pm.HasKey(k => new { k.MemberId, k.TaskId });
+                    pm.ToTable("TaskMembers");
+                }
+        );
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
