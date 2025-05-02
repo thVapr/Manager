@@ -9,10 +9,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ManagerData.Migrations.MainDb
+namespace ManagerData.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    [Migration("20250427123145_init")]
+    [Migration("20250501153852_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -33,15 +33,18 @@ namespace ManagerData.Migrations.MainDb
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(111)
+                        .HasColumnType("character varying(111)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(111)
+                        .HasColumnType("character varying(111)");
 
                     b.Property<string>("Patronymic")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(111)
+                        .HasColumnType("character varying(111)");
 
                     b.HasKey("Id");
 
@@ -82,6 +85,8 @@ namespace ManagerData.Migrations.MainDb
                     b.HasIndex("MainPartId");
 
                     b.HasIndex("PartTypeId");
+
+                    b.HasIndex("TypeId");
 
                     b.ToTable("Parts");
                 });
@@ -192,9 +197,15 @@ namespace ManagerData.Migrations.MainDb
                         .HasForeignKey("MainPartId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("ManagerData.DataModels.PartType", "PartType")
+                    b.HasOne("ManagerData.DataModels.PartType", null)
                         .WithMany("Parts")
                         .HasForeignKey("PartTypeId");
+
+                    b.HasOne("ManagerData.DataModels.PartType", "PartType")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("MainPart");
 

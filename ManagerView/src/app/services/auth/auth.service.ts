@@ -68,6 +68,12 @@ export class AuthService {
     return role === 'Admin';
   }
 
+  isSpaceOwner() : boolean {
+    const role = this.getRole();
+
+    return role === 'SpaceOwner';
+  }
+
   isAuthenticated(): boolean {
     const access_token = this.getAccessToken();
     const refresh_token = this.getRefreshToken();

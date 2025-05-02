@@ -39,10 +39,10 @@ public class MemberController(
     [Route("get_free_members")]
     public async Task<IActionResult> GetMembersWithoutAnyPart()
     {
-        var adminIds = await authentication.GetAdminIds();
         var employees = await memberLogic.GetMembersWithoutPart();
-
-        return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
+        var ids = await authentication.GetAvailableUserIds();
+        
+        return Ok(employees.Where(e => !ids.Contains(e.Id!)));
     }
 
     [HttpGet]

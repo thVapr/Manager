@@ -1,57 +1,53 @@
+<p-panel [toggleable]="true" [collapsed]="true">
+    <ng-template #header>
+        <div class="flex items-center gap-2">
+            <h1 class="font-bold">Задачи</h1>
+        </div>
+    </ng-template>
+    <form [formGroup]="addTaskForm" (ngSubmit)="addTask()" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
+      <div class="form-outline mb-2">
+        <input type="text" class="form-control form-control-lg"
+          placeholder="Название" formControlName="name"/>
+      </div>
+      <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
+      <div class="text-center text-lg-start mt-2">
+        <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+      </div>
+    </form>
+</p-panel>
 
-<h2 class="text-center mb-5">Задачи проекта</h2>
-
-<form [formGroup]="searchTaskForm" (ngSubmit)="searchTask()">
-  <div class="form-outline mb-2">
-    <input type="text" class="form-control form-control-lg"
-    placeholder="Запрос" formControlName="query"/>
-  </div>
-
-  <div class="text-center text-lg-start">
-    <button type="submit" class="btn btn-primary btn-lg">Поиск</button>
-  </div>
-</form>
-<hr/>
-
-<form [formGroup]="addTaskForm" (ngSubmit)="addTask()" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isDepartmentManager || isProjectManager)">
+<p-card>
+  <form [formGroup]="searchTaskForm" (ngSubmit)="searchTask()">
     <div class="form-outline mb-2">
       <input type="text" class="form-control form-control-lg"
-        placeholder="Название" formControlName="name"/>
-    </div>
-
-    <div class="form-outline mb-2">
-      <textarea type="text" class="form-control form-control-lg"
-        placeholder="Описание" formControlName="description"></textarea>
+      placeholder="Запрос" formControlName="query"/>
     </div>
     <div class="text-center text-lg-start">
-      <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+      <button type="submit" class="btn btn-primary btn-lg">Поиск</button>
     </div>
-</form>
-<hr/>
+  </form>
+</p-card>
 
-<div class="container-fluid">
-  <div class="row">
-
-    <div class="col">
-      <h5 class="text-center mb-5">Новые задачи</h5>
-      <ul class="list-group" *ngFor="let task of todoTasks">
-        <a class="list-group-item list-group-item-action mb-2" [href]="'task/about/' + task.id">{{task.name}}</a>
-      </ul>
-    </div>
-  
-    <div class="col">
-      <h5 class="text-center mb-5">В работе</h5>
-      <ul class="list-group" *ngFor="let task of doingTasks">
-        <a class="list-group-item list-group-item-action mb-2" [href]="'task/about/' + task.id"><span>{{task.name}}</span></a>
-      </ul>
-    </div>
-  
-    <div class="col">
-        <h5 class="text-center mb-5">Выполненные</h5>
-        <ul class="list-group" *ngFor="let task of doneTasks">
-          <a class="list-group-item list-group-item-action mb-2" [href]="'task/about/' + task.id">{{task.name}}</a>
-        </ul>
-    </div>
-
-  </div>
+<div class="container-fluid row p-0 mt-2">
+  <p-panel
+    *ngFor="let col of statusColumns"
+    [header]="col.label"
+    pDroppable
+    (onDrop)="drop(col.status)"
+    class="col-md-3 mb-2">
+      <p-card
+        *ngFor="let task of getTaskByStatus(tasks, col.status)"
+        pDraggable
+        (onDragStart)="dragStart(task)"
+        (onDragEnds)="dragEnd()"
+        (dblclick)="doubleClick(task)"
+        dropEffect="link"
+        class="card mb-2"
+        [ngClass]="'border-' + col.color">
+        <h6 class="">{{ task.name }}</h6>
+        <small class="text-muted">
+          {{ task.memberName }} {{ task.memberLastName }}
+        </small>
+    </p-card>
+  </p-panel>
 </div>

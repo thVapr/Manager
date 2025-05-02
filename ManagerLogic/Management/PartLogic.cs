@@ -2,6 +2,8 @@
 using ManagerData.DataModels;
 using ManagerData.Management;
 
+using PartType = ManagerLogic.Models.PartType;
+
 namespace ManagerLogic.Management;
 
 public class PartLogic(IPartRepository repository) : IPartLogic
@@ -106,7 +108,7 @@ public class PartLogic(IPartRepository repository) : IPartLogic
             .Where(up => up.MemberId == userId)
             .Select(up => up.Privileges)
             .ToList();
-        return usersPrivileges.Contains(privilege);
+        return usersPrivileges.Any(up => up >= privilege);
     }
 
     public async Task<bool> UpdateHierarchy(ICollection<PartModel> models)
@@ -166,13 +168,23 @@ public class PartLogic(IPartRepository repository) : IPartLogic
 
         foreach (var part in parts!)
         {
-            if (await IsUserHasPrivileges(userId, part.Id, 1))
+            if (part.Level == 0 && await IsUserHasPrivileges(userId, part.Id, 1))
             {
                 result.Add(ConvertDataModelToLogic(part));
             }
         }
 
         return result;
+    }
+
+    public async Task<ICollection<PartType>> GetPartTypes()
+    {
+        var types = await repository.GetPartTypes();
+        return types.Select(type => new PartType
+        {
+            Id = type.Id,
+            Name = type.Name!
+        }).ToList();
     }
 
     private PartModel ConvertDataModelToLogic(PartDataModel model)

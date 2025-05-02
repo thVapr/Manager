@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { MemberService } from '../../services/member/member.service';
-import { Member } from '../models/Member';
+import { Member } from '../models/member';
 import { AuthService } from '../../services/auth/auth.service';
-import { Part } from '../models/Part';
+import { Part } from '../models/part';
 import { PartService } from '../../services/part/part.service';
 
 @Component({
@@ -57,10 +57,15 @@ export class PartMembersComponent {
   }
 
   GetAllFree() : void {
-    this.memberService.getMembersWithoutPart().subscribe(employees => this.members = employees);
+    this.memberService.getMembersWithoutPart().subscribe(members => 
+      this.members = members);
   }
 
   GetAll() : void {
-    this.memberService.getMemberByPartId().subscribe(employees => this.partMembers = employees);
+    this.memberService.getMemberByPartId().subscribe(members => 
+      this.partMembers = members.map(member => ({
+      ...member,
+      searchedParameter: member.firstName + ' ' + member.lastName! + ' ' + member.patronymic!
+    })));
   }
 }

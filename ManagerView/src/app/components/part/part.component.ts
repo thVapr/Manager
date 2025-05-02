@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { PartService } from '../../services/part/part.service';
 import { Router } from '@angular/router';
-import { Part } from 'src/app/components/models/Part'
+import { Part } from 'src/app/components/models/part'
 import { AuthService } from '../../services/auth/auth.service';
 import { TreeDragDropService, TreeNode } from 'primeng/api';
 import { TreeNodeDropEvent, TreeNodeSelectEvent } from 'primeng/tree';
 import { ButtonModule } from 'primeng/button';
 import { StepperModule } from 'primeng/stepper';
+import { PartType } from '../models/part-type';
 
 @Component({
     selector: 'app-project',
@@ -26,6 +27,8 @@ export class PartComponent {
   items: TreeNode[] = [];
   isPartLeader : boolean = false;
   parts : Part[] = [];
+  selectedNode : TreeNode | null = null;
+  partTypes : PartType[] = [];
 
   constructor(public authService: AuthService,
               public partService: PartService,
@@ -44,11 +47,17 @@ export class PartComponent {
   ngOnInit(): void {
     const partId = this.partService.getPartId();
     const id = this.authService.getId();
-    console.log("welcome")
     this.partService.getAllAccessible().subscribe({
       next: (parts) => {
         this.parts = parts;
         this.items = this.convertPartsToTreeNodes(parts);
+        this.selectedNode = this.FindNode(this.items);
+        this.partService.getTypes().subscribe({
+          next: (types) => 
+          {
+            this.partTypes = types;
+          }
+        })
       }
     });
 
@@ -70,7 +79,8 @@ export class PartComponent {
             key: part.id,
             label: part.name,
             data: part,
-            children: this.convertPartsToTreeNodes(part.parts || [])
+            children: this.convertPartsToTreeNodes(part.parts || []),
+            expanded: true
         };
         switch (part.typeId)
         {
@@ -121,11 +131,27 @@ export class PartComponent {
     .subscribe({
       next: () => {
         this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-          this.router.navigate(['company']);
+          this.router.navigate(['parts']);
         });
       },
       error: (error) => console.error('failed', error)
      });
+  }
+
+  private FindNode(tree: TreeNode[]) : TreeNode | null
+  {
+    for (let node of tree) {
+      if (node.key === this.partService.getPartId()) {
+        return node;
+      }
+
+      if (node.children) {
+        const found = this.FindNode(node.children);
+        if (found) return found;
+      }
+    }
+
+    return null;
   }
 
   ChoosePart(event : TreeNodeSelectEvent) : void {

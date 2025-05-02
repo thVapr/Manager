@@ -4,12 +4,13 @@ import { AuthService } from '../services/auth/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AdminGuard {
-  
+export class OwnerGuard {
+
   constructor(private authService : AuthService) {}
   
   canActivate() : boolean
   {
-    return this.authService.isAdmin();
+    return this.authService.isSpaceOwner() || this.authService.isAdmin();
   }
+
 }

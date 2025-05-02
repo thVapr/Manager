@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ManagerData.Migrations.MainDb
+namespace ManagerData.Migrations
 {
     /// <inheritdoc />
     public partial class init : Migration
@@ -17,9 +17,9 @@ namespace ManagerData.Migrations.MainDb
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    LastName = table.Column<string>(type: "text", nullable: false),
-                    FirstName = table.Column<string>(type: "text", nullable: false),
-                    Patronymic = table.Column<string>(type: "text", nullable: false)
+                    LastName = table.Column<string>(type: "character varying(111)", maxLength: 111, nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(111)", maxLength: 111, nullable: false),
+                    Patronymic = table.Column<string>(type: "character varying(111)", maxLength: 111, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,8 +46,8 @@ namespace ManagerData.Migrations.MainDb
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Level = table.Column<int>(type: "integer", nullable: false),
                     TypeId = table.Column<int>(type: "integer", nullable: false),
-                    PartTypeId = table.Column<int>(type: "integer", nullable: true),
                     MainPartId = table.Column<Guid>(type: "uuid", nullable: true),
+                    PartTypeId = table.Column<int>(type: "integer", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -60,6 +60,12 @@ namespace ManagerData.Migrations.MainDb
                         column: x => x.PartTypeId,
                         principalTable: "PartTypes",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Parts_PartTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "PartTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Parts_Parts_MainPartId",
                         column: x => x.MainPartId,
@@ -157,6 +163,11 @@ namespace ManagerData.Migrations.MainDb
                 name: "IX_Parts_PartTypeId",
                 table: "Parts",
                 column: "PartTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Parts_TypeId",
+                table: "Parts",
+                column: "TypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TaskMembers_TaskId",

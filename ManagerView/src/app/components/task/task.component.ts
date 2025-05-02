@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
-import { Task } from '../models/Task';
+import { Task } from '../models/task';
 import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
 import { Status } from '../../status'

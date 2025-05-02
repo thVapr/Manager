@@ -21,13 +21,13 @@
       <a class="text-white" href="home" *ngIf="!authService.isAuthenticated()||!isMemberExist">Добро пожаловать</a>
       <div *ngIf="authService.isAuthenticated()&&isMemberExist">
         <a class="text-white" 
-           [href]="'company/about/' + partService.getPartId()" 
-           *ngIf="!authService.isAdmin()">
+           [href]="'part/about/' + partService.getPartId()" 
+           *ngIf="!authService.isAdmin()&&!authService.isSpaceOwner()">
             {{ partName }} 
         </a>
         <a class="text-white" 
-           href="company" 
-           *ngIf="authService.isAdmin()">
+           href="parts" 
+           *ngIf="authService.isAdmin()||authService.isSpaceOwner()">
             {{ partName }}
         </a>
       </div>
@@ -53,27 +53,27 @@
         <span>Домой</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="employee" *ngIf="authService.isAuthenticated()">
+      <a class="card" rel="noopener" routerLink="part/members" *ngIf="authService.isAuthenticated()">
+        <i class="bi bi-file-person"></i>
+        <span> Добавление пользователей </span>
+      </a>
+
+      <a class="card" rel="noopener" routerLink="member" *ngIf="authService.isAuthenticated()">
         <i class="bi bi-file-person"></i>
         <span>{{ memberProfileString }}</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="department/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader)&&partService.isPartSelected()">
+      <a class="card" rel="noopener" routerLink="part/member" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader)&&partService.isPartSelected()">
         <i class="bi bi-cup-hot"></i>
-        <span>Отдел</span>
+        <span>{{ partName }}</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="project/employees" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader)&&partService.isPartSelected()">
-        <i class="bi bi-cup-hot"></i>
-        <span>Проект</span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="employee/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected()">
+      <a class="card" rel="noopener" routerLink="member/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected()">
         <i class="bi bi-list-task"></i>
         <span>Задачи</span>
       </a>
 
-      <a class="card" rel="noopener" routerLink="project/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected">
+      <a class="card" rel="noopener" routerLink="part/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected">
         <i class="bi bi-list-task"></i>
         <span>Задачи проекта</span>
       </a>
@@ -88,8 +88,41 @@
   <footer>
       
   </footer>
-    
-  <svg id="clouds" xmlns="http://www.w3.org/2000/svg" width="2611.084" height="485.677" viewBox="0 0 2611.084 485.677">
-    <title>Gray Clouds Background</title>
-    <path id="Path_39" data-name="Path 39" d="M2379.709,863.793c10-93-77-171-168-149-52-114-225-105-264,15-75,3-140,59-152,133-30,2.83-66.725,9.829-93.5,26.25-26.771-16.421-63.5-23.42-93.5-26.25-12-74-77-130-152-133-39-120-212-129-264-15-54.084-13.075-106.753,9.173-138.488,48.9-31.734-39.726-84.4-61.974-138.487-48.9-52-114-225-105-264,15a162.027,162.027,0,0,0-103.147,43.044c-30.633-45.365-87.1-72.091-145.206-58.044-52-114-225-105-264,15-75,3-140,59-152,133-53,5-127,23-130,83-2,42,35,72,70,86,49,20,106,18,157,5a165.625,165.625,0,0,0,120,0c47,94,178,113,251,33,61.112,8.015,113.854-5.72,150.492-29.764a165.62,165.62,0,0,0,110.861-3.236c47,94,178,113,251,33,31.385,4.116,60.563,2.495,86.487-3.311,25.924,5.806,55.1,7.427,86.488,3.311,73,80,204,61,251-33a165.625,165.625,0,0,0,120,0c51,13,108,15,157-5a147.188,147.188,0,0,0,33.5-18.694,147.217,147.217,0,0,0,33.5,18.694c49,20,106,18,157,5a165.625,165.625,0,0,0,120,0c47,94,178,113,251,33C2446.709,1093.793,2554.709,922.793,2379.709,863.793Z" transform="translate(142.69 -634.312)" fill="#eee"/>
+
+  <svg id="clouds" width="2600mm" height="600mm" version="1.1" viewBox="0 0 2600 600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+      <pattern id="pattern31" patternTransform="matrix(31.005 0 0 13.777 5658.2 2739.3)" preserveAspectRatio="xMidYMid" xlink:href="#pattern6-7"/>
+      <pattern id="pattern6-7" width="29" height="20" style="fill:#000000" patternTransform="translate(190,350)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">
+      <path d="m0 5c19 0 10 10 29 10" style="fill:none;paint-order:stroke markers fill;stop-color:#000000;stroke-width:10;stroke:#000"/>
+      </pattern>
+      <pattern id="pattern24" patternTransform="matrix(31.005 0 0 13.777 -701.8 -2290.6)" preserveAspectRatio="xMidYMid" xlink:href="#hollow Circle"/>
+      <pattern id="hollow Circle" width="30" height="30" style="fill:#000000" patternTransform="translate(-15,-15)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">
+      <path d="m15 0c-8.225 0-15 6.775-15 15 0 8.225 6.775 15 15 15 8.225 0 15-6.775 15-15 0-8.225-6.775-15-15-15zm0 10c2.8206 0 5 2.1794 5 5s-2.1794 5-5 5-5-2.1794-5-5 2.1794-5 5-5z" style="-inkscape-stroke:none;color:#000000;paint-order:markers fill stroke;stroke-linecap:square"/>
+      </pattern>
+      <pattern id="pattern17" patternTransform="matrix(31.005 0 0 13.777 17436 878.1)" preserveAspectRatio="xMidYMid" xlink:href="#pattern11"/>
+      <pattern id="pattern11" width="15" height="25" style="fill:#000000" patternTransform="translate(570,215)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">
+      <g transform="translate(-570,-215)">
+        <path d="m585 225-10 10v5h10z" style="paint-order:stroke markers fill;stop-color:#000000;stroke-linecap:square;stroke-width:4.8561"/>
+        <path d="m580 215h-5v5zm-10 10v5h5l10-10v-5h-5z" style="paint-order:stroke markers fill;stop-color:#000000;stroke-linecap:square;stroke-width:4.8561"/>
+      </g>
+      </pattern>
+      <pattern id="pattern12" patternTransform="matrix(31.005 0 0 13.777 31233 4391.2)" preserveAspectRatio="xMidYMid" xlink:href="#pattern36-8"/>
+      <pattern id="pattern36-8" width="30" height="20" style="fill:#000000" patternTransform="translate(1015,470)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">
+      <path d="m5 0-5 5 5 5h10l-5-5 5-5z" style="paint-order:stroke markers fill;stop-color:#000000"/>
+      <path d="m25 20 5-5-5-5h-10l5 5-5 5z" style="paint-order:stroke markers fill;stop-color:#000000"/>
+      </pattern>
+      <pattern id="pattern8" patternTransform="matrix(6.201 0 0 2.7554 -236.72 -2083.9)" preserveAspectRatio="xMidYMid" xlink:href="#InvertedCircle"/>
+      <pattern id="InvertedCircle" width="100" height="100" style="fill:#000000" patternTransform="scale(.2)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">
+      <path d="m100 0-24.912 24.912c-0.54715-0.52598-1.1118-1.0237-1.6836-1.5078l-0.52539-0.52539-0.04883 0.04883c-6.4858-5.2621-14.403-7.9082-22.33-7.9082-9.0915 1e-6 -18.182 3.4597-25.102 10.379-12.952 12.952-13.763 33.503-2.4688 47.43l-0.05078 0.05078 0.52539 0.52539c0.48412 0.57197 0.98171 1.1363 1.5078 1.6836l-24.912 24.912h100zm-24.957 29.199a32.5 32.5 0 0 1 6.8496 29.713 32.5 32.5 0 0 1-22.98 22.98 32.5 32.5 0 0 1-29.629-6.9336z"/>
+      </pattern>
+    </defs>
+    <g transform="translate(-10.769 -163.46)">
+      <g transform="translate(2.8793 .35992)">
+      <path d="m7.8895 517.67 520.79-222.64 145.98 299.78z" style="fill:url(#pattern8);stroke-width:5.4683"/>
+      <path d="m643.09 507.15 741.73-219.14 67.071 475.09z" style="fill:url(#pattern12);stroke-width:5.477"/>
+      <path d="m2607.9 517.67-1191.5-43.828 662.82-208.62z" style="fill:url(#pattern17);stroke-width:5.4769"/>
+      <path d="m1826.7 649.15c-3.9453 10.519-390.59 77.137-390.59 77.137l-122.31-194.59z" style="fill:url(#pattern24);stroke-width:5.4769"/>
+      <path d="m583.91 392.76 737.78 7.0124-516.84-236.67z" style="fill:url(#pattern31);stroke-width:5.4769"/>
+      </g>
+    </g>
   </svg>

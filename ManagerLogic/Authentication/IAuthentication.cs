@@ -11,6 +11,7 @@ public interface IAuthentication
 
     Task<UserDataModel> GetUser(string email);
     Task<IEnumerable<string>> GetAdminIds();
+    Task<ICollection<string>> GetAvailableUserIds();
 
     Task<bool> Logout(string token);
 

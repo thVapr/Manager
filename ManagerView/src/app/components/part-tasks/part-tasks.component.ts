@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
-import { Task } from '../models/Task';
+import { Task } from '../models/task';
 import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
-import { Status } from '../../status'
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-project-tasks',
@@ -23,16 +23,63 @@ export class PartTasksComponent implements OnInit {
     description: new FormControl('', [Validators.required, Validators.minLength(4)])
   });
 
-  isProjectManager : boolean = false;
-  isDepartmentManager : boolean = false;
+  isLeader : boolean = false;
 
-  todoTasks : Task[] = []
-  doingTasks : Task[] = []
-  doneTasks : Task[] = []
+  statusColumns = [
+    { status: 0, label: 'To Do', color: 'secondary' },
+    { status: 1, label: 'In Progress', color: 'primary' },
+    { status: 2, label: 'Review', color: 'primary' },
+    { status: 3, label: 'Testing', color: 'testing' },
+    { status: 4, label: 'Done', color: 'success' }
+  ];
+
+  tasks: Task[] = [];
+  draggedTask : Task = {};
 
   constructor(private taskService : TaskService,
     public authService: AuthService,
-    public partService: PartService) {}
+    public partService: PartService,
+    private router: Router) {}
+
+  draggedOver: string | null = null;
+  
+  getTaskByStatus(tasks : Task[], status : number)
+  {
+    return tasks.filter(task => task.status === status);
+  }
+
+  dragStart(task: Task) {
+    this.draggedTask = task;
+  }
+
+  doubleClick(task: Task) {
+    this.router.navigate(['task','about',task.id]);    
+    console.log(task.name + " was double clicked with id " + task.id)
+  }
+
+  drop(index : number) {
+      if (this.draggedTask) {
+          var taskIndex = this.findIndex(this.draggedTask);
+          this.tasks[taskIndex].status = index;
+          this.taskService.updateTask(this.tasks[taskIndex]).subscribe(() => {});
+          this.draggedTask = {};
+      }
+  }
+
+  dragEnd() {
+      this.draggedTask = {};
+  }
+
+  findIndex(task: Task) {
+      let index = -1;
+      for (let i = 0; i < (this.tasks as Task[]).length; i++) {
+          if (task.id === (this.tasks as Task[])[i].id) {
+              index = i;
+              break;
+          }
+      }
+      return index;
+  }
 
   ngOnInit(): void {
     this.Update();
@@ -41,22 +88,15 @@ export class PartTasksComponent implements OnInit {
     const partId = this.partService.getPartId();
 
     if (partId !== null) {
-      this.partService.getPartById(partId).subscribe({
-        next: (part) => {
-          if (part.leaderIds?.includes(id))
-            this.isDepartmentManager = true;
-        },
-        error: () => this.isDepartmentManager = false
+      this.partService.hasPrivileges(id, partId, 5).subscribe({
+        next: (response) => this.isLeader = response,
+        error: () => this.isLeader = false
       });
     }
   }
 
   Update() : void {
-    this.taskService.getFreeTasks().subscribe(tasks => this.todoTasks = tasks);
-    this.taskService.getAll().subscribe(tasks => {
-      this.doingTasks = tasks.filter(t => t.status == Status.DOING);
-      this.doneTasks = tasks.filter(t => t.status == Status.DONE);
-    });
+    this.taskService.getAll().subscribe(tasks => this.tasks = tasks);
   }
  
   addTask() : void {
@@ -67,6 +107,7 @@ export class PartTasksComponent implements OnInit {
 
     this.taskService.addTask(task).subscribe(() => {
       this.Update();
+      this.tasks.push(task);
       this.addTaskForm.reset();
     });
   }
@@ -77,9 +118,7 @@ export class PartTasksComponent implements OnInit {
     if(query !== null && query !== undefined)
       this.taskService.getTaskByQuery(query).subscribe({
         next: (tasks) => {
-          this.todoTasks = tasks.filter(t => t.status == Status.TODO);
-          this.doingTasks = tasks.filter(t => t.status == Status.DOING);
-          this.doneTasks = tasks.filter(t => t.status == Status.DONE);
+          this.tasks = tasks;
         }
       });
   }

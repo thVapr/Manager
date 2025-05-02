@@ -42,6 +42,22 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
     }
 
+    public async Task<ICollection<UserDataModel>> GetUsers()
+    {
+        await using var database = new AuthenticationDbContext();
+
+        try
+        {
+            return await database.Users
+                .ToListAsync() ?? [];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return [];
+        }
+    }
+
     public async Task<string> GetUserRole(string email)
     {
         await using var database = new AuthenticationDbContext();
@@ -63,7 +79,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return String.Empty;
+            return string.Empty;
         }
     }
 
@@ -294,7 +310,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     private async Task SeedRoles()
     {
-        await AddRole(RoleConstants.Moderator);
+        await AddRole(RoleConstants.SpaceOwner);
         await AddRole(RoleConstants.Default);
         await AddRole(RoleConstants.Admin);
     }

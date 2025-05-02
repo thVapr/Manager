@@ -354,8 +354,15 @@ public class PartRepository : IPartRepository
             return false;
         }
     }
+
+    public async Task<ICollection<PartType>> GetPartTypes()
+    {
+        await using var database = new MainDbContext();
+        
+        return await database.PartTypes.ToListAsync();
+    }
     
     public void Dispose()
     {
     }
-}
+};

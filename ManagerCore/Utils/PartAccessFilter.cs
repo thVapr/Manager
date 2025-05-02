@@ -6,17 +6,18 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ManagerCore.Utils;
 
-public class PartAccessFilter(IPartLogic partLogic, int requiredLevel) : IAsyncActionFilter
+public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZeroLevelCreationAccess = false) : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var role = GetRole(context.HttpContext.User);
+        
         if (string.CompareOrdinal(role, RoleConstants.Admin) != 0
-            && string.CompareOrdinal(role, RoleConstants.Moderator) != 0)
+            && string.CompareOrdinal(role, RoleConstants.SpaceOwner) != 0 && isZeroLevelCreationAccess)
         {
             var userId = GetUserId(context.HttpContext.User);
             var partId = GetPartId(context);
-
+            
             if (!await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
             {
                 context.Result = new ForbidResult();

@@ -1,62 +1,73 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-import { TokenInterceptor } from './services/auth/token.intercept';
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './components/home/home.component';
-import { LoginComponent } from './components/login/login.component';
-import { RegisterComponent } from './components/register/register.component';
-import { PartComponent } from './components/part/part.component';
-import { MemberComponent } from './components/member/member.component';
-import { PartMembersComponent } from './components/part-members/part-members.component';
+import { AppRoutingModule } from './app-routing.module';
 import { TaskComponent } from './components/task/task.component';
-import { PartProfileComponent } from './components/part-profile/part-profile.component';
+import { PartComponent } from './components/part/part.component';
+import { HomeComponent } from './components/home/home.component';
+import { TokenInterceptor } from './services/auth/token.intercept';
+import { LoginComponent } from './components/login/login.component';
+import { MemberComponent } from './components/member/member.component';
+import { RegisterComponent } from './components/register/register.component';
 import { PartTasksComponent } from './components/part-tasks/part-tasks.component';
+import { PartMembersComponent } from './components/part-members/part-members.component';
+import { PartProfileComponent } from './components/part-profile/part-profile.component';
 import { TaskProfileComponent } from './components/task-profile/task-profile.component';
 import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { providePrimeNG } from 'primeng/config';
 import Lara from '@primeng/themes/lara';
+import { providePrimeNG } from 'primeng/config';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
-import { TreeModule, Tree } from 'primeng/tree';
+import { Panel } from 'primeng/panel'
+import { Avatar } from 'primeng/avatar'
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { EditorModule } from 'primeng/editor';
+import { TreeModule, Tree } from 'primeng/tree';
+import { DragDropModule } from 'primeng/dragdrop'
+import { PickListModule } from 'primeng/picklist';
 
 @NgModule({ 
     declarations: [
         AppComponent,
         HomeComponent,
-        LoginComponent,
-        RegisterComponent,
         PartComponent,
-        MemberComponent,
-        PartMembersComponent,
         TaskComponent,
+        LoginComponent,
+        MemberComponent,
+        RegisterComponent,
+        PartTasksComponent,
+        PartMembersComponent,
         PartProfileComponent,
         TaskProfileComponent,
-        PartTasksComponent,
         MemberProfileComponent,
     ],
     exports: [
         LoginComponent,
-        RegisterComponent
+        RegisterComponent,
     ],
     bootstrap: [AppComponent], 
-    imports: [BrowserModule,
-        AppRoutingModule,
-        FormsModule,
-        CommonModule,
-        ReactiveFormsModule,
-        TreeModule,
+    imports: [
+        Tree,
+        Panel,
+        Avatar,
         CardModule,
+        TreeModule,
+        FormsModule,
+        EditorModule,
         ButtonModule,
-        Tree
+        CommonModule,
+        BrowserModule,
+        DragDropModule,
+        PickListModule,
+        AppRoutingModule,
+        ReactiveFormsModule,
     ],
     providers: [
         provideAnimationsAsync(),

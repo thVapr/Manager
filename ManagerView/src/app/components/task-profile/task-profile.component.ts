@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { TaskService } from '../../services/task/task.service';
 import { ActivatedRoute } from '@angular/router';
 import { MemberService } from '../../services/member/member.service';
-import { Member } from '../models/Member';
+import { Member } from '../models/member';
 import { Status } from '../../status';
 import { Constants } from '../../constants';
 import { AuthService } from '../../services/auth/auth.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Task } from '../models/Task';
+import { Task } from '../models/task';
 
 
 @Component({
@@ -85,8 +85,8 @@ export class TaskProfileComponent {
 
           }
         });
-      if (task.employeeId !== undefined)
-        this.memberService.getMemberById(task.employeeId).subscribe((employee) => {
+      if (task.memberId !== undefined)
+        this.memberService.getMemberById(task.memberId).subscribe((employee) => {
           this.employee = employee;
         });
 

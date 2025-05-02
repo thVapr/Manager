@@ -1,10 +1,10 @@
-﻿using ManagerCore.Models;
-using ManagerCore.Utils;
+﻿using ManagerCore.Utils;
+using ManagerCore.Models;
+using ManagerLogic.Models;
 using ManagerData.Constants;
 using ManagerLogic.Management;
-using ManagerLogic.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCore.Controllers;
 
@@ -13,6 +13,13 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class PartController(IPartLogic partLogic) : ControllerBase
 {
+    [HttpGet]
+    [Route("check_privileges")]
+    public async Task<IActionResult> CheckPrivileges(Guid userId, Guid partId, int privilege)
+    {
+        return Ok(await partLogic.IsUserHasPrivileges(userId, partId, privilege));
+    }
+    
     [HttpGet]
     [Route("all_accessible")]
     public async Task<IActionResult> GetAll()
@@ -46,7 +53,14 @@ public class PartController(IPartLogic partLogic) : ControllerBase
         return Ok(await partLogic.GetEntityById(Guid.Parse(id)));
     }
     
-    [TypeFilter(typeof(PartAccessFilter), Arguments = [3])]
+    [HttpGet]
+    [Route("get_types")]
+    public async Task<IActionResult> GetTypes()
+    {
+        return Ok(await partLogic.GetPartTypes());
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [3, true])]
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(PartModel model)

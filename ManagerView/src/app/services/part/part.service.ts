@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Part } from 'src/app/components/models/Part';
+import { Part } from 'src/app/components/models/part';
 import { AuthService } from '../auth/auth.service';
+import { PartType } from 'src/app/components/models/part-type';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,15 @@ export class PartService {
     return false;    
   }
 
+  hasPrivileges(userId : string, partId : string, privilege : number) : Observable<boolean>
+  {
+    const params = new HttpParams()
+      .set('userId', userId)
+      .set('partId', partId)
+      .set('privilege', privilege.toString());
+    return this.http.get<boolean>(`${this.apiUrl}/check_privileges`, { params });
+  }
+
   removeLeader() : Observable<any> {
     const id = this.getPartId();
     const emptyId = "00000000-0000-0000-0000-000000000000";
@@ -61,8 +71,11 @@ export class PartService {
 
   getAll(): Observable<Part[]> {
     const id = this.getPartId();
-
     return this.http.get<Part[]>(`${this.apiUrl}/all?id=${id}`);
+  }
+
+  getTypes(): Observable<PartType[]> {
+    return this.http.get<PartType[]>(`${this.apiUrl}/get_types`);
   }
 
   getPartById(id : string): Observable<Part> {

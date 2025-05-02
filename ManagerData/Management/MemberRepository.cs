@@ -27,19 +27,9 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> CreateEntity(Guid id, MemberDataModel model)
     {
-        await CreateEntity(model);
-        await using var database = new MainDbContext();
-
-        try
-        {
-            await AddToEntity(id, model.Id);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return false;
-        }
+        model.Id = id;
+        
+        return await CreateEntity(model);
     }
 
     public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
@@ -92,7 +82,8 @@ public class MemberRepository : IMemberRepository
 
         try
         {
-            return await database.Members.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new MemberDataModel();
+            return await database.Members.Where(m => m.Id == id)
+                .FirstOrDefaultAsync() ?? new MemberDataModel();
         }
         catch (Exception ex)
         {

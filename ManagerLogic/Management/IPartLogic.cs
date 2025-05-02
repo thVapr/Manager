@@ -12,4 +12,6 @@ public interface IPartLogic : IManagementLogic<PartModel>
     Task<bool> CreatePart(Guid userId, PartModel model);
     
     Task<ICollection<PartModel>> GetAllAccessibleParts(Guid userId);
+    
+    Task<ICollection<PartType>> GetPartTypes();
 }

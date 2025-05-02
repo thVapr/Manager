@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace ManagerData.Migrations
+namespace ManagerData.Migrations.AuthenticationDb
 {
     /// <inheritdoc />
     public partial class init : Migration
@@ -33,6 +33,8 @@ namespace ManagerData.Migrations
                     Email = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     Salt = table.Column<string>(type: "text", nullable: false),
+                    MessengerId = table.Column<string>(type: "text", nullable: true),
+                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

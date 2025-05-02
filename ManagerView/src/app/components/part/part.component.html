@@ -1,27 +1,27 @@
-<h2 class="mb-5 text-center">Иерархия</h2>
-<p-card header="Добавление">
-  <form [formGroup]="addPartForm" (ngSubmit)="OnSubmit()" class="row mb-5" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader)">
-      <div class="form-outline mb-2">
-        <input type="text" class="form-control form-control-lg"
-          placeholder="Название" formControlName="name"/>
-      </div>
-      <div class="form-outline mb-2">
-        <label for="type-form">Тип сущности</label>
-        <select class="form-control form-control-lg" id="type-form" formControlName="type">
-          <option value="1">Пространство</option>
-          <option value="2">Группа</option>
-          <option value="3">Проект</option>
-        </select>
-      </div>
-      <div class="form-outline mb-2">
-        <textarea type="text" class="form-control form-control-lg"
-          placeholder="Описание" formControlName="description"></textarea>
-      </div>
-      <div class="text-center text-lg-start">
-        <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
-      </div>
-  </form>
-</p-card>
+<p-panel [toggleable]="true" [collapsed]="true">
+    <ng-template #header>
+        <div class="flex items-center gap-2">
+            <h1 class="font-bold">Иерархия</h1>
+        </div>
+    </ng-template>
+        <form [formGroup]="addPartForm" (ngSubmit)="OnSubmit()" class="row mb-5" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader || authService.isSpaceOwner())">
+        <div class="form-outline mb-2">
+          <input type="text" class="form-control form-control-lg"
+            placeholder="Название" formControlName="name"/>
+        </div>
+        <div class="form-outline mb-2">
+          <label for="type-form">Тип сущности</label>
+          <select class="form-control form-control-lg" id="type-form" formControlName="type">
+            <option *ngFor="let partType of partTypes" [value]="partType.id">{{partType.name}}</option>
+          </select>
+        </div>
+        <p-editor class="form-outline"
+            placeholder="Описание" formControlName="description"></p-editor>
+        <div class="text-center text-lg-start mt-2">
+          <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+        </div>
+    </form>
+</p-panel>
 
 <p-card>
   <p-tree [value]="items" styleClass="w-full md:w-[30rem]" 
@@ -30,5 +30,6 @@
       draggableScope="tree-scope"
       droppableScope="tree-scope" 
       (onNodeDrop)="OnChanges($event)"
-      (onNodeSelect)="ChoosePart($event)"/>
+      (onNodeSelect)="ChoosePart($event)"
+      [selection]="this.selectedNode"/>
 </p-card>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PartService } from '../part/part.service';
 import { HttpClient } from '@angular/common/http';
-import { Task } from 'src/app/components/models/Task';
+import { Task } from 'src/app/components/models/task';
 import { AuthService } from '../auth/auth.service';
 import { Status } from 'src/app/status'
 
@@ -51,8 +51,7 @@ export class TaskService {
 
   addTask(task : Task) : Observable<any> {
     task.creatorId = this.authService.getId();
-    task.projectId =  this.partService.getPartId()!;
-    task.employeeId = task.creatorId;
+    task.partId =  this.partService.getPartId()!;
 
     return this.http.post<any>(`${this.apiUrl}/create`, task);
   }

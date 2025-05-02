@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ManagerData.Authentication;
+using ManagerData.Constants;
 using ManagerData.DataModels.Authentication;
 using ManagerLogic.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -108,6 +109,16 @@ public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenti
         var adminIds = await authenticationData.GetAdminIds();
 
         return adminIds.Select(x => x.ToString());
+    }
+
+    public async Task<ICollection<string>> GetAvailableUserIds()
+    {
+        var users = await authenticationData.GetUsers();
+        var adminIds = await GetAdminIds();
+        return users.Where(user => user.IsAvailable && !adminIds
+                .Contains(user.Id.ToString()))
+            .Select(user => user.Id.ToString())
+            .ToList();
     }
 
     public async Task<bool> Logout(string token)

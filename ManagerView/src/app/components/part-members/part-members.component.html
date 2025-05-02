@@ -1,40 +1,25 @@
 
-<div class="container-fluid">
-  <div class="row">
-    <h2 class="text-center mb-5">Отдел</h2>
-    <div class="col">
-      <h5 class="text-center mb-5">Сотрудники отдела</h5>
-      <ul class="row text-nowrap list-group list-group-flush" *ngFor="let member of partMembers">
-        <li class="list-group-item" *ngIf="partService.isLeader(member.id, part.leaderIds)">
-          <button class="btn btn-dark" *ngIf="authService.isAdmin()" (click)="removeManager()">
-            <i class="bi bi-award"></i>
-          </button>
-          <button class="btn btn-dark" *ngIf="!authService.isAdmin()" >
-            <i class="bi bi-award"></i>
-          </button>
-          <button class="btn btn-light">{{member.lastName}} {{member.firstName}}</button>
-        </li>
-
-        <li class="list-group-item" *ngIf="!partService.isLeader(member.id, part.leaderIds)">
-          <button class="btn btn-primary" *ngIf="!partService.isLeaderExist(part.leaderIds)&&authService.isAdmin()" (click)="addManager(member.id)">
-            <i class="bi bi-award"></i>
-          </button>
-          <button class="btn opacity-0" *ngIf="partService.isLeaderExist(part.leaderIds)||!authService.isAdmin()">
-            <i class="bi bi-award"></i>
-          </button>
-          <button class="btn btn-light" (click)="RemoveEmployeeFromDepartment(member.id)">{{member.lastName}} {{member.firstName}}</button>
-        </li>
-      </ul>
-    </div>
-    <div class="col">
-      <h5 class="text-center text-nowrap mb-5">Свободные сотрудники</h5>
-      <ul class="list-group list-group-flush" *ngFor="let member of members">
-        <li class="list-group-item mb-2" (click)="AddEmployeeToDepartment(member.id)">
-          <button class="btn btn-light">
-            {{member.lastName}} {{member.firstName}}
-          </button>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
+<p-picklist
+    [source]="partMembers"
+    [target]="members"
+    [dragdrop]="true"
+    [responsive]="true"
+    [sourceStyle]="{ height: '30rem' }"
+    [targetStyle]="{ height: '30rem' }"
+    filterBy="searchedParameter"
+    sourceFilterPlaceholder="Поиск"
+    targetFilterPlaceholder="Поиск"
+    sourceHeader="Участники"
+    targetHeader="Свободные"
+    breakpoint="1400px"
+    scrollHeight="30rem"
+    dataKey="id"
+>
+    <ng-template let-option let-selected="selected" #option pTemplate="item">
+        <div class="flex flex-wrap p-1 items-center gap-4 w-full">
+            <div class="flex-1 flex flex-col">
+                <span class="font-medium text-sm">{{ option.firstName }} {{ option.lastName }}</span>
+            </div>
+        </div>
+    </ng-template>
+</p-picklist>

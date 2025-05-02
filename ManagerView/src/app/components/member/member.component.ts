@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MemberService } from '../../services/member/member.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { Member } from '../models/Member';
+import { Member } from '../models/member';
 
 @Component({
     selector: 'app-employee',
