@@ -8,15 +8,10 @@ export class Member {
     }
 
     id? : string;
-    
-    departmentId?: string;
-    departmentName? : string;
 
-    companyId?: string;
-    companyName? : string;
-
-    projectId?: string;
-    projectName?: string;
+    partId?: string;
+    partName?: string;
+    privilege?  : number;
 
     firstName? : string;
     lastName? : string;
