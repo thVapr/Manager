@@ -12,6 +12,8 @@ public class TaskDataModel : BaseDataModel
     public int Level { get; set; } = 0;
     public int Status { get; set; } = 0;
     public int Priority { get; set; } = 0;
+    public DateTime Deadline { get; set; }
+    public DateTime ClosedAt { get; set; }
 
     public PartDataModel? CurrentPart { get; set; }
     public ICollection<TaskMember> TaskMembers { get; set; } = null!;

@@ -5,12 +5,13 @@ import { HttpClient } from '@angular/common/http';
 import { Task } from 'src/app/components/models/task';
 import { AuthService } from '../auth/auth.service';
 import { Status } from 'src/app/status'
+import { Constants } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
-  private apiUrl = 'http://localhost:6732/api/tasks';
+  private apiUrl = Constants.SERVER_ADDRESS + '/api/tasks';
 
   constructor(private http: HttpClient,
               private partService : PartService,

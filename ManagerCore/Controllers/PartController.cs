@@ -14,6 +14,13 @@ namespace ManagerCore.Controllers;
 public class PartController(IPartLogic partLogic) : ControllerBase
 {
     [HttpGet]
+    [Route("get_privileges")]
+    public async Task<IActionResult> GetPrivileges(Guid memberId, Guid partId)
+    {
+        return Ok(await partLogic.GetPrivileges(memberId, partId));
+    }
+    
+    [HttpGet]
     [Route("check_privileges")]
     public async Task<IActionResult> CheckPrivileges(Guid userId, Guid partId, int privilege)
     {
@@ -40,17 +47,17 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [TypeFilter(typeof(PartAccessFilter), Arguments = [1])]
     [HttpGet]
     [Route("all")]
-    public async Task<IActionResult> GetAll(string id)
+    public async Task<IActionResult> GetAll(string partId)
     {
-        return Ok(await partLogic.GetEntitiesById(Guid.Parse(id)));
+        return Ok(await partLogic.GetEntitiesById(Guid.Parse(partId)));
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [1])]
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetModel(string id)
+    public async Task<IActionResult> GetModel(string partId)
     {
-        return Ok(await partLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await partLogic.GetEntityById(Guid.Parse(partId)));
     }
     
     [HttpGet]
@@ -60,7 +67,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
         return Ok(await partLogic.GetPartTypes());
     }
     
-    [TypeFilter(typeof(PartAccessFilter), Arguments = [3, true])]
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5, true])]
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(PartModel model)
@@ -137,9 +144,9 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpDelete]
     [Route("delete")]
-    public async Task<IActionResult> DeletePart(string id)
+    public async Task<IActionResult> DeletePart(string partId)
     {
-        if (await partLogic.DeleteEntity(Guid.Parse(id)))
+        if (await partLogic.DeleteEntity(Guid.Parse(partId)))
             return Ok();
         return BadRequest();
     }

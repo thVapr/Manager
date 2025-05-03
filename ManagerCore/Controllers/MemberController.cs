@@ -1,4 +1,5 @@
-﻿using ManagerCore.ViewModels;
+﻿using ManagerCore.Utils;
+using ManagerCore.ViewModels;
 using ManagerLogic.Authentication;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
@@ -20,21 +21,23 @@ public class MemberController(
 
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetMember(string id)
+    public async Task<IActionResult> GetMember(string memberId)
     {
-        return Ok(await memberLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await memberLogic.GetEntityById(Guid.Parse(memberId)));
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpGet]
     [Route("get_members")]
-    public async Task<IActionResult> GetMembersWithoutPart(string id)
+    public async Task<IActionResult> GetMembersWithoutPart(string? partId)
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await memberLogic.GetFreeMembersInPart(Guid.Parse(id));
+        var members = await memberLogic.GetAvailableMembers(Guid.Parse(partId!));
 
-        return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
+        return Ok(members.Where(e => !adminIds.Contains(e.Id)));
     }
-
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [6, true])]
     [HttpGet]
     [Route("get_free_members")]
     public async Task<IActionResult> GetMembersWithoutAnyPart()
@@ -42,7 +45,7 @@ public class MemberController(
         var employees = await memberLogic.GetMembersWithoutPart();
         var ids = await authentication.GetAvailableUserIds();
         
-        return Ok(employees.Where(e => !ids.Contains(e.Id!)));
+        return Ok(employees.Where(e => ids.Contains(e.Id!)));
     }
 
     [HttpGet]

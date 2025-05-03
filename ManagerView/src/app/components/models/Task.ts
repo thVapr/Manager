@@ -4,13 +4,13 @@ export class Task {
     name?: string;
     description?: string;
     
-    employeeId?: string;
-    employeeName?: string;
-    employeeLastName? : string;
+    memberId?: string;
+    memberName?: string;
+    memberLastName? : string;
 
     creatorId?: string;
 
-    projectId?: string;
+    partId?: string;
 
     status?: number;
     level?: number;

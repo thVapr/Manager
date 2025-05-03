@@ -24,6 +24,24 @@ export class PartMembersComponent {
     this.Update();
   }
 
+  onMoveToTarget(event : any)
+  {
+    event.items.forEach((element: Member) => {
+      this.partService.removeMemberFromPart(element.id!).subscribe({next: () => {
+        console.log(element.firstName + ' removed from part');
+      }});
+    });
+  }
+
+  onMoveToSource(event : any)
+  {
+    event.items.forEach((element: Member) => {
+      this.partService.addMemberToPart(element.id!).subscribe({next: () => {
+        console.log(element.firstName + ' added to part');
+      }});
+    });
+  }
+
   addManager(memberId: string | undefined) {
     this.partService.addLeader(memberId).subscribe(() => {
       this.Update();
@@ -40,12 +58,12 @@ export class PartMembersComponent {
     this.GetAll();
     this.GetAllFree();
 
-    const id = this.partService.getPartId();
+    // const id = this.partService.getPartId();
 
-    if(id !== null)
-      this.partService.getPartById(id).subscribe((part) => {
-        this.part = part;
-      });
+    // if(id !== null)
+    //   this.partService.getPartById(id).subscribe((part) => {
+    //     this.part = part;
+    //   });
   }
 
   AddEmployeeToDepartment(id : any) {
@@ -57,15 +75,50 @@ export class PartMembersComponent {
   }
 
   GetAllFree() : void {
-    this.memberService.getMembersWithoutPart().subscribe(members => 
-      this.members = members);
+    this.memberService.getAvailableMembers().subscribe(members => 
+    {
+      this.members = members.map(member => ({
+            ...member,
+            searchedParameter: member.firstName + ' ' + member.lastName! + ' ' + member.patronymic!
+      }));
+    });
   }
 
-  GetAll() : void {
-    this.memberService.getMemberByPartId().subscribe(members => 
+  GetAll(): void {
+      this.memberService.getMemberByPartId().subscribe(members => {
+          const completedRequests = new Array(members.length).fill(false);
+          
+          members.forEach((member, index) => {
+              this.partService.getMemberPrivilege(member.id!).subscribe({
+                  next: (privilege) => {
+                      member.privilege = privilege;
+                      completedRequests[index] = true;
+                      
+                      if (completedRequests.every(Boolean)) {
+                          this.updatePartMembers(members);
+                      }
+                  },
+                  error: () => {
+                      member.privilege = undefined;
+                      completedRequests[index] = true;
+                      
+                      if (completedRequests.every(Boolean)) {
+                          this.updatePartMembers(members);
+                      }
+                  }
+              });
+          });
+          
+          if (members.length === 0) {
+              this.updatePartMembers(members);
+          }
+      });
+  }
+
+  private updatePartMembers(members: Member[]): void {
       this.partMembers = members.map(member => ({
-      ...member,
-      searchedParameter: member.firstName + ' ' + member.lastName! + ' ' + member.patronymic!
-    })));
+          ...member,
+          searchedParameter: `${member.firstName} ${member.lastName} ${member.patronymic}`
+      }));
   }
 }

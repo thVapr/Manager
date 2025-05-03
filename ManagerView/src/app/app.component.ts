@@ -39,10 +39,10 @@ export class AppComponent implements OnInit {
             this.memberProfileString = member.lastName + ' ' + member.firstName;
             this.isMemberExist = true;
 
-            if(member.companyId !== null && member.companyId !== undefined) {
-              this.partService.setPartId(member.companyId);
-              if (member.companyName !== "" && member.companyName !== undefined)
-                this.partService.setPartName(member.companyName);
+            if(member.partId !== null && member.partId !== undefined) {
+              this.partService.setPartId(member.partId);
+              if (member.partName !== "" && member.partName !== undefined)
+                this.partService.setPartName(member.partName);
             }
           }
         },

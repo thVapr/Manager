@@ -24,14 +24,17 @@ import Lara from '@primeng/themes/lara';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
+import { Tag } from 'primeng/tag'
 import { Panel } from 'primeng/panel'
 import { Avatar } from 'primeng/avatar'
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { EditorModule } from 'primeng/editor';
+import { RippleModule } from 'primeng/ripple';
 import { TreeModule, Tree } from 'primeng/tree';
 import { DragDropModule } from 'primeng/dragdrop'
 import { PickListModule } from 'primeng/picklist';
+import { DatePickerModule  } from 'primeng/datepicker'
 
 @NgModule({ 
     declarations: [
@@ -54,6 +57,7 @@ import { PickListModule } from 'primeng/picklist';
     ],
     bootstrap: [AppComponent], 
     imports: [
+        Tag,
         Tree,
         Panel,
         Avatar,
@@ -63,10 +67,12 @@ import { PickListModule } from 'primeng/picklist';
         EditorModule,
         ButtonModule,
         CommonModule,
+        RippleModule,
         BrowserModule,
         DragDropModule,
         PickListModule,
         AppRoutingModule,
+        DatePickerModule,
         ReactiveFormsModule,
     ],
     providers: [

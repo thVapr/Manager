@@ -94,10 +94,24 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
         throw new NotImplementedException();
     }
 
+    public async Task<ICollection<MemberModel>> GetAvailableMembers(Guid? partId)
+    {
+        if (partId is null || Guid.Empty == partId) 
+            return await GetMembersWithoutPart();
+        var membersFromData = await repository.GetAvailableMembersFromPart(partId!.Value);
+        return membersFromData.Select(member => new MemberModel
+        {
+            Id = member.Id.ToString(),
+            FirstName = member.FirstName,
+            LastName = member.LastName,
+            Patronymic = member.Patronymic
+        }).ToList();
+    }
+    
     public async Task<ICollection<MemberModel>> GetMembersWithoutPart()
     {
         // TODO: Нужно изменить структуру учитывая уровень части
-        var members = await repository.GetMembersWithoutPart(0);
+        var members = await repository.GetMembersWithoutPart();
 
         return members.Select(v => new MemberModel
         {

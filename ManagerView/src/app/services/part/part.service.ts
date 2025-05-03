@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { Part } from 'src/app/components/models/part';
 import { AuthService } from '../auth/auth.service';
 import { PartType } from 'src/app/components/models/part-type';
+import { Constants } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PartService {
-  private apiUrl = 'http://localhost:6732/api/parts';
+  private apiUrl = Constants.SERVER_ADDRESS + '/api/parts';
 
   constructor(private http: HttpClient,
      private authService: AuthService) { }
@@ -71,7 +72,7 @@ export class PartService {
 
   getAll(): Observable<Part[]> {
     const id = this.getPartId();
-    return this.http.get<Part[]>(`${this.apiUrl}/all?id=${id}`);
+    return this.http.get<Part[]>(`${this.apiUrl}/all?partId=${id}`);
   }
 
   getTypes(): Observable<PartType[]> {
@@ -79,7 +80,7 @@ export class PartService {
   }
 
   getPartById(id : string): Observable<Part> {
-    return this.http.get<Part>(`${this.apiUrl}/get?id=${id}`);
+    return this.http.get<Part>(`${this.apiUrl}/get?partId=${id}`);
   }
 
   addPart(name : string, description : string, typeId : number ) : Observable<any> {
@@ -95,18 +96,25 @@ export class PartService {
     return this.http.put<any>(`${this.apiUrl}/update`, project);
   }
 
-  addMemberToPart(employeeId : string) : Observable<any> {
-    const projectId = this.getPartId();
+  addMemberToPart(memberId : string) : Observable<any> {
+    const partId = this.getPartId();
 
-    return this.http.post<any>(`${this.apiUrl}/add`,{ projectId, employeeId });
+    return this.http.post<any>(`${this.apiUrl}/add`,{ partId, memberId });
   }
   
-  removeMemberFromPart(employeeId : string) : Observable<any> {
-    const projectId = this.getPartId();
+  removeMemberFromPart(memberId : string) : Observable<any> {
+    const partId = this.getPartId();
 
-    return this.http.post<any>(`${this.apiUrl}/remove`,{ projectId, employeeId });
+    return this.http.post<any>(`${this.apiUrl}/remove`,{ partId, memberId });
   }
   
+  getMemberPrivilege(memberId : string) : Observable<number>
+  {
+    const partId = this.getPartId();
+
+    return this.http.get<number>(`${this.apiUrl}/get_privileges?partId=${partId}&memberId=${memberId}`);
+  }
+
   isPartSelected() : boolean {
     const id = this.getPartId();
     const name = this.getPartName();

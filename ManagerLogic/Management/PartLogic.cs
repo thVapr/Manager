@@ -72,9 +72,9 @@ public class PartLogic(IPartRepository repository) : IPartLogic
         return await repository.AddToEntity(destinationId, sourceId);
     }
 
-    public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
     {
-        throw new NotImplementedException();
+        return await repository.RemoveFromEntity(destinationId, sourceId);
     }
 
     public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
@@ -95,6 +95,13 @@ public class PartLogic(IPartRepository repository) : IPartLogic
     public async Task<bool> DeleteEntity(Guid id)
     {
         return await repository.DeleteEntity(id);
+    }
+
+    public async Task<int> GetPrivileges(Guid userId, Guid partId)
+    {
+        return (await repository.GetPartMembers(partId))
+            .Where(pm => pm.MemberId == userId)
+            .Select(pm => pm.Privileges).FirstOrDefault();
     }
 
     public async Task<bool> ChangePrivilege(Guid userId, Guid partId, int privilege)

@@ -10,6 +10,7 @@
           placeholder="Название" formControlName="name"/>
       </div>
       <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
+      <p-datepicker class="form-outline mb-2" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy" formControlName="deadlineDate" />
       <div class="text-center text-lg-start mt-2">
         <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
       </div>

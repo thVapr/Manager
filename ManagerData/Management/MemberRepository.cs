@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
@@ -200,7 +201,7 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart(int level)
+    public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart()
     {
         await using var database = new MainDbContext();
 
@@ -235,5 +236,43 @@ public class MemberRepository : IMemberRepository
             return [];
 
         }
+    }
+
+    public async Task<IEnumerable<MemberDataModel>> GetAvailableMembersFromPart(Guid id)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var ids = await GetAvailableMemberIds(database, id);
+            var currentPartMemberIds = await GetMembersFromPart(id);
+            ids.ExceptWith(currentPartMemberIds.Select(member => member.Id));
+            
+            return await database.Members.Where(member => ids.Contains(member.Id)).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return [];
+        }
+    }
+
+    private async Task<ISet<Guid>> GetAvailableMemberIds(MainDbContext database, Guid? id)
+    {
+        var set = new HashSet<Guid>();
+        Guid? mainPartId = id;
+        while (mainPartId != null)
+        {
+            var currentPartId = mainPartId.Value;
+            mainPartId = await database.Parts
+                .Where(part => part.Id == currentPartId)
+                .Select(data => data.MainPartId).FirstOrDefaultAsync();
+            var links = await database.PartMembers
+                .Where(pe => pe.PartId == mainPartId)
+                .Select(pm => pm.MemberId).ToListAsync();
+            set.UnionWith(links);
+        }
+        
+        return set;
     }
 }

@@ -20,7 +20,8 @@ export class PartTasksComponent implements OnInit {
 
   addTaskForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(4)]),
-    description: new FormControl('', [Validators.required, Validators.minLength(4)])
+    description: new FormControl('', [Validators.required, Validators.minLength(4)]),
+    deadlineDate: new FormControl('', [Validators.required])
   });
 
   isLeader : boolean = false;

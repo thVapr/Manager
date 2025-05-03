@@ -161,7 +161,7 @@ export class PartComponent {
     }
 
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.router.navigate(['company']);
+      this.router.navigate(['parts']);
     });
   }
 }

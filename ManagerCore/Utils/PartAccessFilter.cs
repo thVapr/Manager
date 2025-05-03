@@ -1,5 +1,6 @@
-﻿using System.Security.Claims;
+﻿using ManagerLogic.Models;
 using ManagerData.Constants;
+using System.Security.Claims;
 using ManagerLogic.Management;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -12,8 +13,9 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
     {
         var role = GetRole(context.HttpContext.User);
         
-        if (string.CompareOrdinal(role, RoleConstants.Admin) != 0
-            && string.CompareOrdinal(role, RoleConstants.SpaceOwner) != 0 && isZeroLevelCreationAccess)
+        if (string.CompareOrdinal(role, RoleConstants.Admin) != 0 &&
+            string.CompareOrdinal(role, RoleConstants.Admin) != 0 && isZeroLevelCreationAccess
+        )
         {
             var userId = GetUserId(context.HttpContext.User);
             var partId = GetPartId(context);
@@ -42,9 +44,12 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
 
     private Guid GetPartId(ActionExecutingContext context)
     {
-        var partId = context.ActionArguments.TryGetValue("id", out var id) 
-            ? id :
-            string.Empty;
+        var partId = (context.ActionArguments.TryGetValue("partId", out var id) 
+            ? id : null)
+                ?? (context.ActionArguments.TryGetValue("masterId", out id)
+            ? id : null)
+                ?? (context.ActionArguments.Values.OfType<PartModel>().FirstOrDefault()?.MainPartId);
+
         return Guid.TryParse(partId?.ToString(), out var parsedId)
             ? parsedId
             : Guid.Empty;

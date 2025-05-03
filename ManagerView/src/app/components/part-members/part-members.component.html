@@ -6,7 +6,7 @@
     [responsive]="true"
     [sourceStyle]="{ height: '30rem' }"
     [targetStyle]="{ height: '30rem' }"
-    filterBy="searchedParameter"
+    filterBy="firstName,lastName,patronymic"
     sourceFilterPlaceholder="Поиск"
     targetFilterPlaceholder="Поиск"
     sourceHeader="Участники"
@@ -14,12 +14,17 @@
     breakpoint="1400px"
     scrollHeight="30rem"
     dataKey="id"
->
-    <ng-template let-option let-selected="selected" #option pTemplate="item">
-        <div class="flex flex-wrap p-1 items-center gap-4 w-full">
-            <div class="flex-1 flex flex-col">
-                <span class="font-medium text-sm">{{ option.firstName }} {{ option.lastName }}</span>
-            </div>
-        </div>
+    (onMoveToTarget)="onMoveToTarget($event)"
+    (onMoveToSource)="onMoveToSource($event)">
+    
+    <ng-template let-option pTemplate="item">
+        <p-card [subheader]="option.firstName + ' ' + option.lastName">
+            <ng-template pTemplate="footer">
+                <div class="flex align-items-center gap-2">
+                    <span>Уровень доступа: </span>
+                    <p-tag [value]="option.privilege"></p-tag>
+                </div>
+            </ng-template>
+        </p-card>
     </ng-template>
 </p-picklist>

@@ -193,7 +193,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<Guid>();
+            return [];
         }
     }
 

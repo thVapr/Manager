@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { Member } from 'src/app/components/models/member';
 import { AuthService } from '../auth/auth.service';
 import { PartService } from '../part/part.service';
+import { Constants } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MemberService {
-  private apiUrl = 'http://localhost:6732/api/members';
+  private apiUrl = Constants.SERVER_ADDRESS + '/api/members';
 
   constructor(private http: HttpClient, private authService : AuthService,
               private partService : PartService) { }
@@ -38,7 +39,9 @@ export class MemberService {
     return this.http.get<Member[]>(`${this.apiUrl}/all?id=${id}`);
   }
 
-  getMembersWithoutPart() : Observable<Member[]> {
-    return this.http.get<Member[]>(`${this.apiUrl}/get_free_members`);
+  getAvailableMembers() : Observable<Member[]> {
+    const partId = this.partService.getPartId();
+
+    return this.http.get<Member[]>(`${this.apiUrl}/get_members?partId=${partId}`);
   }
 }
