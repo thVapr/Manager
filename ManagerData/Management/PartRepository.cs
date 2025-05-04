@@ -358,8 +358,21 @@ public class PartRepository : IPartRepository
     public async Task<ICollection<PartType>> GetPartTypes()
     {
         await using var database = new MainDbContext();
+        try
+        {
+            var parts = await database.PartTypes.ToListAsync();
         
-        return await database.PartTypes.ToListAsync();
+            if (!parts.Any())
+                await SeedPartTypes();
+            parts = await database.PartTypes.ToListAsync();
+            return parts;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return [];
+        }
+
     }
     
     public void Dispose()
