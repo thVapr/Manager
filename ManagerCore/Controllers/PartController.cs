@@ -24,7 +24,8 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("check_privileges")]
     public async Task<IActionResult> CheckPrivileges(Guid userId, Guid partId, int privilege)
     {
-        return Ok(await partLogic.IsUserHasPrivileges(userId, partId, privilege));
+        var isMemberHasPrivilege = await partLogic.IsUserHasPrivileges(userId, partId, privilege);
+        return Ok(isMemberHasPrivilege);
     }
     
     [HttpGet]
@@ -37,6 +38,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
         return Ok(await partLogic.GetAllAccessibleParts(Guid.Parse(userId!)));
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("update_hierarchy")]
     public async Task<IActionResult> UpdateHierarchy(List<PartModel> models)
@@ -81,9 +83,9 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpPost]
     [Route("change_privilege")]
-    public async Task<IActionResult> ChangePrivilege(string userId, string partId, int privilege)
+    public async Task<IActionResult> ChangePrivilege([FromBody] PrivilegeChangeRequest request)
     {
-        if (await partLogic.ChangePrivilege(Guid.Parse(userId), Guid.Parse(partId), privilege))
+        if (await partLogic.ChangePrivilege(Guid.Parse(request.MemberId), Guid.Parse(request.PartId), request.Privilege))
             return Ok();
 
         return BadRequest();

@@ -75,6 +75,10 @@ export class AuthService {
     return role === 'SpaceOwner';
   }
 
+  hasAccess() : boolean {
+    return true;
+  }
+
   isAuthenticated(): boolean {
     const access_token = this.getAccessToken();
     const refresh_token = this.getRefreshToken();
@@ -110,7 +114,7 @@ export class AuthService {
     );
   }
 
-  async logout() {
+  async logout() : Promise<void> {
     try {      
       const refreshToken = localStorage.getItem('refresh_token');
 

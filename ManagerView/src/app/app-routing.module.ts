@@ -24,7 +24,7 @@ const routes: Routes = [
   {path: 'member', component: MemberComponent, canActivate: [AuthGuard]},
   {path: 'member/tasks', component: TaskComponent, canActivate: [AuthGuard]},
   {path: 'part/tasks', component: PartTasksComponent, canActivate: [AuthGuard]},
-  {path: 'parts', component: PartComponent, canActivate: [AuthGuard, OwnerGuard]},
+  {path: 'parts', component: PartComponent, canActivate: [AuthGuard]},
   {path: 'part/about/:id', component: PartProfileComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]},
   {path: 'member/about/:id', component: MemberProfileComponent, canActivate: [AuthGuard]},

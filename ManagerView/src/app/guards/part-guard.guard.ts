@@ -16,7 +16,7 @@ export class PartGuard {
     const id = this.authService.getId();
     const partId = this.partService.getPartId();
     const privilege = route.data['privilege'] || 5;
-    console.log(privilege);
+
     if (partId !== null){
       return this.partService.hasPrivileges(id, partId, privilege).pipe(
         map((response) => {

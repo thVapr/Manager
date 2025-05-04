@@ -172,16 +172,16 @@ public class PartLogic(IPartRepository repository) : IPartLogic
     {
         var parts = await repository.GetEntities();
         var result = new List<PartModel>();
-
+        var minimumLevel = int.MaxValue;
         foreach (var part in parts!)
         {
-            if (part.Level == 0 && await IsUserHasPrivileges(userId, part.Id, 1))
+            if (await IsUserHasPrivileges(userId, part.Id, 1))
             {
+                minimumLevel = Math.Min(minimumLevel, part.Level);
                 result.Add(ConvertDataModelToLogic(part));
             }
         }
-
-        return result;
+        return result.Where(r => r.Level == minimumLevel).ToList();
     }
 
     public async Task<ICollection<PartType>> GetPartTypes()

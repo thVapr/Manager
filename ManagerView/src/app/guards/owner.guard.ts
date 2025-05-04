@@ -10,7 +10,7 @@ export class OwnerGuard {
   
   canActivate() : boolean
   {
-    return this.authService.isSpaceOwner() || this.authService.isAdmin();
+    return this.authService.hasAccess() || this.authService.isSpaceOwner() || this.authService.isAdmin();
   }
 
 }

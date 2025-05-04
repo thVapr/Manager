@@ -11,17 +11,19 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var role = GetRole(context.HttpContext.User);
+        var user = context.HttpContext.User;
         
-        if (string.CompareOrdinal(role, RoleConstants.Admin) != 0 &&
-            string.CompareOrdinal(role, RoleConstants.Admin) != 0 && isZeroLevelCreationAccess
+        if (!user.IsInRole(RoleConstants.Admin) ||
+            !user.IsInRole(RoleConstants.SpaceOwner) && isZeroLevelCreationAccess
         )
         {
             var userId = GetUserId(context.HttpContext.User);
-            var partId = GetPartId(context);
-            
-            if (!await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
+            var partIds = GetPartIds(context);
+
+            foreach (var partId in partIds)
             {
+                if (await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel)) 
+                    continue;
                 context.Result = new ForbidResult();
                 return;
             }
@@ -42,16 +44,26 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
             : Guid.Empty;
     }
 
-    private Guid GetPartId(ActionExecutingContext context)
+    private List<Guid> GetPartIds(ActionExecutingContext context)
     {
         var partId = (context.ActionArguments.TryGetValue("partId", out var id) 
             ? id : null)
                 ?? (context.ActionArguments.TryGetValue("masterId", out id)
             ? id : null)
                 ?? (context.ActionArguments.Values.OfType<PartModel>().FirstOrDefault()?.MainPartId);
+        
+        var list = new List<string>();
+        if (partId != null)
+            list.Add(partId.ToString()!);
 
-        return Guid.TryParse(partId?.ToString(), out var parsedId)
+        var partIds = context.ActionArguments.Values.OfType<List<PartModel>>().ToList();
+        foreach (var potentialPartId in partIds)
+        {
+            list.Add(potentialPartId.ToString()!);
+        }
+        
+        return list.Select(l => Guid.TryParse(l, out var parsedId)
             ? parsedId
-            : Guid.Empty;
+            : Guid.Empty).ToList();
     }
 }

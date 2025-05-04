@@ -43,10 +43,10 @@ export class TaskProfileComponent {
   ngOnInit(): void {
     const id : string = this.route.snapshot.params['id'];
     this.taskId = id;
-    this.Update();
+    this.update();
   }
 
-  Update() : void {
+  update() : void {
     this.getTaskProfile(this.taskId);
   }
 
@@ -103,7 +103,7 @@ export class TaskProfileComponent {
     task.status = this.taskStatus;
 
     this.taskService.updateTask(task).subscribe(() => {
-      this.Update();
+      this.update();
     });
   }
 
@@ -114,7 +114,7 @@ export class TaskProfileComponent {
     task.status = Status.DOING;
 
     this.taskService.updateTask(task).subscribe(() => {
-      this.Update();
+      this.update();
     });
   }
 }

@@ -139,8 +139,6 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
 
     public async Task<ICollection<MemberModel>> GetMembersFromPart(Guid id)
     {
-        // TODO: Нужно подумать о том, какие участники должны быть возвращены,
-        //       в текущей части или включая все нижестоящие
         var members = await repository.GetMembersFromPart(id);
 
         return members.Select(v => new MemberModel

@@ -17,7 +17,7 @@ export class LoginComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  OnSubmit() {
+  onSubmit() {
     const email = this.loginForm.value.email;
     const password = this.loginForm.value.password;
     this.authService.login(email!, password!)

@@ -4,13 +4,20 @@
             <h1 class="font-bold">Задачи</h1>
         </div>
     </ng-template>
-    <form [formGroup]="addTaskForm" (ngSubmit)="addTask()" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
+    <form class="forg-group" [formGroup]="addTaskForm" (ngSubmit)="addTask()" 
+      *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
       <div class="form-outline mb-2">
         <input type="text" class="form-control form-control-lg"
           placeholder="Название" formControlName="name"/>
       </div>
       <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
-      <p-datepicker class="form-outline mb-2" [showTime]="true" hourFormat="24" dateFormat="dd-mm-yy" formControlName="deadlineDate" />
+
+      <label class="form-label mt-2" for="startDate">Дата начала</label>
+      <p-datepicker id="startDate" [showIcon]="true" class="d-flex w-100" [showTime]="true" 
+        hourFormat="24" dateFormat="dd-mm-yy" formControlName="startDate" />
+      <label class="form-label mt-2" for="endDate">Крайний срок</label>
+      <p-datepicker id="endDate" [showIcon]="true" class="d-flex w-100" [showTime]="true" 
+        hourFormat="24" dateFormat="dd-mm-yy" formControlName="deadlineDate" />
       <div class="text-center text-lg-start mt-2">
         <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
       </div>
@@ -21,7 +28,7 @@
   <form [formGroup]="searchTaskForm" (ngSubmit)="searchTask()">
     <div class="form-outline mb-2">
       <input type="text" class="form-control form-control-lg"
-      placeholder="Запрос" formControlName="query"/>
+        placeholder="Запрос" formControlName="query"/>
     </div>
     <div class="text-center text-lg-start">
       <button type="submit" class="btn btn-primary btn-lg">Поиск</button>

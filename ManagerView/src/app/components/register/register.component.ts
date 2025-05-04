@@ -17,7 +17,7 @@ export class RegisterComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  OnSubmit() {
+  onSubmit() {
     const email = this.registrationForm.value.email;
     const password = this.registrationForm.value.password;
     this.authService.register(email!, password!)

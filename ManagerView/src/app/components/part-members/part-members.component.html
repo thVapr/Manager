@@ -1,11 +1,8 @@
-
 <p-picklist
     [source]="partMembers"
     [target]="members"
     [dragdrop]="true"
     [responsive]="true"
-    [sourceStyle]="{ height: '30rem' }"
-    [targetStyle]="{ height: '30rem' }"
     filterBy="firstName,lastName,patronymic"
     sourceFilterPlaceholder="Поиск"
     targetFilterPlaceholder="Поиск"
@@ -15,15 +12,15 @@
     scrollHeight="30rem"
     dataKey="id"
     (onMoveToTarget)="onMoveToTarget($event)"
-    (onMoveToSource)="onMoveToSource($event)">
-    
+    (onMoveToSource)="onMoveToSource($event)"
+    metaKeySelection="false" 
+    class="d-flex gap-3 w-100">
     <ng-template let-option pTemplate="item">
-        <p-card [subheader]="option.firstName + ' ' + option.lastName">
-            <ng-template pTemplate="footer">
-                <div class="flex align-items-center gap-2">
-                    <span>Уровень доступа: </span>
-                    <p-tag [value]="option.privilege"></p-tag>
-                </div>
+        <p-card (dblclick)="doubleClick(option)"
+            [subheader]="option.firstName + ' ' + option.lastName" class="w-100"> 
+            <ng-template *ngIf="option.privilege != undefined" pTemplate="footer">
+                <span>Уровень доступа: </span>
+                <p-tag [value]="option.privilege"></p-tag>
             </ng-template>
         </p-card>
     </ng-template>

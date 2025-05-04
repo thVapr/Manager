@@ -25,7 +25,7 @@ export class TaskComponent implements OnInit {
     public partService: PartService) {}
 
   ngOnInit(): void {
-    this.Update();
+    this.update();
 
     const id = this.authService.getId();
     const partId = this.partService.getPartId();
@@ -41,14 +41,14 @@ export class TaskComponent implements OnInit {
     }
   }
 
-  Update() : void {
+  private update() : void {
     this.taskService.getFreeTasks().subscribe(tasks => this.tasks = tasks);
     this.taskService.getTasksByEmployeeId().subscribe(tasks => this.myTasks = tasks.filter(t => t.status != Status.DONE));
   }
  
-  ChooseTask(id : string | undefined) : void {
+  chooseTask(id : string | undefined) : void {
     if(id !== undefined)
-      this.taskService.addTaskToEmployee(id).subscribe(() => this.Update());
+      this.taskService.addTaskToEmployee(id).subscribe(() => this.update());
   }
 
   completeTask(id : string | undefined) : void {
@@ -57,6 +57,6 @@ export class TaskComponent implements OnInit {
     task.id = id;
     task.status = Status.DONE;
     
-    this.taskService.updateTask(task).subscribe(() => this.Update());
+    this.taskService.updateTask(task).subscribe(() => this.update());
   }
 }

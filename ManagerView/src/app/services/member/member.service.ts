@@ -33,10 +33,10 @@ export class MemberService {
     return employeeId === id;
   }
 
-  getMemberByPartId() : Observable<Member[]> {
-    const id = this.partService.getPartId();
+  getMembersByPartId() : Observable<Member[]> {
+    const partId = this.partService.getPartId();
     
-    return this.http.get<Member[]>(`${this.apiUrl}/all?id=${id}`);
+    return this.http.get<Member[]>(`${this.apiUrl}/all?partId=${partId}`);
   }
 
   getAvailableMembers() : Observable<Member[]> {

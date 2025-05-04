@@ -29,31 +29,30 @@ public class MemberController(
     [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpGet]
     [Route("get_members")]
-    public async Task<IActionResult> GetMembersWithoutPart(string? partId)
+    public async Task<IActionResult> GetAvailableMembersPart(string? partId)
     {
         var adminIds = await authentication.GetAdminIds();
         var members = await memberLogic.GetAvailableMembers(Guid.Parse(partId!));
-
-        return Ok(members.Where(e => !adminIds.Contains(e.Id)));
+        var part = await _partLogic.GetEntityById(Guid.Parse(partId!));
+        
+        if (part.Level == 0)
+        {
+            var availableUsersIds = await authentication.GetAvailableUserIds();
+            var membersWithoutPart = await memberLogic.GetMembersWithoutPart();
+            members = members.Union(membersWithoutPart.Where(m => availableUsersIds.Contains(m.Id!))).ToList();
+        }
+        
+        if (members.Count != 0)
+            return Ok(members.Where(e => !adminIds.Contains(e.Id)));
+        return NotFound("There are no users satisfying the request");
     }
     
-    [TypeFilter(typeof(PartAccessFilter), Arguments = [6, true])]
-    [HttpGet]
-    [Route("get_free_members")]
-    public async Task<IActionResult> GetMembersWithoutAnyPart()
-    {
-        var employees = await memberLogic.GetMembersWithoutPart();
-        var ids = await authentication.GetAvailableUserIds();
-        
-        return Ok(employees.Where(e => ids.Contains(e.Id!)));
-    }
-
     [HttpGet]
     [Route("all")]
-    public async Task<IActionResult> GetAll(string id)
+    public async Task<IActionResult> GetAll(string partId)
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await memberLogic.GetEntitiesById(Guid.Parse(id));
+        var employees = await memberLogic.GetEntitiesById(Guid.Parse(partId));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }

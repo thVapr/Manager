@@ -13,7 +13,7 @@ public class UserDataModel : BaseDataModel
     [Required] public string PasswordHash { get; set; } = null!;
     public string Salt { get; set; } = null!;
     public string? MessengerId { get; set; } = null;
-    public bool IsAvailable { get; set; } = false;
+    public bool IsAvailable { get; set; } = true;
     
     public IEnumerable<UserRoleDataModel>? Roles { get; set; }
     public IEnumerable<RefreshTokenDataModel>? Tokens { get; set; }

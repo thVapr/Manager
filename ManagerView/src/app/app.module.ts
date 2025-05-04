@@ -35,6 +35,7 @@ import { TreeModule, Tree } from 'primeng/tree';
 import { DragDropModule } from 'primeng/dragdrop'
 import { PickListModule } from 'primeng/picklist';
 import { DatePickerModule  } from 'primeng/datepicker'
+import { InputNumberModule } from 'primeng/inputnumber'
 
 @NgModule({ 
     declarations: [
@@ -73,6 +74,7 @@ import { DatePickerModule  } from 'primeng/datepicker'
         PickListModule,
         AppRoutingModule,
         DatePickerModule,
+        InputNumberModule,
         ReactiveFormsModule,
     ],
     providers: [

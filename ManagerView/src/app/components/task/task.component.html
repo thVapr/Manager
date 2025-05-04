@@ -6,7 +6,7 @@
       <h5 class="text-nowrap text-center">Доступные задачи</h5>
       <ul class="list-group list-group-flush text-nowrap mb-2"  *ngFor="let task of tasks">
         <li class="list-group-item">
-          <button class="btn btn-dark" (click)="ChooseTask(task.id)">
+          <button class="btn btn-dark" (click)="chooseTask(task.id)">
             <i class="bi bi-caret-right"></i>
           </button>
           <a class="btn btn-light" [href]="'/task/about/' + task.id">

@@ -22,12 +22,12 @@
       <div *ngIf="authService.isAuthenticated()&&isMemberExist">
         <a class="text-white" 
            [href]="'part/about/' + partService.getPartId()" 
-           *ngIf="!authService.isAdmin()&&!authService.isSpaceOwner()">
+           *ngIf="!authService.isAdmin()&&!authService.isSpaceOwner()&&!authService.hasAccess()">
             {{ partName }} 
         </a>
         <a class="text-white" 
            href="parts" 
-           *ngIf="authService.isAdmin()||authService.isSpaceOwner()">
+           *ngIf="authService.isAdmin()||authService.isSpaceOwner()||authService.hasAccess()">
             {{ partName }}
         </a>
       </div>

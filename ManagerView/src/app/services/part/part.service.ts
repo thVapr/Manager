@@ -33,6 +33,13 @@ export class PartService {
     return false;
   }
   
+  isMemberHasPrivileges(privilege : number) : Observable<boolean> {
+    const userId = this.authService.getId();
+    const partId = this.getPartId();
+
+    return this.hasPrivileges(userId!, partId!, privilege);
+  }
+
   isLeader(id : string | undefined, leadersId : string[] | undefined) : boolean {
     if (this.isLeaderExist(leadersId) && leadersId?.includes(id!)) {
       return true;
@@ -108,8 +115,13 @@ export class PartService {
     return this.http.post<any>(`${this.apiUrl}/remove`,{ partId, memberId });
   }
   
-  getMemberPrivilege(memberId : string) : Observable<number>
-  {
+  setMemberPrivilege(memberId : string, privilege : number) : Observable<any> {
+    const partId = this.getPartId();
+
+    return this.http.post<any>(`${this.apiUrl}/change_privilege`,{partId, memberId, privilege});
+  }
+
+  getMemberPrivilege(memberId : string) : Observable<number> {
     const partId = this.getPartId();
 
     return this.http.get<number>(`${this.apiUrl}/get_privileges?partId=${partId}&memberId=${memberId}`);

@@ -4,7 +4,8 @@
             <h1 class="font-bold">Иерархия</h1>
         </div>
     </ng-template>
-        <form [formGroup]="addPartForm" (ngSubmit)="OnSubmit()" class="row mb-5" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader || authService.isSpaceOwner())">
+        <form [formGroup]="addPartForm" (ngSubmit)="onSubmit()" class="row mb-5" 
+          *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader || authService.isSpaceOwner())">
         <div class="form-outline mb-2">
           <input type="text" class="form-control form-control-lg"
             placeholder="Название" formControlName="name"/>
@@ -29,7 +30,8 @@
       selectionMode="single"
       draggableScope="tree-scope"
       droppableScope="tree-scope" 
-      (onNodeDrop)="OnChanges($event)"
-      (onNodeSelect)="ChoosePart($event)"
-      [selection]="this.selectedNode"/>
+      (onNodeDrop)="onChanges($event)"
+      (onNodeSelect)="choosePart($event)"
+      [selection]="this.selectedNode"
+      [lazy]="true"/>
 </p-card>

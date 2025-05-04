@@ -21,6 +21,7 @@ export class PartTasksComponent implements OnInit {
   addTaskForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(4)]),
     description: new FormControl('', [Validators.required, Validators.minLength(4)]),
+    startDate: new FormControl('', [Validators.required]),
     deadlineDate: new FormControl('', [Validators.required])
   });
 
@@ -83,7 +84,7 @@ export class PartTasksComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.Update();
+    this.update();
 
     const id = this.authService.getId();
     const partId = this.partService.getPartId();
@@ -96,7 +97,7 @@ export class PartTasksComponent implements OnInit {
     }
   }
 
-  Update() : void {
+  update() : void {
     this.taskService.getAll().subscribe(tasks => this.tasks = tasks);
   }
  
@@ -107,7 +108,7 @@ export class PartTasksComponent implements OnInit {
     task.description = this.addTaskForm.value.description!;
 
     this.taskService.addTask(task).subscribe(() => {
-      this.Update();
+      this.update();
       this.tasks.push(task);
       this.addTaskForm.reset();
     });
@@ -116,11 +117,17 @@ export class PartTasksComponent implements OnInit {
   searchTask() : void {
     const query = this.searchTaskForm.value.query;
 
-    if(query !== null && query !== undefined)
+    if(query !== null && query !== undefined && query !== "")
+    {
       this.taskService.getTaskByQuery(query).subscribe({
         next: (tasks) => {
           this.tasks = tasks;
         }
       });
+    }
+    else
+    {
+      this.update();
+    }
   }
 }

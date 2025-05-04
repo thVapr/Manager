@@ -245,6 +245,7 @@ public class MemberRepository : IMemberRepository
         try
         {
             var ids = await GetAvailableMemberIds(database, id);
+            ids.UnionWith(await GetAvailableMemberIdsFromRoot(database, id));
             var currentPartMemberIds = await GetMembersFromPart(id);
             ids.ExceptWith(currentPartMemberIds.Select(member => member.Id));
             
@@ -257,10 +258,50 @@ public class MemberRepository : IMemberRepository
         }
     }
 
+    private async Task<ISet<Guid>> GetAvailableMemberIdsFromRoot(MainDbContext database, Guid? rootPartId)
+    {
+        var memberIds = new HashSet<Guid>();
+        var processedParts = new HashSet<Guid>();
+        var partsToProcess = new Queue<Guid>();
+
+        if (rootPartId.HasValue)
+        {
+            partsToProcess.Enqueue(rootPartId.Value);
+        }
+
+        while (partsToProcess.Count > 0)
+        {
+            var currentPartId = partsToProcess.Dequeue();
+
+            var currentMembers = await database.PartMembers
+                .Where(pm => pm.PartId == currentPartId)
+                .Select(pm => pm.MemberId)
+                .ToListAsync();
+
+            memberIds.UnionWith(currentMembers);
+            
+            var childParts = await database.Parts
+                .Where(p => p.MainPartId == currentPartId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            foreach (var childPartId in childParts)
+            {
+                if (!processedParts.Contains(childPartId))
+                {
+                    partsToProcess.Enqueue(childPartId);
+                    processedParts.Add(childPartId);
+                }
+            }
+        }
+
+        return memberIds;
+    }
     private async Task<ISet<Guid>> GetAvailableMemberIds(MainDbContext database, Guid? id)
     {
         var set = new HashSet<Guid>();
         Guid? mainPartId = id;
+        
         while (mainPartId != null)
         {
             var currentPartId = mainPartId.Value;

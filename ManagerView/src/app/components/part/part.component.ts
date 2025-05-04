@@ -34,7 +34,7 @@ export class PartComponent {
               public partService: PartService,
               public router : Router) {}
 
-  OnChanges(event: TreeNodeDropEvent): void {
+  onChanges(event: TreeNodeDropEvent): void {
     this.partService
       .updateHierarchy(this.convertThreeNodesToParts(this.items))    
         .subscribe({
@@ -51,7 +51,7 @@ export class PartComponent {
       next: (parts) => {
         this.parts = parts;
         this.items = this.convertPartsToTreeNodes(parts);
-        this.selectedNode = this.FindNode(this.items);
+        this.selectedNode = this.findNode(this.items);
         this.partService.getTypes().subscribe({
           next: (types) => 
           {
@@ -122,7 +122,7 @@ export class PartComponent {
     });
   }
   
-  OnSubmit() : void {
+  onSubmit() : void {
     const name = this.addPartForm.value.name;
     const description = this.addPartForm.value.description;
     const type : number = Number(this.addPartForm.value.type);
@@ -138,7 +138,7 @@ export class PartComponent {
      });
   }
 
-  private FindNode(tree: TreeNode[]) : TreeNode | null
+  private findNode(tree: TreeNode[]) : TreeNode | null
   {
     for (let node of tree) {
       if (node.key === this.partService.getPartId()) {
@@ -146,7 +146,7 @@ export class PartComponent {
       }
 
       if (node.children) {
-        const found = this.FindNode(node.children);
+        const found = this.findNode(node.children);
         if (found) return found;
       }
     }
@@ -154,7 +154,7 @@ export class PartComponent {
     return null;
   }
 
-  ChoosePart(event : TreeNodeSelectEvent) : void {
+  choosePart(event : TreeNodeSelectEvent) : void {
     if (event.node.data != null) {
       this.partService.setPartId(event.node.data.id);
       this.partService.setPartName(event.node.data.name);
