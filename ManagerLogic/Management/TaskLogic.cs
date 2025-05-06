@@ -4,7 +4,7 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class TaskLogic(ITaskRepository repository) : ITaskLogic
+public class TaskLogic(ITaskRepository repository, IPartLogic partLogic) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
     {
@@ -45,12 +45,15 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             StartTime = model.StartTime,
             Deadline = model.Deadline,
             ClosedAt = model.ClosedAt,
+            Path = model.Path!,
             
             Status = model.Status,
             Level = model.Level,
             Priority = model.Priority,
         };
-
+        var statuses = (await partLogic.GetPartTaskStatuses(model.PartId ?? Guid.Empty))
+            .Select(status => status.Order).SkipLast(1);
+        entity.Path = string.Join("-", statuses);
         return await repository.CreateEntity((Guid)model.PartId!, entity);
     }
 
@@ -133,6 +136,24 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         return await repository.RemoveFromEntity(employeeId, taskId);
     }
 
+    public async Task<bool> ChangeTaskStatus(Guid taskId)
+    {
+        var task = await repository.GetEntityById(taskId);
+        var statuses = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty)).Select(status => status.Order);
+        if (string.IsNullOrEmpty(task.Path))
+            return false;
+        var nodes = (task.Path.Split('-')).Select(int.Parse).ToList();
+        if (task.Status >= nodes.Last())
+            return false;
+        if (nodes.Any(node => !statuses.Contains(node)))
+            return false;
+        var index = nodes.IndexOf(task.Status);
+        if (index == nodes.Last()) 
+            return false;
+        task.Status = nodes[index+1];
+        return await UpdateEntity(ConvertToLogicModel(task));
+    }
+
     public async Task<ICollection<TaskModel>> GetFreeTasks(Guid projectId)
     {
         var tasks = await repository.GetFreeTasks(projectId);
@@ -162,6 +183,7 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             StartTime = model.StartTime,
             Deadline = model.Deadline,
             ClosedAt = model.ClosedAt,
+            Path = model.Path,
             
             Level = model.Level,
             Status = model.Status,

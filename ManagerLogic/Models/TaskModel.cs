@@ -9,6 +9,7 @@ public class TaskModel : BaseModel
     public int Level { get; set; }
     public int Status { get; set; }
     public int Priority { get; set; }
+    public string? Path { get; set; }
     
     public DateTime? StartTime { get; set; }
     public DateTime? Deadline { get; set; }

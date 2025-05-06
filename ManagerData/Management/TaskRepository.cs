@@ -35,7 +35,6 @@ public class TaskRepository : ITaskRepository
             var part = database.Parts.FirstOrDefault(p => p.Id == id);
             if (part is null) 
                 return false;
-
             var task = await database.Tasks
                 .FirstOrDefaultAsync(t => t.Id == model.Id);
             if (task is null)

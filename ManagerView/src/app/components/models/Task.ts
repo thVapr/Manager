@@ -3,6 +3,7 @@ export class Task {
 
     name?: string;
     description?: string;
+    path? : string;
     
     memberId?: string;
     memberName?: string;

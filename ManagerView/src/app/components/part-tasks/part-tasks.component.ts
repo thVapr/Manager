@@ -116,7 +116,7 @@ export class PartTasksComponent implements OnInit {
         this.update();
         this.tasks = [...this.tasks, task];
         this.addTaskForm.reset();
-        }
+      }
     });
   }
 

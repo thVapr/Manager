@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
-import { TaskService } from '../../services/task/task.service';
-import { ActivatedRoute } from '@angular/router';
-import { MemberService } from '../../services/member/member.service';
-import { Member } from '../models/member';
-import { Status } from '../../status';
-import { Constants } from '../../constants';
-import { AuthService } from '../../services/auth/auth.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Task } from '../models/task';
+import { Status } from '../../status';
+import { Component } from '@angular/core';
+import { Member } from '../models/member';
+import { Constants } from '../../constants';
+import { ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../services/auth/auth.service';
+import { TaskService } from '../../services/task/task.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MemberService } from '../../services/member/member.service';
 
 
 @Component({

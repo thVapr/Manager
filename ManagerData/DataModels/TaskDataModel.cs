@@ -15,6 +15,7 @@ public class TaskDataModel : BaseDataModel
     public DateTime? StartTime { get; set; }
     public DateTime? Deadline { get; set; }
     public DateTime? ClosedAt { get; set; }
+    public string Path { get; set; } = string.Empty;
 
     public PartDataModel? CurrentPart { get; set; }
     public ICollection<TaskMember> TaskMembers { get; set; } = null!;

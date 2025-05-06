@@ -50,6 +50,10 @@ export class TaskService {
     return this.http.put<any>(`${this.apiUrl}/update`, task);
   }
 
+  changeTaskStatus(taskId : string) : Observable<boolean> {
+    return this.http.patch<boolean>(`${this.apiUrl}/change?taskId=${taskId}`, null);
+  }
+
   addTask(task : Task) : Observable<any> {
     task.creatorId = this.authService.getId();
     task.partId =  this.partService.getPartId()!;
@@ -60,7 +64,7 @@ export class TaskService {
   addTaskToMember(taskId : string) : Observable<any> {
     const memberId = this.authService.getId();
     const groupId = 0;
-
+    
     return this.http.post<any>(`${this.apiUrl}/add`,{ memberId, taskId, groupId});
   }
   

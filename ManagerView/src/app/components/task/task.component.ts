@@ -13,9 +13,6 @@ import { Status } from '../../status'
     standalone: false
 })
 export class TaskComponent implements OnInit {
-  
-  isProjectManager : boolean = false;
-  isDepartmentManager : boolean = false;
 
   tasks : Task[] = []
   myTasks : Task[] = []
@@ -26,24 +23,36 @@ export class TaskComponent implements OnInit {
 
   ngOnInit(): void {
     this.update();
-
-    const id = this.authService.getId();
-    const partId = this.partService.getPartId();
-
-    if (partId !== null) {
-      this.partService.getPartById(partId).subscribe({
-        next: (part) => {
-          if (part.leaderIds?.includes(id))
-            this.isDepartmentManager = true;
-        },
-        error: () => this.isDepartmentManager = false
-      });
-    }
   }
 
   private update() : void {
-    this.taskService.getFreeTasks().subscribe(tasks => this.tasks = tasks);
-    this.taskService.getTasksByMemberId().subscribe(tasks => this.myTasks = tasks.filter(t => t.status != Status.DONE));
+    this.taskService.getFreeTasks().subscribe({
+      next: (tasks) => {
+        this.tasks = tasks.filter(task => {
+          const path = task.path?.split("-")  
+            .map(Number);
+          if (task.status! >= path![path!.length! - 1])
+            return false;
+          return true;
+        });
+      }
+    });
+    this.taskService.getTasksByMemberId().subscribe({
+      next: (tasks) => {
+        console.log(tasks);
+        this.myTasks = tasks.filter(task => {
+          if (task.status === undefined || task.path === undefined)
+            return false;
+          const path = task.path?.split("-")  
+            .map(Number).filter(number => !isNaN(number));
+          if (path === undefined || path.length === 0)
+            return false;
+          if (task.status >= path[path.length - 1])
+            return false;
+          return true;
+        });
+      }
+    });
   }
  
   chooseTask(id : string | undefined) : void {
@@ -52,11 +61,7 @@ export class TaskComponent implements OnInit {
   }
 
   completeTask(id : string | undefined) : void {
-    let task = new Task();
-
-    task.id = id;
-    task.status = Status.DONE;
-    
-    this.taskService.updateTask(task).subscribe(() => this.update());
+    this.taskService.changeTaskStatus(id!)
+      .subscribe(() => this.update());
   }
 }

@@ -1,13 +1,15 @@
 ﻿using ManagerCore.Models;
 using ManagerLogic.Management;
 using ManagerLogic.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/tasks")]
-
+[Authorize]
 public class TaskController(ITaskLogic taskLogic) : ControllerBase
 {
     [HttpGet]
@@ -46,6 +48,7 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
                 Deadline = task.Deadline,
                 StartTime = task.StartTime,
                 ClosedAt = task.ClosedAt,
+                Path = task.Path,
                 Level = task.Level,
                 Status = task.Status,
                 Priority = task.Priority,
@@ -70,14 +73,20 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
 
     [HttpPost]
     [Route("add")]
-    public async Task<IActionResult> AddMemberToTask(MemberTasks model)
+    public async Task<IActionResult> AddMemberToTask([FromBody] MemberTasks model)
     {
         if (await taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!), model.GroupId!.Value))
             return Ok();
-
         return BadRequest();
     }
 
+    [HttpPatch]
+    [Route("change")]
+    public async Task<IActionResult> ChangeTaskStatus(string taskId)
+    {
+        return Ok(await taskLogic.ChangeTaskStatus(Guid.Parse(taskId!)));
+    }
+    
     [HttpPut]
     [Route("update")]
     public async Task<IActionResult> UpdateTask(TaskModel model)
