@@ -37,16 +37,18 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     {
 
         return Ok((await taskLogic.GetEntitiesById(Guid.Parse(id)))
-            .Select(t => new TaskModel()
+            .Select(task => new TaskModel()
             {
-                Id = t.Id,
-                Name = t.Name,
-                Description = t.Description,
-                CreatorId = t.CreatorId,
-                MemberId = t.MemberId,
-                Level = t.Level,
-                Status = t.Status,
-                Priority = t.Priority,
+                Id = task.Id,
+                Name = task.Name,
+                Description = task.Description,
+                CreatorId = task.CreatorId,
+                Deadline = task.Deadline,
+                StartTime = task.StartTime,
+                ClosedAt = task.ClosedAt,
+                Level = task.Level,
+                Status = task.Status,
+                Priority = task.Priority,
             }));
     }
 
@@ -63,15 +65,14 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     {
         if (await taskLogic.CreateEntity(model))
             return Ok();
-
         return BadRequest();
     }
 
     [HttpPost]
     [Route("add")]
-    public async Task<IActionResult> AddEmployeeToProject(MemberTasks model)
+    public async Task<IActionResult> AddMemberToTask(MemberTasks model)
     {
-        if (await taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!)))
+        if (await taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!), model.GroupId!.Value))
             return Ok();
 
         return BadRequest();
@@ -83,8 +84,6 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     {
         if (await taskLogic.UpdateEntity(model))
             return Ok();
-
         return BadRequest();
     }
-
 }

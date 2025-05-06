@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -45,9 +45,8 @@ namespace ManagerData.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Level = table.Column<int>(type: "integer", nullable: false),
-                    TypeId = table.Column<int>(type: "integer", nullable: false),
+                    PartTypeId = table.Column<int>(type: "integer", nullable: false),
                     MainPartId = table.Column<Guid>(type: "uuid", nullable: true),
-                    PartTypeId = table.Column<int>(type: "integer", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -58,11 +57,6 @@ namespace ManagerData.Migrations
                     table.ForeignKey(
                         name: "FK_Parts_PartTypes_PartTypeId",
                         column: x => x.PartTypeId,
-                        principalTable: "PartTypes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Parts_PartTypes_TypeId",
-                        column: x => x.TypeId,
                         principalTable: "PartTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -100,6 +94,31 @@ namespace ManagerData.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PartTaskStatuses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    GlobalStatus = table.Column<int>(type: "integer", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    IsFixed = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessLevel = table.Column<int>(type: "integer", nullable: false),
+                    PartId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PartTaskStatuses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PartTaskStatuses_Parts_PartId",
+                        column: x => x.PartId,
+                        principalTable: "Parts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tasks",
                 columns: table => new
                 {
@@ -109,7 +128,9 @@ namespace ManagerData.Migrations
                     Level = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     Priority = table.Column<int>(type: "integer", nullable: false),
-                    CurrentPartId = table.Column<Guid>(type: "uuid", nullable: true),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Deadline = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ClosedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -118,10 +139,38 @@ namespace ManagerData.Migrations
                 {
                     table.PrimaryKey("PK_Tasks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tasks_Parts_CurrentPartId",
-                        column: x => x.CurrentPartId,
+                        name: "FK_Tasks_Parts_PartId",
+                        column: x => x.PartId,
                         principalTable: "Parts",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskHistories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TaskId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SourceStatusId = table.Column<int>(type: "integer", nullable: false),
+                    DestinationStatusId = table.Column<int>(type: "integer", nullable: false),
+                    InitiatorId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TaskHistories_Members_InitiatorId",
+                        column: x => x.InitiatorId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TaskHistories_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -165,9 +214,19 @@ namespace ManagerData.Migrations
                 column: "PartTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Parts_TypeId",
-                table: "Parts",
-                column: "TypeId");
+                name: "IX_PartTaskStatuses_PartId",
+                table: "PartTaskStatuses",
+                column: "PartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskHistories_InitiatorId",
+                table: "TaskHistories",
+                column: "InitiatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TaskHistories_TaskId",
+                table: "TaskHistories",
+                column: "TaskId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TaskMembers_TaskId",
@@ -175,9 +234,9 @@ namespace ManagerData.Migrations
                 column: "TaskId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tasks_CurrentPartId",
+                name: "IX_Tasks_PartId",
                 table: "Tasks",
-                column: "CurrentPartId");
+                column: "PartId");
         }
 
         /// <inheritdoc />
@@ -185,6 +244,12 @@ namespace ManagerData.Migrations
         {
             migrationBuilder.DropTable(
                 name: "PartMembers");
+
+            migrationBuilder.DropTable(
+                name: "PartTaskStatuses");
+
+            migrationBuilder.DropTable(
+                name: "TaskHistories");
 
             migrationBuilder.DropTable(
                 name: "TaskMembers");

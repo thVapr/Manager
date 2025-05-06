@@ -22,7 +22,7 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
 
             foreach (var partId in partIds)
             {
-                if (await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel)) 
+                if (await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
                     continue;
                 context.Result = new ForbidResult();
                 return;
@@ -56,12 +56,10 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
         if (partId != null)
             list.Add(partId.ToString()!);
 
-        var partIds = context.ActionArguments.Values.OfType<List<PartModel>>().ToList();
-        foreach (var potentialPartId in partIds)
-        {
-            list.Add(potentialPartId.ToString()!);
-        }
-        
+        var partIds = context.ActionArguments.Values.OfType<List<PartModel>>().FirstOrDefault();
+        if (partIds != null) 
+            list.AddRange(partIds.Select(potentialPartId => potentialPartId.Id!));
+
         return list.Select(l => Guid.TryParse(l, out var parsedId)
             ? parsedId
             : Guid.Empty).ToList();

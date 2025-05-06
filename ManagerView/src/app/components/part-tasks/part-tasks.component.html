@@ -39,19 +39,19 @@
 <div class="container-fluid row p-0 mt-2">
   <p-panel
     *ngFor="let col of statusColumns"
-    [header]="col.label"
+    [header]="col.name"
     pDroppable
-    (onDrop)="drop(col.status)"
+    (onDrop)="drop(col.order!)"
     class="col-md-3 mb-2">
       <p-card
-        *ngFor="let task of getTaskByStatus(tasks, col.status)"
+        *ngFor="let task of getTaskByStatus(tasks, col.order!)"
         pDraggable
         (onDragStart)="dragStart(task)"
         (onDragEnds)="dragEnd()"
         (dblclick)="doubleClick(task)"
         dropEffect="link"
         class="card mb-2"
-        [ngClass]="'border-' + col.color">
+        [ngClass]="'border-primary'">
         <h6 class="">{{ task.name }}</h6>
         <small class="text-muted">
           {{ task.memberName }} {{ task.memberLastName }}

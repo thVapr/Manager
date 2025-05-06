@@ -8,23 +8,8 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
     {
-        var entity = await repository.GetEntityById(id);
-        // TODO: В данном классе куча однотипных приведений
-        return new TaskModel
-        {
-            Id = entity.Id.ToString(),
-
-            Name = entity.Name,
-            Description = entity.Description,
-            
-            CreatorId = entity.CreatorId,
-            PartId = entity.PartId,
-            //MemberId = entity.MemberId,
-
-            Level = entity.Level,
-            Status = entity.Status,
-            Priority = entity.Priority,
-        };
+        var task = await repository.GetEntityById(id);
+        return ConvertToLogicModel(task!);
     }
 
     public async Task<ICollection<TaskModel>> GetEntities()
@@ -33,44 +18,16 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
 
         if (entities == null) return [];
 
-        return entities.Select(e => new TaskModel
-        {
-            Id = e.Id.ToString(),
-
-            Name = e.Name,
-            Description = e.Description,
-
-            CreatorId = e.CreatorId,
-            PartId = e.PartId,
-            MemberId = e.PartId,
-
-            Level = e.Level,
-            Status = e.Status,
-            Priority = e.Priority,
-        }).ToList();
+        return entities.Select(task => ConvertToLogicModel(task!)).ToList();
     }
 
     public async Task<ICollection<TaskModel>> GetEntitiesById(Guid id)
     {
-        var entities = await repository.GetEntitiesById(id);
+        var tasks = await repository.GetEntitiesById(id);
 
-        if (entities == null) return [];
+        if (tasks == null) return [];
 
-        return entities.Select(e => new TaskModel
-        {
-            Id = e.Id.ToString(),
-
-            Name = e.Name,
-            Description = e.Description,
-
-            CreatorId = e.CreatorId,
-            PartId = e.PartId,
-            MemberId = e.PartId,
-
-            Level = e.Level,
-            Status = e.Status,
-            Priority = e.Priority,
-        }).ToList();
+        return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
     }
 
     public async Task<bool> CreateEntity(TaskModel model)
@@ -84,7 +41,12 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
 
             CreatorId = model.CreatorId,
             PartId = model.PartId,
-
+            
+            StartTime = model.StartTime,
+            Deadline = model.Deadline,
+            ClosedAt = model.ClosedAt,
+            
+            Status = model.Status,
             Level = model.Level,
             Priority = model.Priority,
         };
@@ -100,8 +62,11 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
             Name = model.Name!,
             Description = model.Description!,
 
-            //MemberId = model.MemberId,
-
+            StartTime = model.StartTime,
+            Deadline = model.Deadline,
+            ClosedAt = model.ClosedAt,
+            
+            Priority = model.Priority,
             Level = model.Level,
             Status = model.Status,
         });
@@ -146,12 +111,11 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
         return await repository.DeleteEntity(id);
     }
 
-    public async Task<bool> AddMemberToTask(Guid memberId, Guid taskId)
+    public async Task<bool> AddMemberToTask(Guid memberId, Guid taskId, int groupId)
     {
         await repository.UpdateEntity(new TaskDataModel
         {
             Id = taskId,
-            //MemberId = memberId,
             Status = (int)PublicConstants.Task.Doing
         });
 
@@ -173,41 +137,35 @@ public class TaskLogic(ITaskRepository repository) : ITaskLogic
     {
         var tasks = await repository.GetFreeTasks(projectId);
 
-        return tasks.Select(t => new TaskModel
-        {
-            Id = t.Id.ToString(),
-
-            Name = t.Name,
-            Description = t.Description,
-            
-            CreatorId = t.CreatorId,
-            PartId = t.PartId,
-            //MemberId = t.MemberId,
-
-            Level = t.Level,
-            Status = t.Status,
-            Priority = t.Priority,
-        }).ToList();
+        return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
     }
 
     public async Task<ICollection<TaskModel>> GetMemberTasks(Guid employeeId)
     {
         var tasks = await repository.GetMemberTasks(employeeId);
 
-        return tasks.Select(t => new TaskModel
-        {
-            Id = t.Id.ToString(),
-            
-            Name = t.Name,
-            Description = t.Description,
-            
-            CreatorId = t.CreatorId,
-            PartId = t.PartId,
-            //MemberId = t.MemberId,
+        return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
+    }
 
-            Level = t.Level,
-            Status = t.Status,
-            Priority = t.Priority,
-        }).ToList();
+    private TaskModel ConvertToLogicModel(TaskDataModel model)
+    {
+        return new TaskModel
+        {
+            Id = model.Id.ToString(),
+            
+            Name = model.Name,
+            Description = model.Description,
+            
+            CreatorId = model.CreatorId,
+            PartId = model.PartId,
+            
+            StartTime = model.StartTime,
+            Deadline = model.Deadline,
+            ClosedAt = model.ClosedAt,
+            
+            Level = model.Level,
+            Status = model.Status,
+            Priority = model.Priority,
+        };
     }
 }

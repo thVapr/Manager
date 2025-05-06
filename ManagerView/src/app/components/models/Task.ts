@@ -9,8 +9,11 @@ export class Task {
     memberLastName? : string;
 
     creatorId?: string;
-
     partId?: string;
+
+    startTime? : Date;
+    deadline? : Date;
+    closedAt? : Date;
 
     status?: number;
     level?: number;

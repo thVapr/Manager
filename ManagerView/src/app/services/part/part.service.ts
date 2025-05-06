@@ -5,6 +5,7 @@ import { Part } from 'src/app/components/models/part';
 import { AuthService } from '../auth/auth.service';
 import { PartType } from 'src/app/components/models/part-type';
 import { Constants } from 'src/app/constants';
+import { TaskStatus } from 'src/app/components/models/task-status';
 
 @Injectable({
   providedIn: 'root'
@@ -90,13 +91,17 @@ export class PartService {
     return this.http.get<Part>(`${this.apiUrl}/get?partId=${id}`);
   }
 
+  getPartTaskStatuses(): Observable<TaskStatus[]> {
+    const id = this.getPartId();
+    return this.http.get<TaskStatus[]>(`${this.apiUrl}/get_part_statuses?partId=${id}`);
+  }
+
   addPart(name : string, description : string, typeId : number ) : Observable<any> {
-    const departmentId = this.getPartId();
-    const managerId = this.authService.getId();
+    const mainPartId = this.getPartId();
     const level = 0;
 
     return this.http.post<any>(`${this.apiUrl}/create`, 
-      { departmentId, name, description, managerId, typeId, level });
+      { mainPartId, name, description, typeId, level });
   }
 
   updatePart(project: Part) : Observable<any> {

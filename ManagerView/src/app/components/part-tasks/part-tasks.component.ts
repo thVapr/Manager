@@ -5,6 +5,7 @@ import { Task } from '../models/task';
 import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
 import { Router } from '@angular/router';
+import { TaskStatus } from '../models/task-status';
 
 @Component({
     selector: 'app-project-tasks',
@@ -27,13 +28,7 @@ export class PartTasksComponent implements OnInit {
 
   isLeader : boolean = false;
 
-  statusColumns = [
-    { status: 0, label: 'To Do', color: 'secondary' },
-    { status: 1, label: 'In Progress', color: 'primary' },
-    { status: 2, label: 'Review', color: 'primary' },
-    { status: 3, label: 'Testing', color: 'testing' },
-    { status: 4, label: 'Done', color: 'success' }
-  ];
+  statusColumns : TaskStatus[] = [];
 
   tasks: Task[] = [];
   draggedTask : Task = {};
@@ -98,7 +93,14 @@ export class PartTasksComponent implements OnInit {
   }
 
   update() : void {
-    this.taskService.getAll().subscribe(tasks => this.tasks = tasks);
+    this.partService.getPartTaskStatuses().subscribe({
+      next: (statuses) => {
+        this.taskService.getAll().subscribe({next: (tasks) => {
+          this.statusColumns = statuses;
+          this.tasks = tasks;
+        }});
+      }
+    });
   }
  
   addTask() : void {
@@ -106,11 +108,15 @@ export class PartTasksComponent implements OnInit {
 
     task.name = this.addTaskForm.value.name!;
     task.description = this.addTaskForm.value.description!;
+    task.startTime = new Date(this.addTaskForm.value.startDate!);
+    task.deadline = new Date(this.addTaskForm.value.deadlineDate!);
 
-    this.taskService.addTask(task).subscribe(() => {
-      this.update();
-      this.tasks.push(task);
-      this.addTaskForm.reset();
+    this.taskService.addTask(task).subscribe({
+      next: () => {
+        this.update();
+        this.tasks = [...this.tasks, task];
+        this.addTaskForm.reset();
+        }
     });
   }
 

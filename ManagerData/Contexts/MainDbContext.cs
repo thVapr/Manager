@@ -17,6 +17,8 @@ public sealed class MainDbContext : DbContext
     public DbSet<PartMemberDataModel> PartMembers { get; set; } = null!;
     public DbSet<TaskMember> TaskMembers { get; set; } = null!;
     public DbSet<PartType> PartTypes { get; set; } = null!;
+    public DbSet<PartTaskStatus> PartTaskStatuses { get; set; } = null!;
+    public DbSet<TaskHistory> TaskHistories { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,10 +48,10 @@ public sealed class MainDbContext : DbContext
             .HasForeignKey(fk => fk.MainPartId)
             .OnDelete(DeleteBehavior.Cascade);
         
-        modelBuilder.Entity<PartDataModel>()
-            .HasOne(p => p.PartType)
-            .WithMany()
-            .HasForeignKey(p => p.TypeId);
+        modelBuilder.Entity<TaskDataModel>()
+            .HasOne(fk => fk.CurrentPart)
+            .WithMany(fk => fk.Tasks)
+            .HasForeignKey(t => t.PartId);
         
         modelBuilder.Entity<TaskDataModel>()
             .HasMany(fk => fk.Members)
@@ -70,6 +72,11 @@ public sealed class MainDbContext : DbContext
                     pm.ToTable("TaskMembers");
                 }
         );
+
+        modelBuilder.Entity<PartTaskStatus>()
+            .HasOne(fk => fk.Part)
+            .WithMany(fk => fk.TaskStatuses)
+            .HasForeignKey(fk => fk.PartId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

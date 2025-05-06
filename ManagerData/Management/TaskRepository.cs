@@ -33,11 +33,13 @@ public class TaskRepository : ITaskRepository
         try
         {
             var part = database.Parts.FirstOrDefault(p => p.Id == id);
-            if (part is null) return false;
+            if (part is null) 
+                return false;
 
             var task = await database.Tasks
-                .FirstOrDefaultAsync(t => t.Id == id);
-            if (task is null) return false;
+                .FirstOrDefaultAsync(t => t.Id == model.Id);
+            if (task is null)
+                return false;
             
             task!.PartId = id;
             await database.SaveChangesAsync();
@@ -168,17 +170,27 @@ public class TaskRepository : ITaskRepository
 
         try
         {
-            var task = await database.Tasks.Where(t => t.Id == model.Id).FirstOrDefaultAsync();
+            var task = await database.Tasks
+                .Where(t => t.Id == model.Id)
+                .FirstOrDefaultAsync();
 
-            if (task == null) return false;
+            if (task == null) 
+                return false;
 
             if(!string.IsNullOrEmpty(model.Name))
                 task.Name = model.Name;
             if (!string.IsNullOrEmpty(model.Description))
                 task.Description = model.Description;
-
-            task.Level = model.Level;
-            task.Status = model.Status;
+            if (model.StartTime.HasValue)
+                model.Deadline = model.Deadline;
+            if (model.Deadline.HasValue)
+                model.Deadline = model.Deadline;
+            if (model.ClosedAt.HasValue)
+                model.ClosedAt = model.ClosedAt;
+            if (model.Level >= 0)
+                task.Level = model.Level;
+            if (model.Status >= 0)
+                task.Status = model.Status;
 
             await database.SaveChangesAsync();
 

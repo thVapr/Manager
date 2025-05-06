@@ -1,4 +1,6 @@
-﻿using ManagerLogic.Models;
+﻿using ManagerData.DataModels;
+using ManagerLogic.Models;
+using PartType = ManagerLogic.Models.PartType;
 
 namespace ManagerLogic.Management;
 
@@ -15,4 +17,5 @@ public interface IPartLogic : IManagementLogic<PartModel>
     Task<ICollection<PartModel>> GetAllAccessibleParts(Guid userId);
     
     Task<ICollection<PartType>> GetPartTypes();
+    Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId);
 }

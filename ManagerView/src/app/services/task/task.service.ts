@@ -24,10 +24,10 @@ export class TaskService {
     return this.http.get<Task[]>(`${this.apiUrl}/all?id=${id}`);
   }
 
-  getTasksByEmployeeId() : Observable<Task[]> {
-    const employeeId = this.authService.getId();
+  getTasksByMemberId() : Observable<Task[]> {
+    const memberId = this.authService.getId();
 
-    return this.http.get<Task[]>(`${this.apiUrl}/get_employee_tasks?id=${employeeId}`);
+    return this.http.get<Task[]>(`${this.apiUrl}/get_member_tasks?id=${memberId}`);
   }
 
   getFreeTasks() : Observable<Task[]> {
@@ -57,10 +57,11 @@ export class TaskService {
     return this.http.post<any>(`${this.apiUrl}/create`, task);
   }
 
-  addTaskToEmployee(taskId : string) : Observable<any> {
-    const employeeId = this.authService.getId();
+  addTaskToMember(taskId : string) : Observable<any> {
+    const memberId = this.authService.getId();
+    const groupId = 0;
 
-    return this.http.post<any>(`${this.apiUrl}/add`,{ employeeId, taskId});
+    return this.http.post<any>(`${this.apiUrl}/add`,{ memberId, taskId, groupId});
   }
   
   removeEmployeeFromTask(employeeId : string,taskId : string) : Observable<any> {

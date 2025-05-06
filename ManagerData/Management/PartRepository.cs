@@ -1,27 +1,36 @@
-﻿using ManagerData.Contexts;
+﻿using ManagerData.Constants;
+using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 
 namespace ManagerData.Management;
 
 public class PartRepository : IPartRepository
 {
+    private static readonly int[] SourceTypeArray = [1,2,3];
+
     public async Task<bool> CreateEntity(PartDataModel model)
     {
         await using var database = new MainDbContext();
 
         try
         {
-            var partType = await database.PartTypes.FindAsync(model.TypeId);
+            var partType = await database.PartTypes.FindAsync(model.PartTypeId);
             if (partType is null)
             {
-                if (new [] {1,2,3}.Contains(model.TypeId))
+                if (SourceTypeArray.Contains(model.PartTypeId))
                     await SeedPartTypes();
                 else
                     return false;
             }
             await database.Parts.AddAsync(model);
-            await database.SaveChangesAsync();
+            var statuses = GetDefaultStatuses(model.Id);
+            foreach (var status in statuses)
+            {
+                await database.PartTaskStatuses.AddAsync(status);
+                await database.SaveChangesAsync();
+            }
 
             return true;
         }
@@ -32,13 +41,57 @@ public class PartRepository : IPartRepository
         }
     }
 
+    private List<PartTaskStatus> GetDefaultStatuses(Guid partId)
+    {
+        return
+        [
+            new PartTaskStatus
+            {
+                Name = "Новые",
+                Order = 0,
+                GlobalStatus = (int)GlobalTaskStatus.New,
+                AccessLevel = 2,
+                IsFixed = true,
+                PartId = partId
+            },
+            new PartTaskStatus
+            {
+                Name = "В работе",
+                Order = 1,
+                GlobalStatus = (int)GlobalTaskStatus.InProgress,
+                AccessLevel = 2,
+                IsFixed = false,
+                PartId = partId
+            },
+            new PartTaskStatus
+            {
+                Name = "Завершенные",
+                Order = 110,
+                GlobalStatus = (int)GlobalTaskStatus.Completed,
+                AccessLevel = 2,
+                IsFixed = true,
+                PartId = partId
+            },
+            new PartTaskStatus
+            {
+                Name = "Отмененные",
+                Order = 111,
+                GlobalStatus = (int)GlobalTaskStatus.Cancelled,
+                AccessLevel = 2,
+                IsFixed = true,
+                PartId = partId
+            }
+        ];
+    }
+    
     public async Task<bool> CreateEntity(Guid masterPartId, PartDataModel model)
     {
         await using var database = new MainDbContext();
 
         try
         {
-            var existingPart = await database.Parts.Where(m => m.Name == model.Name).FirstOrDefaultAsync();
+            var existingPart = await database.Parts
+                .Where(m => m.Name == model.Name).FirstOrDefaultAsync();
             if (existingPart != null) 
                 return false;
 
@@ -116,8 +169,10 @@ public class PartRepository : IPartRepository
 
         try
         {
-            var master = await database.Parts.Where(m => m.Id == masterId).FirstOrDefaultAsync();
-            var slave = await database.Parts.Where(m => m.Id == slaveId).FirstOrDefaultAsync();
+            var master = await database.Parts
+                .Where(m => m.Id == masterId).FirstOrDefaultAsync();
+            var slave = await database.Parts
+                .Where(m => m.Id == slaveId).FirstOrDefaultAsync();
             if (master is null || slave is null)
                 return false;
 
@@ -162,7 +217,8 @@ public class PartRepository : IPartRepository
 
         try
         {
-            return await database.Parts.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new PartDataModel();
+            return await database.Parts
+                .Where(m => m.Id == id).FirstOrDefaultAsync() ?? new PartDataModel();
         }
         catch
         {
@@ -233,7 +289,7 @@ public class PartRepository : IPartRepository
             return false;
         }
     }
-
+    
     public async Task<bool> DeleteEntity(Guid id)
     {
         await using var database = new MainDbContext();
@@ -241,7 +297,8 @@ public class PartRepository : IPartRepository
         try
         {
             var existingPart = await database.Parts.FindAsync(id);
-            if (existingPart == null) return false;
+            if (existingPart == null) 
+                return false;
 
             database.Parts.Remove(existingPart);
             await database.SaveChangesAsync();
@@ -278,7 +335,7 @@ public class PartRepository : IPartRepository
 
         try
         {
-            return await database.PartMembers.Where(pm => pm.PartId == partId).ToListAsync();;
+            return await database.PartMembers.Where(pm => pm.PartId == partId).ToListAsync();
         }
         catch (Exception e)
         {
@@ -323,9 +380,9 @@ public class PartRepository : IPartRepository
 
     private async Task SeedPartTypes()
     {
-        await AddPartType(Constants.PartTypeConstants.Root);
-        await AddPartType(Constants.PartTypeConstants.Group);
-        await AddPartType(Constants.PartTypeConstants.Project);
+        await AddPartType(PartTypeConstants.Root);
+        await AddPartType(PartTypeConstants.Group);
+        await AddPartType(PartTypeConstants.Project);
     }
 
     private async Task<bool> AddPartType(string name)
@@ -374,7 +431,22 @@ public class PartRepository : IPartRepository
         }
 
     }
-    
+
+    public async Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId)
+    {
+        await using var database = new MainDbContext();
+        try
+        {
+            return await database.PartTaskStatuses
+                .Where(status => status.PartId == partId).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return [];
+        }
+    }
+
     public void Dispose()
     {
     }

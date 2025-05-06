@@ -71,10 +71,7 @@ namespace ManagerData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("PartTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TypeId")
+                    b.Property<int>("PartTypeId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -82,8 +79,6 @@ namespace ManagerData.Migrations
                     b.HasIndex("MainPartId");
 
                     b.HasIndex("PartTypeId");
-
-                    b.HasIndex("TypeId");
 
                     b.ToTable("Parts");
                 });
@@ -106,6 +101,45 @@ namespace ManagerData.Migrations
                     b.HasIndex("PartId");
 
                     b.ToTable("PartMembers", (string)null);
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartTaskStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AccessLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("GlobalStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsFixed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("PartId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartId");
+
+                    b.ToTable("PartTaskStatuses");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.PartType", b =>
@@ -131,7 +165,7 @@ namespace ManagerData.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("ClosedAt")
+                    b.Property<DateTime?>("ClosedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
@@ -140,10 +174,7 @@ namespace ManagerData.Migrations
                     b.Property<Guid>("CreatorId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CurrentPartId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("Deadline")
+                    b.Property<DateTime?>("Deadline")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -163,14 +194,47 @@ namespace ManagerData.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("StartTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurrentPartId");
+                    b.HasIndex("PartId");
 
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.TaskHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DestinationStatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("InitiatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SourceStatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InitiatorId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskHistories");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.TaskMember", b =>
@@ -200,13 +264,9 @@ namespace ManagerData.Migrations
                         .HasForeignKey("MainPartId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("ManagerData.DataModels.PartType", null)
-                        .WithMany("Parts")
-                        .HasForeignKey("PartTypeId");
-
                     b.HasOne("ManagerData.DataModels.PartType", "PartType")
-                        .WithMany()
-                        .HasForeignKey("TypeId")
+                        .WithMany("Parts")
+                        .HasForeignKey("PartTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -234,13 +294,43 @@ namespace ManagerData.Migrations
                     b.Navigation("Part");
                 });
 
+            modelBuilder.Entity("ManagerData.DataModels.PartTaskStatus", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.PartDataModel", "Part")
+                        .WithMany("TaskStatuses")
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Part");
+                });
+
             modelBuilder.Entity("ManagerData.DataModels.TaskDataModel", b =>
                 {
                     b.HasOne("ManagerData.DataModels.PartDataModel", "CurrentPart")
                         .WithMany("Tasks")
-                        .HasForeignKey("CurrentPartId");
+                        .HasForeignKey("PartId");
 
                     b.Navigation("CurrentPart");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.TaskHistory", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.MemberDataModel", "Initiator")
+                        .WithMany()
+                        .HasForeignKey("InitiatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ManagerData.DataModels.TaskDataModel", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Initiator");
+
+                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.TaskMember", b =>
@@ -274,6 +364,8 @@ namespace ManagerData.Migrations
                     b.Navigation("PartMembers");
 
                     b.Navigation("Parts");
+
+                    b.Navigation("TaskStatuses");
 
                     b.Navigation("Tasks");
                 });

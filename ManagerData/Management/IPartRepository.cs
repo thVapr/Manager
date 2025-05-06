@@ -8,4 +8,5 @@ public interface IPartRepository : IManagementRepository<PartDataModel>
     Task<IEnumerable<PartMemberDataModel>> GetPartMembers(Guid partId);
     Task<bool> SetPrivileges(Guid userId, Guid partId, int privilege);
     Task<ICollection<PartType>> GetPartTypes();
+    Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId);
 }
