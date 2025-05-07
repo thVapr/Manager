@@ -20,6 +20,13 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     }
 
     [HttpGet]
+    [Route("get_task_members")]
+    public async Task<IActionResult> GetTaskMembers(string taskId)
+    {
+        return Ok(await taskLogic.GetTaskMembers(Guid.Parse(taskId)));
+    }
+    
+    [HttpGet]
     [Route("get_free_tasks")]
     public async Task<IActionResult> GetFreeTasks(string id)
     {
@@ -28,7 +35,7 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
 
     [HttpGet]
     [Route("get_member_tasks")]
-    public async Task<IActionResult> GetEmployeeTasks(string id)
+    public async Task<IActionResult> GetMemberTasks(string id)
     {
         return Ok(await taskLogic.GetMemberTasks(Guid.Parse(id)));
     }

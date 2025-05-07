@@ -268,7 +268,27 @@ public class TaskRepository : ITaskRepository
             return [];
         }
     }
-    
+
+    public async Task<IEnumerable<Guid>> GetTaskMembersIds(Guid taskId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var memberIds = await database.TaskMembers
+                .Where(et => et.TaskId == taskId)
+                .Select(et => et.MemberId)
+                .ToListAsync();
+
+            return memberIds;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return [];
+        }
+    }
+
     public void Dispose()
     {
     }

@@ -10,7 +10,7 @@
 <div class="card border-primary mb-3">
     <div class="card-header">{{ status }}</div>
     <div class="card-body text-primary">
-        <a [href]="'employee/about/' + employee.id" class="card-title h5">{{employee.lastName}} {{ employee.firstName }}</a>
+        <a [href]="'member/about/' + member.id" class="card-title h5">{{member.lastName}} {{ member.firstName }}</a>
     </div>
 </div>
 
@@ -21,7 +21,6 @@
             <input type="text" id="form1" class="form-control form-control-lg"
                 placeholder="" value="{{ taskName }}"/>
         </div>
-
         <div class="form-outline mb-3">
             <label class="form-label" for="form2">Описание</label>
             <textarea id="form2" class="form-control form-control-lg"
@@ -29,7 +28,6 @@
         </div>
     </fieldset>
 </form>
-
 
 <form [formGroup]="updateTaskForm" (ngSubmit)="updateTask()" class="row mb-5" *ngIf="isAdminOrCreator">
     <div class="form-outline mb-2">

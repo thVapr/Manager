@@ -33,7 +33,7 @@ export class TaskProfileComponent {
   isAdminOrCreator : boolean = false;
 
   creator : Member = new Member("","","","");
-  employee : Member = new Member("","","","");
+  member : Member = new Member("","","","");
 
   constructor(private taskService : TaskService,
               private route : ActivatedRoute,
@@ -66,6 +66,9 @@ export class TaskProfileComponent {
         case(Status.DONE):
           this.status = Constants.DONE;
           break;
+        case(Status.CANCELED):
+          this.status = Constants.CANCELED;
+          break;
       }
       
       if (task.creatorId !== undefined)
@@ -82,15 +85,12 @@ export class TaskProfileComponent {
                 name: this.taskName,
                 description: this.taskDescription
               });
-
           }
+          this.taskService.getMembersFromTask(task.id!).subscribe((members) => {
+            this.member = members[0];
+            console.log(members);
+          });
         });
-      if (task.memberId !== undefined)
-        this.memberService.getMemberById(task.memberId).subscribe((employee) => {
-          this.employee = employee;
-        });
-
-
     });
   }
 

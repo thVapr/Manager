@@ -9,4 +9,5 @@ public interface ITaskLogic : IManagementLogic<TaskModel>
     Task<bool> ChangeTaskStatus(Guid taskId);
     Task<ICollection<TaskModel>> GetFreeTasks(Guid projectId);
     Task<ICollection<TaskModel>> GetMemberTasks(Guid memberId);
+    Task<ICollection<MemberModel>> GetTaskMembers(Guid taskId);
 }

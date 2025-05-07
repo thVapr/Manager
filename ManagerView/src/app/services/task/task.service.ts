@@ -6,6 +6,7 @@ import { Task } from 'src/app/components/models/task';
 import { AuthService } from '../auth/auth.service';
 import { Status } from 'src/app/status'
 import { Constants } from 'src/app/constants';
+import { Member } from 'src/app/components/models/member';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,12 @@ export class TaskService {
 
     return this.http.get<Task[]>(`${this.apiUrl}/get_member_tasks?id=${memberId}`);
   }
+
+  getMembersFromTask(taskId : string)
+  {    
+    return this.http.get<Member[]>(`${this.apiUrl}/get_task_members?taskId=${taskId}`);
+  }
+
 
   getFreeTasks() : Observable<Task[]> {
     const projectId = this.partService.getPartId();

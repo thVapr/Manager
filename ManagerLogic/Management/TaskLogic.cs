@@ -4,7 +4,7 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class TaskLogic(ITaskRepository repository, IPartLogic partLogic) : ITaskLogic
+public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMemberLogic memberLogic) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
     {
@@ -150,6 +150,8 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic) : ITask
         var index = nodes.IndexOf(task.Status);
         if (index == nodes.Last()) 
             return false;
+        if (index + 1 == nodes.Last())
+            task.ClosedAt = DateTime.Now;
         task.Status = nodes[index+1];
         return await UpdateEntity(ConvertToLogicModel(task));
     }
@@ -166,6 +168,19 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic) : ITask
         var tasks = await repository.GetMemberTasks(employeeId);
 
         return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
+    }
+
+    public async Task<ICollection<MemberModel>> GetTaskMembers(Guid taskId)
+    {
+        var membersIds = await repository.GetTaskMembersIds(taskId);
+        var memberCollection = new List<MemberModel>();
+        
+        foreach (var memberId in membersIds)
+        {
+            var member = await memberLogic.GetEntityById(memberId);
+            memberCollection.Add(member);
+        }
+        return memberCollection;
     }
 
     private TaskModel ConvertToLogicModel(TaskDataModel model)
