@@ -6,6 +6,7 @@ import { AuthService } from '../auth/auth.service';
 import { PartType } from 'src/app/components/models/part-type';
 import { Constants } from 'src/app/constants';
 import { TaskStatus } from 'src/app/components/models/task-status';
+import { PartRole } from 'src/app/components/models/part-role';
 
 @Injectable({
   providedIn: 'root'
@@ -91,6 +92,35 @@ export class PartService {
     return this.http.get<Part>(`${this.apiUrl}/get?partId=${id}`);
   }
 
+  addRoleToPart(name : string, description : string) {
+    const partId = this.getPartId();
+    return this.http.post<boolean>(`${this.apiUrl}/roles/add_role`,{ PartId: partId, Name: name, Description: description });
+  }
+
+  addRoleToMember(roleId : string, memberId : string) : Observable<boolean> {
+    const partId = this.getPartId();
+    return this.http.post<boolean>(`${this.apiUrl}/roles/add_member`, { partId, roleId, memberId });
+  }
+
+  removeRoleFromMember(roleId : string, memberId : string) : Observable<boolean> {
+    const partId = this.getPartId();
+    return this.http.post<boolean>(`${this.apiUrl}/roles/remove_member`, { partId, roleId, memberId });
+  }
+
+  getRolesById(id : string): Observable<PartRole[]> {
+    return this.http.get<PartRole[]>(`${this.apiUrl}/roles/get_roles?partId=${id}`);
+  }
+
+  getMemberRolesById(partId : string, memberId : string): Observable<PartRole[]> {
+    return this.http.get<PartRole[]>(`${this.apiUrl}/roles/get_member_roles?partId=${partId}&memberId=${memberId}`);
+  }
+
+  removeRoleFromPart(roleId : string) : Observable<any> {
+    const partId = this.getPartId();
+
+    return this.http.post<any>(`${this.apiUrl}/roles/remove_role`,{ partId, roleId });
+  }
+  
   getPartTaskStatuses(): Observable<TaskStatus[]> {
     const id = this.getPartId();
     return this.http.get<TaskStatus[]>(`${this.apiUrl}/get_part_statuses?partId=${id}`);

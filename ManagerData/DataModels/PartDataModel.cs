@@ -13,8 +13,9 @@ public class PartDataModel: BaseDataModel
     public PartType? PartType { get; set; }
     public Guid? MainPartId { get; set; }
     public PartDataModel? MainPart { get; set; }
-    public IEnumerable<TaskDataModel> Tasks { get; set; } = new List<TaskDataModel>();
-    public IEnumerable<MemberDataModel> Members { get; set; } = new List<MemberDataModel>();
-    public IEnumerable<PartMemberDataModel> PartMembers { get; set; } = new List<PartMemberDataModel>();
-    public IEnumerable<PartTaskStatus> TaskStatuses { get; set; } = new List<PartTaskStatus>();
+    public IEnumerable<TaskDataModel> Tasks { get; set; }
+    public IEnumerable<MemberDataModel> Members { get; set; }
+    public IEnumerable<PartMemberDataModel> PartMembers { get; set; }
+    public IEnumerable<PartTaskStatus> TaskStatuses { get; set; }
+    public IEnumerable<PartRole>? PartRoles { get; set; }
 }

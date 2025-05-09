@@ -7,6 +7,8 @@ using ManagerData.Contexts;
 using ManagerData.Management;
 using ManagerLogic.Management;
 using ManagerData.Authentication;
+using ManagerData.DataModels;
+using ManagerData.DataModels.Authentication;
 using ManagerLogic.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -73,6 +75,7 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
 builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository>();
 builder.Services.AddSingleton<IAuthentication,Authentication>();
@@ -86,6 +89,7 @@ builder.Services.AddSingleton<IMemberLogic, MemberLogic>();
 
 builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
+builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
 
 var app = builder.Build();
 

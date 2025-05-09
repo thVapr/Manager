@@ -50,37 +50,41 @@ public class PartRepository : IPartRepository
                 Name = "Новые",
                 Order = 0,
                 GlobalStatus = (int)GlobalTaskStatus.New,
-                AccessLevel = 2,
+                PartRoleId = null,
                 IsFixed = true,
-                PartId = partId
+                PartId = partId,
+                PartRole = null
             },
             new PartTaskStatus
             {
                 Name = "В работе",
                 Order = 1,
                 GlobalStatus = (int)GlobalTaskStatus.InProgress,
-                AccessLevel = 2,
+                PartRoleId = null,
                 IsFixed = false,
-                PartId = partId
+                PartId = partId,
+                PartRole = null
             },
             new PartTaskStatus
             {
                 Name = "Завершенные",
                 Order = 110,
                 GlobalStatus = (int)GlobalTaskStatus.Completed,
-                AccessLevel = 2,
+                PartRoleId = null,
                 IsFixed = true,
-                PartId = partId
+                PartId = partId,
+                PartRole = null
             },
             new PartTaskStatus
             {
                 Name = "Отмененные",
                 Order = 111,
                 GlobalStatus = (int)GlobalTaskStatus.Cancelled,
-                AccessLevel = 2,
+                PartRoleId = null,
                 IsFixed = true,
-                PartId = partId
-            }
+                PartId = partId,
+                PartRole = null
+            },
         ];
     }
     

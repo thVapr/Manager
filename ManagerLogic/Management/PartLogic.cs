@@ -1,5 +1,4 @@
-﻿using ManagerCore.Utils;
-using ManagerLogic.Models;
+﻿using ManagerLogic.Models;
 using ManagerData.DataModels;
 using ManagerData.Management;
 
@@ -7,7 +6,7 @@ using PartType = ManagerLogic.Models.PartType;
 
 namespace ManagerLogic.Management;
 
-public class PartLogic(IPartRepository repository) : IPartLogic
+public class PartLogic(IPartRepository repository, IRoleRepository roleRepository) : IPartLogic
 {
     public async Task<PartModel> GetEntityById(Guid id)
     {
@@ -97,6 +96,41 @@ public class PartLogic(IPartRepository repository) : IPartLogic
     public async Task<bool> DeleteEntity(Guid id)
     {
         return await repository.DeleteEntity(id);
+    }
+
+    public async Task<bool> AddRoleToPart(Guid partId, string name, string description)
+    {
+        return await roleRepository.Create(new PartRole
+        {
+            PartId = partId,
+            Name = name,
+            Description = description,
+        });
+    }
+
+    public async Task<bool> RemoveRoleFromPart(Guid partId, Guid roleId)
+    {
+        return await roleRepository.Delete(partId, roleId);
+    }
+
+    public async Task<ICollection<PartRole>> GetPartRoles(Guid partId)
+    {
+        return await roleRepository.GetByPartId(partId);
+    }
+
+    public async Task<ICollection<PartRole>> GetPartMemberRoles(Guid partId, Guid memberId)
+    {
+        return await roleRepository.GetByMemberId(partId, memberId);
+    }
+
+    public async Task<bool> AddMemberToRole(Guid partId, Guid memberId, Guid roleId)
+    {
+        return await roleRepository.SetRole(partId, roleId, memberId);
+    }
+
+    public async Task<bool> RemoveMemberFromRole(Guid partId, Guid memberId, Guid roleId)
+    {
+        return await roleRepository.RemoveRole(partId, roleId, memberId);
     }
 
     public async Task<int> GetPrivileges(Guid userId, Guid partId)
@@ -203,7 +237,7 @@ public class PartLogic(IPartRepository repository) : IPartLogic
             Name = status.Name!,
             IsFixed = status.IsFixed,
             PartId = status.PartId,
-            AccessLevel = status.AccessLevel,
+            PartRoleId = status.PartRoleId,
             GlobalStatus = status.GlobalStatus,
             Order = status.Order,
         }).ToList();

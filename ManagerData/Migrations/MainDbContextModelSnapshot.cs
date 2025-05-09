@@ -48,6 +48,21 @@ namespace ManagerData.Migrations
                     b.ToTable("Members");
                 });
 
+            modelBuilder.Entity("ManagerData.DataModels.MemberTag", b =>
+                {
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("MemberId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("MemberTags");
+                });
+
             modelBuilder.Entity("ManagerData.DataModels.PartDataModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -103,14 +118,56 @@ namespace ManagerData.Migrations
                     b.ToTable("PartMembers", (string)null);
                 });
 
-            modelBuilder.Entity("ManagerData.DataModels.PartTaskStatus", b =>
+            modelBuilder.Entity("ManagerData.DataModels.PartMemberRole", b =>
+                {
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PartRoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PartId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("MemberId", "PartRoleId", "PartId");
+
+                    b.HasIndex("PartId");
+
+                    b.ToTable("PartMemberRoles");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AccessLevel")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PartId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartId");
+
+                    b.ToTable("PartRoles");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartTaskStatus", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -135,9 +192,14 @@ namespace ManagerData.Migrations
                     b.Property<Guid>("PartId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("PartRoleId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PartId");
+
+                    b.HasIndex("PartRoleId");
 
                     b.ToTable("PartTaskStatuses");
                 });
@@ -157,6 +219,28 @@ namespace ManagerData.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PartTypes");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.TagDataModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.TaskDataModel", b =>
@@ -261,6 +345,25 @@ namespace ManagerData.Migrations
                     b.ToTable("TaskMembers", (string)null);
                 });
 
+            modelBuilder.Entity("ManagerData.DataModels.MemberTag", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.MemberDataModel", "Member")
+                        .WithMany("Tags")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ManagerData.DataModels.TagDataModel", "Tag")
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("ManagerData.DataModels.PartDataModel", b =>
                 {
                     b.HasOne("ManagerData.DataModels.PartDataModel", "MainPart")
@@ -298,6 +401,36 @@ namespace ManagerData.Migrations
                     b.Navigation("Part");
                 });
 
+            modelBuilder.Entity("ManagerData.DataModels.PartMemberRole", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.MemberDataModel", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ManagerData.DataModels.PartDataModel", "Part")
+                        .WithMany()
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Part");
+                });
+
+            modelBuilder.Entity("ManagerData.DataModels.PartRole", b =>
+                {
+                    b.HasOne("ManagerData.DataModels.PartDataModel", "Part")
+                        .WithMany("PartRoles")
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Part");
+                });
+
             modelBuilder.Entity("ManagerData.DataModels.PartTaskStatus", b =>
                 {
                     b.HasOne("ManagerData.DataModels.PartDataModel", "Part")
@@ -306,14 +439,21 @@ namespace ManagerData.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ManagerData.DataModels.PartRole", "PartRole")
+                        .WithMany()
+                        .HasForeignKey("PartRoleId");
+
                     b.Navigation("Part");
+
+                    b.Navigation("PartRole");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.TaskDataModel", b =>
                 {
                     b.HasOne("ManagerData.DataModels.PartDataModel", "CurrentPart")
                         .WithMany("Tasks")
-                        .HasForeignKey("PartId");
+                        .HasForeignKey("PartId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("CurrentPart");
                 });
@@ -361,11 +501,15 @@ namespace ManagerData.Migrations
                     b.Navigation("MemberTasks");
 
                     b.Navigation("PartLinks");
+
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("ManagerData.DataModels.PartDataModel", b =>
                 {
                     b.Navigation("PartMembers");
+
+                    b.Navigation("PartRoles");
 
                     b.Navigation("Parts");
 

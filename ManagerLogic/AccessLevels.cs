@@ -1,13 +1,11 @@
-﻿namespace ManagerCore.Utils;
+﻿namespace ManagerLogic;
 
 public enum AccessLevel : int
 {
-    Watch,
+    Watch = 0,
     Read,
     Take,
-    // 3-6 reserved for specific groups
-    Create = 7,
-    Update,
+    Create,
     Control,
     Leader
 }

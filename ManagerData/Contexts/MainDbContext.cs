@@ -19,6 +19,10 @@ public sealed class MainDbContext : DbContext
     public DbSet<PartType> PartTypes { get; set; } = null!;
     public DbSet<PartTaskStatus> PartTaskStatuses { get; set; } = null!;
     public DbSet<TaskHistory> TaskHistories { get; set; } = null!;
+    public DbSet<PartRole> PartRoles { get; set; } = null!;
+    public DbSet<PartMemberRole> PartMemberRoles { get; set; } = null!;
+    public DbSet<TagDataModel> Tags { get; set; } = null!;
+    public DbSet<MemberTag> MemberTags { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,7 +55,8 @@ public sealed class MainDbContext : DbContext
         modelBuilder.Entity<TaskDataModel>()
             .HasOne(fk => fk.CurrentPart)
             .WithMany(fk => fk.Tasks)
-            .HasForeignKey(t => t.PartId);
+            .HasForeignKey(t => t.PartId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<TaskDataModel>()
             .HasMany(fk => fk.Members)
@@ -77,6 +82,11 @@ public sealed class MainDbContext : DbContext
             .HasOne(fk => fk.Part)
             .WithMany(fk => fk.TaskStatuses)
             .HasForeignKey(fk => fk.PartId);
+
+        modelBuilder.Entity<MemberTag>()
+            .HasKey(k => new {k.MemberId, k.TagId});
+        modelBuilder.Entity<PartMemberRole>()
+            .HasKey(k => new { k.MemberId, k.PartRoleId, k.PartId });
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

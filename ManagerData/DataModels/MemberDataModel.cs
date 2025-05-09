@@ -15,4 +15,5 @@ public class MemberDataModel
     public IEnumerable<PartMemberDataModel> PartLinks { get; set; } = new List<PartMemberDataModel>();
     public IEnumerable<TaskDataModel>  Tasks { get; set; } = new List<TaskDataModel>();
     public IEnumerable<TaskMember> MemberTasks { get; set; } = new List<TaskMember>();
+    public IEnumerable<MemberTag> Tags { get; set; } = new List<MemberTag>();
 }

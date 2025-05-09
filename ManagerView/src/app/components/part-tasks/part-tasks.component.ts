@@ -96,7 +96,9 @@ export class PartTasksComponent implements OnInit {
     this.partService.getPartTaskStatuses().subscribe({
       next: (statuses) => {
         this.taskService.getAll().subscribe({next: (tasks) => {
-          this.statusColumns = statuses;
+          this.statusColumns = statuses.sort((statusA, statusB) => {
+            return statusA.order! - statusB.order!;
+          });
           this.tasks = tasks;
         }});
       }

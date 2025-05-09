@@ -28,14 +28,18 @@ import { Tag } from 'primeng/tag'
 import { Panel } from 'primeng/panel'
 import { Avatar } from 'primeng/avatar'
 import { CardModule } from 'primeng/card';
+import { ChipsModule } from 'primeng/chips';
 import { ButtonModule } from 'primeng/button';
+import { FloatLabel } from 'primeng/floatlabel'
 import { EditorModule } from 'primeng/editor';
 import { RippleModule } from 'primeng/ripple';
+import { ListboxModule } from 'primeng/listbox';
 import { TreeModule, Tree } from 'primeng/tree';
 import { DragDropModule } from 'primeng/dragdrop'
 import { PickListModule } from 'primeng/picklist';
 import { DatePickerModule  } from 'primeng/datepicker'
 import { InputNumberModule } from 'primeng/inputnumber'
+
 
 @NgModule({ 
     declarations: [
@@ -62,13 +66,16 @@ import { InputNumberModule } from 'primeng/inputnumber'
         Tree,
         Panel,
         Avatar,
+        FloatLabel,
         CardModule,
         TreeModule,
+        ChipsModule,
         FormsModule,
         EditorModule,
         ButtonModule,
         CommonModule,
         RippleModule,
+        ListboxModule,
         BrowserModule,
         DragDropModule,
         PickListModule,

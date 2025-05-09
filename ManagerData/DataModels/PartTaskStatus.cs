@@ -6,8 +6,9 @@ public class PartTaskStatus : BaseDataModel
     public int Order { get; set; }
     public bool IsFixed { get; set; }
     
-    public int AccessLevel { get; set; }
+    public Guid? PartRoleId { get; set; }
     public Guid PartId { get; set; }
     
     public PartDataModel Part { get; set; }
+    public PartRole? PartRole { get; set; }
 }

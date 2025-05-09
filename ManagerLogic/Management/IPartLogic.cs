@@ -6,6 +6,14 @@ namespace ManagerLogic.Management;
 
 public interface IPartLogic : IManagementLogic<PartModel>
 {
+    Task<bool> AddRoleToPart(Guid partId, string name, string description);
+    Task<bool> RemoveRoleFromPart(Guid partId, Guid roleId);
+    Task<ICollection<PartRole>> GetPartRoles(Guid partId);
+    Task<ICollection<PartRole>> GetPartMemberRoles(Guid partId, Guid memberId);
+    Task<bool> AddMemberToRole(Guid partId, Guid memberId, Guid roleId);
+    Task<bool> RemoveMemberFromRole(Guid partId, Guid memberId, Guid roleId);
+    
+    
     Task<int> GetPrivileges(Guid userId, Guid partId);
     Task<bool> ChangePrivilege(Guid userId, Guid partId, int privilege);
     Task<bool> IsUserHasPrivileges(Guid userId, Guid partId, int privilege);

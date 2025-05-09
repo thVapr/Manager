@@ -5,6 +5,8 @@ import { AuthService } from '../../services/auth/auth.service';
 import { Part } from '../models/part';
 import { PartService } from '../../services/part/part.service';
 import { Router } from '@angular/router';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { PartRole } from '../models/part-role';
 
 @Component({
     selector: 'app-part-members',
@@ -17,6 +19,12 @@ export class PartMembersComponent {
   partMembers: Member[] = [];
   part : Part = new Part("","","",0,[]);
 
+  addRoleForm = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
+    description: new FormControl('', [Validators.maxLength(20)]),
+  });
+  roles : PartRole[] = [];
+ 
   constructor(public partService: PartService,
               public memberService: MemberService,
               public authService: AuthService,
@@ -25,7 +33,18 @@ export class PartMembersComponent {
   ngOnInit(): void {
     this.update();
   }
-
+  
+  onSubmit() : void {
+    if (this.addRoleForm === null)
+      return;
+    this.partService.addRoleToPart(this.addRoleForm.value.name!, this.addRoleForm.value.description!)
+      .subscribe({
+        next: () => {
+          this.update();
+        }
+      });
+  }
+  
   onMoveToTarget(event : any)
   {
     event.items.forEach((element: Member) => {
@@ -64,6 +83,22 @@ export class PartMembersComponent {
   update() : void {
     this.getAll();
     this.getAllFree();
+
+    this.partService.getRolesById(this.partService.getPartId()!)
+      .subscribe({
+        next: (roles) => {
+          this.roles = roles; 
+        },
+        error: () => {
+          this.roles = [];
+        }
+      });
+  }
+
+  removeRole(id : string) : void {
+    this.partService.removeRoleFromPart(id).subscribe({
+      next: () => this.update()
+    });
   }
 
   addEmployeeToDepartment(id : any) {
@@ -81,6 +116,9 @@ export class PartMembersComponent {
                     ...member,
                     searchedParameter: member.firstName + ' ' + member.lastName! + ' ' + member.patronymic!
         }));
+      },
+      error: () => {
+        this.members = []
       }
     });
   }
