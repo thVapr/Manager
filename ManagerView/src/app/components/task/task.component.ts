@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { TaskService } from '../../services/task/task.service';
 import { Task } from '../models/task';
+import { Component, OnInit } from '@angular/core';
+import { TaskStatus } from '../models/task-status';
+import { TaskService } from '../../services/task/task.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
-import { Status } from '../../status'
 
 @Component({
     selector: 'app-task',
@@ -14,15 +13,33 @@ import { Status } from '../../status'
 })
 export class TaskComponent implements OnInit {
 
-  tasks : Task[] = []
-  myTasks : Task[] = []
+  tasks : Task[] = [];
+  myTasks : Task[] = [];
+  statuses : TaskStatus[] = [];
 
   constructor(private taskService : TaskService,
     public authService: AuthService,
     public partService: PartService) {}
 
+  getStatusColor(order : number): string {
+    const status = this.statuses.find(status => status.order === order)?.globalStatus;
+    const colorMap = new Map([
+      [0, 'rgba(211, 224, 211, 0.4)'],
+      [1, 'rgba(17, 0, 255, 0.4)'],
+      [2, 'rgba(252, 255, 173, 0.4)'],
+      [3, 'rgba(0, 255, 0, 0.4)'],
+      [4, 'rgba(255, 0, 0, 0.4)'],
+      [5, 'rgba(252, 255, 173, 0.4)']
+    ]);
+    return colorMap.get(status!) || 'rgba(51, 170, 51, .1) ';
+  }
+
   ngOnInit(): void {
     this.update();
+  }
+
+  getStatusNameByOrder(order : number) {
+    return this.statuses.find(status => status.order === order)?.name;
   }
 
   private update() : void {
@@ -39,7 +56,6 @@ export class TaskComponent implements OnInit {
     });
     this.taskService.getTasksByMemberId().subscribe({
       next: (tasks) => {
-        console.log(tasks);
         this.myTasks = tasks.filter(task => {
           if (task.status === undefined || task.path === undefined)
             return false;
@@ -50,6 +66,11 @@ export class TaskComponent implements OnInit {
           if (task.status >= path[path.length - 1])
             return false;
           return true;
+        });
+        this.partService.getPartTaskStatuses().subscribe({
+          next: (statuses) => {
+            this.statuses = statuses;
+          }
         });
       }
     });

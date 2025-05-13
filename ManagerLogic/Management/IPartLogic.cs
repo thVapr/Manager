@@ -25,5 +25,10 @@ public interface IPartLogic : IManagementLogic<PartModel>
     Task<ICollection<PartModel>> GetAllAccessibleParts(Guid userId);
     
     Task<ICollection<PartType>> GetPartTypes();
+
+    Task<bool> AddPartTaskStatus(PartTaskStatusModel status);
+    Task<bool> ChangePartTaskStatus(PartTaskStatusModel status);
+    Task<bool> RemovePartTaskStatus(Guid partId, Guid partTaskStatusId);
+
     Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId);
 }

@@ -1,10 +1,11 @@
-﻿using ManagerData.DataModels;
+﻿using System.Collections;
+using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMemberLogic memberLogic) : ITaskLogic
+public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMemberLogic memberLogic, IHistoryRepository historyRepository) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
     {
@@ -51,14 +52,28 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMember
             Level = model.Level,
             Priority = model.Priority,
         };
-        var statuses = (await partLogic.GetPartTaskStatuses(model.PartId ?? Guid.Empty))
-            .Select(status => status.Order).SkipLast(1);
-        entity.Path = string.Join("-", statuses);
+        if (string.IsNullOrEmpty(model.Path))
+        {
+            var statuses = (await partLogic.GetPartTaskStatuses(model.PartId ?? Guid.Empty))
+                .OrderBy(status => status.Order)
+                .Select(status => status.Order).SkipLast(1);
+            entity.Path = string.Join("-", statuses);
+        }
         return await repository.CreateEntity((Guid)model.PartId!, entity);
     }
 
     public async Task<bool> UpdateEntity(TaskModel model)
     {
+        if (model.Status == 111)
+        {
+            var taskMembers = (await repository.GetTaskMembers(Guid.Parse(model.Id!)))
+                .Select(memberMember => memberMember.MemberId);
+            foreach (var member in taskMembers)
+            {
+                await RemoveMemberFromTask(member, Guid.Parse(model.Id!));
+            }
+        }
+
         return await repository.UpdateEntity(new TaskDataModel
         {
             Id = Guid.Parse(model.Id ?? ""),
@@ -116,33 +131,74 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMember
 
     public async Task<bool> AddMemberToTask(Guid memberId, Guid taskId, int groupId)
     {
-        await repository.UpdateEntity(new TaskDataModel
+        var task = await repository.GetEntityById(taskId);
+        var statuses = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty)).Select(status => status.Order);
+        if (string.IsNullOrEmpty(task.Path))
+            return false;
+        var nodes = (task.Path.Split('-')).Select(int.Parse).ToList();
+        if (task.Status == nodes.First())
         {
-            Id = taskId,
-            Status = (int)PublicConstants.Task.Doing
-        });
+            var index = nodes.IndexOf(task.Status);
+            if (index + 1 == nodes.Last())
+                task.ClosedAt = DateTime.Now;
+            var updatedStatus = nodes[index+1];
+            var nextStatusOrder = statuses
+                .FirstOrDefault(status => status == updatedStatus);
+            var nextStatus = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
+                .FirstOrDefault(status => status.Order == nextStatusOrder);
+            if (nextStatus!.PartRoleId != null && nextStatus.PartRoleId != Guid.Empty)
+            {
+                var role = (await partLogic.GetPartRoles(task.PartId ?? Guid.Empty))
+                    .FirstOrDefault(role => role.Id == nextStatus!.PartRoleId);
+                var memberStatuses = (await partLogic.GetPartMemberRoles(task.PartId ?? Guid.Empty, memberId))
+                    .Select(status => status.Id);
+                if(!memberStatuses.Contains(role!.Id))
+                    return false;
+            }
+            
+            await repository.UpdateEntity(new TaskDataModel
+            {
+                Id = taskId,
+                Status = updatedStatus,
+            });
+        }
 
         return await repository.AddToEntity(memberId, taskId);
     }
 
     public async Task<bool> RemoveMemberFromTask(Guid employeeId, Guid taskId)
     {
-        await repository.UpdateEntity(new TaskDataModel
-        {
-            Id = taskId,
-            Status = (int)PublicConstants.Task.Todo
-        });
-
         return await repository.RemoveFromEntity(employeeId, taskId);
     }
 
-    public async Task<bool> ChangeTaskStatus(Guid taskId)
+    public async Task<bool> ChangeTaskStatus(HistoryModel historyModel, Guid taskId)
     {
+        //TODO: Нужно это разобрать на отдельные методы
         var task = await repository.GetEntityById(taskId);
-        var statuses = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty)).Select(status => status.Order);
+        var statuses = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
+            .OrderBy(status => status.Order)
+            .Select(status => status.Order)
+            .SkipLast(1).ToList();
         if (string.IsNullOrEmpty(task.Path))
             return false;
-        var nodes = (task.Path.Split('-')).Select(int.Parse).ToList();
+        var nodes = (task.Path.Split('-'))
+            .Select(int.Parse)
+            .ToList();
+        bool isPathValid = true;
+        foreach (var node in nodes.ToList())
+        {
+            if (!statuses!.Contains(node))
+            {
+                isPathValid = false;
+                nodes.Remove(node);
+            }
+        }
+        if (!isPathValid)
+        {
+            task.Status = statuses[0];
+            task.Path = string.Join('-', nodes);
+        }
+        
         if (task.Status >= nodes.Last())
             return false;
         if (nodes.Any(node => !statuses.Contains(node)))
@@ -152,7 +208,40 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMember
             return false;
         if (index + 1 == nodes.Last())
             task.ClosedAt = DateTime.Now;
+        
+        var taskMembers = (await repository.GetTaskMembers(taskId))
+            .Where(taskMember => taskMember.ParticipationPurpose == 1)
+            .Select(memberMember => memberMember.MemberId);
+        var memberRoles = new Dictionary<Guid, ICollection<PartRole>>();
+        foreach (var memberId in taskMembers)
+        {
+            memberRoles[memberId] = await partLogic.GetPartMemberRoles(task.PartId ?? Guid.Empty, memberId);
+        }
+        var nextStatus = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
+            .FirstOrDefault(status => status.Order == nodes[index+1]);
+        if (nextStatus!.PartRoleId != null && nextStatus.PartRoleId != Guid.Empty)
+        {
+            foreach (var memberRole in memberRoles)
+            {
+                if (memberRole.Value.All(role => role.Id != nextStatus.PartRoleId.Value))
+                    await RemoveMemberFromTask(memberRole.Key, taskId);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(historyModel.InitiatorId))
+        {
+            await historyRepository.Create(new TaskHistory
+            {
+                TaskId = taskId,
+                SourceStatusId = task.Status,
+                DestinationStatusId = nodes[index+1],
+                InitiatorId = Guid.Parse(historyModel.InitiatorId),
+                Description = historyModel.Description!,
+                Name = historyModel.Name!,
+            });
+        }
         task.Status = nodes[index+1];
+        
         return await UpdateEntity(ConvertToLogicModel(task));
     }
 

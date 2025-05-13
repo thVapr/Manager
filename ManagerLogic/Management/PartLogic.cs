@@ -228,6 +228,46 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
         }).ToList();
     }
 
+    public async Task<bool> AddPartTaskStatus(PartTaskStatusModel status)
+    {
+        Guid.TryParse(status.PartRoleId, out var partRoleId);
+        
+        return await repository.AddPartTaskStatus(new PartTaskStatus
+        {
+            GlobalStatus = status.GlobalStatus ?? -1,
+            Name = status.Name!,
+            PartId = Guid.Parse(status.PartId),
+            IsFixed = status.IsFixed ?? false,
+            Order = status.Order ?? -1,
+            PartRoleId = partRoleId == Guid.Empty ? null : partRoleId,
+        });
+    }
+
+    public async Task<bool> ChangePartTaskStatus(PartTaskStatusModel status)
+    {
+        bool isPartRoleValid = true;
+        Guid.TryParse(status.PartRoleId, out var partRoleId);
+        if (status.PartRoleId == "-1")
+            isPartRoleValid = false;
+        return await repository.ChangePartTaskStatus(new PartTaskStatus
+        {
+            Id = Guid.Parse(status.Id!),
+            Name = status.Name!,
+            GlobalStatus = status.GlobalStatus ?? -1,
+            PartId = Guid.Parse(status.PartId),
+            IsFixed = status.IsFixed ?? false,
+            Order = status.Order ?? -1,
+            PartRoleId = partRoleId == Guid.Empty && isPartRoleValid ? null : partRoleId,
+        });
+    }
+    public async Task<bool> RemovePartTaskStatus(Guid partId, Guid partTaskStatusId)
+    {
+        var statuses = await repository.GetPartTaskStatuses(partId);
+        if (statuses.Any(status => status.Id == partTaskStatusId && status.IsFixed))
+            return false;
+        return await repository.RemovePartTaskStatus(partId, partTaskStatusId);
+    }
+    
     public async Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId)
     {
         var statuses = await repository.GetPartTaskStatuses(partId);

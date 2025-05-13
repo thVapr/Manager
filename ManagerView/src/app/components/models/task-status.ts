@@ -3,12 +3,14 @@ export class TaskStatus {
                 name: string,
                 description: string,
                 order : number,
-                partId: string) {
+                partId: string,
+                globalStatus : number) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.order = order;
         this.partId = partId;
+        this.globalStatus = globalStatus;
     }
 
     id?: string;
@@ -19,6 +21,6 @@ export class TaskStatus {
     isFixed?: boolean;
     globalStatus?: number;
     accessLevel?: number;
-    partId: string = "00000000-0000-0000-0000-000000000000";
-
+    partRoleId?: string;
+    partId?: string = "00000000-0000-0000-0000-000000000000";
 }

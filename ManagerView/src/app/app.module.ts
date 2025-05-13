@@ -25,6 +25,7 @@ import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { Tag } from 'primeng/tag'
+import { Menu } from 'primeng/menu'
 import { Panel } from 'primeng/panel'
 import { Avatar } from 'primeng/avatar'
 import { CardModule } from 'primeng/card';
@@ -33,13 +34,15 @@ import { ButtonModule } from 'primeng/button';
 import { FloatLabel } from 'primeng/floatlabel'
 import { EditorModule } from 'primeng/editor';
 import { RippleModule } from 'primeng/ripple';
+import { DialogModule } from 'primeng/dialog';
 import { ListboxModule } from 'primeng/listbox';
 import { TreeModule, Tree } from 'primeng/tree';
+import { InplaceModule } from 'primeng/inplace';
+import { MenubarModule } from 'primeng/menubar';
 import { DragDropModule } from 'primeng/dragdrop'
 import { PickListModule } from 'primeng/picklist';
 import { DatePickerModule  } from 'primeng/datepicker'
 import { InputNumberModule } from 'primeng/inputnumber'
-
 
 @NgModule({ 
     declarations: [
@@ -64,6 +67,7 @@ import { InputNumberModule } from 'primeng/inputnumber'
     imports: [
         Tag,
         Tree,
+        Menu,
         Panel,
         Avatar,
         FloatLabel,
@@ -75,8 +79,11 @@ import { InputNumberModule } from 'primeng/inputnumber'
         ButtonModule,
         CommonModule,
         RippleModule,
+        DialogModule,
+        InplaceModule,
         ListboxModule,
         BrowserModule,
+        MenubarModule,
         DragDropModule,
         PickListModule,
         AppRoutingModule,
@@ -89,7 +96,12 @@ import { InputNumberModule } from 'primeng/inputnumber'
         providePrimeNG({ theme : { 
             preset : Lara,
             options: {
-                darkModeSelector: false || 'none'
+                darkModeSelector: false || 'none',
+                presetOptions: {
+                    primary: '#3B82F6',
+                    surface: '#ffffff',
+                    borderRadius: 12
+                }
             }}}),
         {
             provide: HTTP_INTERCEPTORS,

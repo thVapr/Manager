@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from './services/auth/auth.service';
 import { MemberService } from './services/member/member.service';
 import { PartService } from './services/part/part.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-root',
@@ -15,6 +16,17 @@ export class AppComponent implements OnInit {
   isMemberExist : boolean = false;
   isPartLeader : boolean = false;
   isMainPartLeader : boolean = false;
+  items : CustomMenuItem[] = [];
+
+  isCollapsed = true;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!(event.target as Element).closest('.navbar-collapse') && 
+        !(event.target as Element).closest('.navbar-toggler')) {
+      this.isCollapsed = true;
+    }
+  }
 
   get partName() {
     const name = this.partService.getPartName();
@@ -27,11 +39,13 @@ export class AppComponent implements OnInit {
 
   constructor (public authService: AuthService,
                public partService : PartService,
-               public memberService : MemberService) {}
+               public memberService : MemberService,
+               public router : Router) {}
 
   ngOnInit(): void {
+    this.updateMenuItems();
     const id = this.authService.getId();
-
+    
     if (id !== null ) {
       this.memberService.getMemberById(id).subscribe({
         next: (member) => {
@@ -45,28 +59,135 @@ export class AppComponent implements OnInit {
                 this.partService.setPartName(member.partName);
             }
           }
+          this.updateMenuItems();
         },
         error: () => {
           this.memberProfileString = 'Создайте профиль сотрудника';
           this.isMemberExist = false;
+          this.updateMenuItems();
         }
-      });
-    }
-
-    const partId = this.partService.getPartId();
-
-    if (partId !== null) {
-      this.partService.getPartById(partId).subscribe({
-        next: (part) => {
-          if (part.leaderIds?.includes(id))
-            this.isMainPartLeader = true;
-        },
-        error: () => this.isMainPartLeader = false
       });
     }
   }
 
   async logout() : Promise<void> {
     await this.authService.logout();
+    this.updateMenuItems();
   }
+
+  executeCommand(event: Event, item: any) {
+    if (item.command) {
+        event.preventDefault();
+    }
+    
+    if (typeof item.command === 'function') {
+        item.command({
+            originalEvent: event,
+            item: item
+        });
+    }
+    
+    if (!item.routerLink && !item.command) {
+        event.preventDefault();
+    }
+    if (window.innerWidth < 992) {
+      this.isCollapsed = true;
+    }
+  }
+
+  updateMenuItems() : void {
+    this.items = [];
+
+    if (!this.authService.isAuthenticated()) {
+      this.items.push(
+        {
+          label: 'Вход',
+          icon: 'bi bi-box-arrow-in-right',
+          routerLink: 'login'
+        },
+        {
+          label: 'Регистрация',
+          icon: 'bi bi-r-circle',
+          routerLink: 'register'
+        }
+      );
+    }
+
+    if (this.authService.isAuthenticated()) {
+      const item : CustomMenuItem = {
+        label: this.memberProfileString,
+        icon: 'bi bi-person-lines-fill',
+        items: [
+          {        
+            label: 'Профиль',
+            icon: 'bi bi-file-person',
+            routerLink: 'member'
+          },
+          {        
+            label: 'Выйти',
+            icon: 'bi bi-box-arrow-left',
+            command: () => this.logout()
+          }
+        ]
+      };
+      this.items.push(item);
+
+      if (this.isMemberExist && 
+        (this.authService.isAdmin()||this.authService.isSpaceOwner()||this.authService.hasAccess())) {
+        this.items.push({
+          label: this.partName,
+          icon: 'bi bi-person-workspace',
+          routerLink: 'parts'
+        });
+      }
+    }
+
+    this.items.push({
+      label: 'Домой',
+      icon: 'bi bi-house',
+      routerLink: 'home'
+    });
+
+    if (this.authService.isAuthenticated()) {
+      this.items.push({
+        label: 'Управление доступом',
+        icon: 'bi bi-file-person',
+        routerLink: 'part/members'
+      });
+
+      if ((this.authService.isAdmin() || this.isPartLeader) && this.partService.isPartSelected()) {
+        this.items.push({
+          label: this.partName,
+          icon: 'bi bi-cup-hot',
+          routerLink: 'part/member'
+        });
+      }
+
+      if (this.partService.isPartSelected()) {
+        this.items.push({
+          label: 'Задачи',
+          icon: 'bi bi-list-task',
+          routerLink: 'member/tasks'
+        });
+
+        this.items.push({
+          label: 'Задачи проекта',
+          icon: 'bi bi-kanban',
+          routerLink: 'part/tasks'
+        });
+      }
+
+      if (window.innerWidth < 992) {
+        this.isCollapsed = true;
+      }
+    }
+  }
+}
+
+class CustomMenuItem {
+  public label? : string;
+  public icon? : string;
+  public routerLink? : string;
+  public command? : (() => void);
+  public items? : CustomMenuItem[];
 }

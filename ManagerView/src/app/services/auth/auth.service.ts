@@ -17,8 +17,8 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/register`, { email, password }).pipe(
       tap(response => {
         const { item1, item2 } = response;
-        localStorage.setItem('access_token', item1);
-        localStorage.setItem('refresh_token', item2);
+        sessionStorage.setItem('access_token', item1);
+        sessionStorage.setItem('refresh_token', item2);
       })
     );
   }
@@ -27,26 +27,26 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password}).pipe(
       tap(response => {
         const {item1, item2} = response;
-        localStorage.setItem('access_token', item1);
-        localStorage.setItem('refresh_token', item2);
+        sessionStorage.setItem('access_token', item1);
+        sessionStorage.setItem('refresh_token', item2);
       })
     );
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
+    return sessionStorage.getItem('access_token');
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
+    return sessionStorage.getItem('refresh_token');
   }
 
   setAccessToken(accessToken: string): void {
-    localStorage.setItem('access_token', accessToken);
+    sessionStorage.setItem('access_token', accessToken);
   }
 
   setRefreshToken(refreshToken: string): void {
-    localStorage.setItem('refresh_token', refreshToken);
+    sessionStorage.setItem('refresh_token', refreshToken);
   }
 
   getRole() : string {
@@ -108,22 +108,22 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/refresh`, { accessToken, refreshToken }).pipe(
       tap(response => {
         const {item1, item2} = response;
-        localStorage.setItem('access_token', item1);
-        localStorage.setItem('refresh_token', item2);
+        sessionStorage.setItem('access_token', item1);
+        sessionStorage.setItem('refresh_token', item2);
       })
     );
   }
 
   async logout() : Promise<void> {
     try {      
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = sessionStorage.getItem('refresh_token');
 
       await firstValueFrom(this.http.post<any>(`${this.apiUrl}/logout`, { refreshToken }));
-      localStorage.clear();
+      sessionStorage.clear();
  
     } catch (error) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
     }
   }
 }

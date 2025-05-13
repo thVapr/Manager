@@ -7,8 +7,6 @@ using ManagerData.Contexts;
 using ManagerData.Management;
 using ManagerLogic.Management;
 using ManagerData.Authentication;
-using ManagerData.DataModels;
-using ManagerData.DataModels.Authentication;
 using ManagerLogic.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,13 +87,13 @@ builder.Services.AddSingleton<IMemberLogic, MemberLogic>();
 
 builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
+builder.Services.AddSingleton<IHistoryRepository, HistoryRepository>();
 builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
 
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

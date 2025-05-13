@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 import { Part } from 'src/app/components/models/part'
 import { AuthService } from '../../services/auth/auth.service';
 import { TreeDragDropService, TreeNode } from 'primeng/api';
-import { TreeNodeDropEvent, TreeNodeSelectEvent } from 'primeng/tree';
+import { TreeNodeDropEvent, TreeNodeSelectEvent, TreeNodeUnSelectEvent } from 'primeng/tree';
 import { ButtonModule } from 'primeng/button';
 import { StepperModule } from 'primeng/stepper';
 import { PartType } from '../models/part-type';
+import { AppComponent } from 'src/app/app.component';
 
 @Component({
     selector: 'app-project',
@@ -32,7 +33,8 @@ export class PartComponent {
 
   constructor(public authService: AuthService,
               public partService: PartService,
-              public router : Router) {}
+              public router : Router,
+              public main : AppComponent) {}
 
   onChanges(event: TreeNodeDropEvent): void {
     this.partService
@@ -158,8 +160,16 @@ export class PartComponent {
     if (event.node.data != null) {
       this.partService.setPartId(event.node.data.id);
       this.partService.setPartName(event.node.data.name);
+      this.main.updateMenuItems();
     }
 
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['parts']);
+    });
+  }
+
+  unselectPart(event : TreeNodeUnSelectEvent) : void {
+    this.partService.removePartData();
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate(['parts']);
     });

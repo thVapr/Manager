@@ -1,0 +1,14 @@
+.panel-header-wrapper {
+  padding: 0.5rem;
+  opacity: 0.9;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+::ng-deep .p-panel .p-panel-header {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}

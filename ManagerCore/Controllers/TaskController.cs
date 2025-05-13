@@ -1,22 +1,24 @@
-﻿using ManagerCore.Models;
-using ManagerLogic.Management;
+﻿using ManagerLogic;
+using ManagerCore.Utils;
+using ManagerCore.Models;
 using ManagerLogic.Models;
-using Microsoft.AspNetCore.Authorization;
+using ManagerLogic.Management;
+
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/tasks")]
 [Authorize]
-public class TaskController(ITaskLogic taskLogic) : ControllerBase
+public class TaskController(ITaskLogic taskLogic, IPartLogic partLogic) : ControllerBase
 {
     [HttpGet]
     [Route("get")]
-    public async Task<IActionResult> GetModel(string id)
+    public async Task<IActionResult> GetModel(string taskId)
     {
-        return Ok(await taskLogic.GetEntityById(Guid.Parse(id)));
+        return Ok(await taskLogic.GetEntityById(Guid.Parse(taskId)));
     }
 
     [HttpGet]
@@ -28,24 +30,25 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     
     [HttpGet]
     [Route("get_free_tasks")]
-    public async Task<IActionResult> GetFreeTasks(string id)
+    public async Task<IActionResult> GetFreeTasks(string partId)
     {
-        return Ok(await taskLogic.GetFreeTasks(Guid.Parse(id)));
+        return Ok(await taskLogic.GetFreeTasks(Guid.Parse(partId)));
     }
 
     [HttpGet]
     [Route("get_member_tasks")]
-    public async Task<IActionResult> GetMemberTasks(string id)
+    public async Task<IActionResult> GetMemberTasks(string memberId)
     {
-        return Ok(await taskLogic.GetMemberTasks(Guid.Parse(id)));
+        return Ok(await taskLogic.GetMemberTasks(Guid.Parse(memberId)));
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
     [Route("all")]
-    public async Task<IActionResult> GetModels(string id)
+    public async Task<IActionResult> GetModels(string partId)
     {
 
-        return Ok((await taskLogic.GetEntitiesById(Guid.Parse(id)))
+        return Ok((await taskLogic.GetEntitiesById(Guid.Parse(partId)))
             .Select(task => new TaskModel()
             {
                 Id = task.Id,
@@ -62,13 +65,15 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
             }));
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
     [Route("search")]
-    public async Task<IActionResult> SearchTasks(string query, string id)
+    public async Task<IActionResult> SearchTasks(string query, string partId)
     {
-        return Ok(await taskLogic.GetEntitiesByQuery(query, Guid.Parse(id)));
+        return Ok(await taskLogic.GetEntitiesByQuery(query, Guid.Parse(partId)));
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Create])]
     [HttpPost]
     [Route("create")]
     public async Task<IActionResult> CreateModel(TaskModel model)
@@ -78,6 +83,8 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
+    [TypeFilter(typeof(TaskAccessFilter))]
     [HttpPost]
     [Route("add")]
     public async Task<IActionResult> AddMemberToTask([FromBody] MemberTasks model)
@@ -87,13 +94,27 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
         return BadRequest();
     }
 
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
     [HttpPatch]
     [Route("change")]
-    public async Task<IActionResult> ChangeTaskStatus(string taskId)
+    public async Task<IActionResult> ChangeTaskStatus(string partId, string taskId, string? name, string? description)
     {
-        return Ok(await taskLogic.ChangeTaskStatus(Guid.Parse(taskId!)));
+        var task = await taskLogic.GetEntityById(Guid.Parse(partId));
+        if (task.PartId != null && task.PartId == Guid.Parse(partId))
+            return Forbid();
+        return Ok(
+            await taskLogic.ChangeTaskStatus(
+                new HistoryModel
+                {
+                    InitiatorId = User.FindFirst("id")?.Value!,
+                    Description = description ?? string.Empty,
+                    Name = name ?? string.Empty,
+                },
+                Guid.Parse(taskId!))
+        );
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [HttpPut]
     [Route("update")]
     public async Task<IActionResult> UpdateTask(TaskModel model)

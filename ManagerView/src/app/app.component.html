@@ -1,89 +1,52 @@
-
-  <!-- Toolbar -->
-  <div class="toolbar" role="banner">
-    <img
-      width="40"
-      class="rounded"
-      alt="Logo"
-      src="../favicon.ico"
-    />
-    <span>Manager</span>
-    <div class="spacer"></div>
-    <a href="https://github.com/thVapr" target="_blank">
-      <i class="bi bi-github"></i>
-    </a>
-  </div>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-center fixed-top">
+      <a class="navbar-brand" href="#">
+        <img src="../favicon.ico" alt="Logo" width="40" class="rounded">
+      </a>
+      <button class="navbar-toggler" 
+              type="button" 
+              (click)="isCollapsed = !isCollapsed">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div>
+        <div class="collapse navbar-collapse" id="navbarContent"
+            [class.show]="!isCollapsed">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0" *ngFor="let item of items">
+            <li class="nav-item" *ngIf="item.items === undefined">
+              <a class="nav-link text-white text-nowrap gap-2"
+                [routerLink]="item.routerLink"
+                routerLinkActive="active"
+                (click)="executeCommand($event, item)">
+                <i [class]="item.icon"></i>
+                {{ item.label }}
+              </a>
+            </li>
+            <li class="nav-item dropdown" *ngIf="item.items !== undefined">
+              <a class="nav-link dropdown-toggle text-white" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i [class]="item.icon"></i>
+                {{item.label}}
+              </a>
+              <ul class="dropdown-menu text-white">
+                <li *ngFor="let subItem of item.items">
+                  <a class="dropdown-item"
+                    [routerLink]="subItem.routerLink"
+                    routerLinkActive="active"
+                    (click)="executeCommand($event, subItem)">
+                    <i [class]="subItem.icon"></i>
+                      {{subItem.label}}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+  </nav>
   
   <div class="content" role="main">
-  
-    <!-- Highlight Card -->
-    <div class="card highlight-card card-small">
-      <a class="text-white" href="home" *ngIf="!authService.isAuthenticated()||!isMemberExist">Добро пожаловать</a>
-      <div *ngIf="authService.isAuthenticated()&&isMemberExist">
-        <a class="text-white" 
-           [href]="'part/about/' + partService.getPartId()" 
-           *ngIf="!authService.isAdmin()&&!authService.isSpaceOwner()&&!authService.hasAccess()">
-            {{ partName }} 
-        </a>
-        <a class="text-white" 
-           href="parts" 
-           *ngIf="authService.isAdmin()||authService.isSpaceOwner()||authService.hasAccess()">
-            {{ partName }}
-        </a>
-      </div>
-    </div>
-  
-    <div class="card-container">
-      <a class="card" rel="noopener" routerLink="login" *ngIf="!authService.isAuthenticated()">
-        <i class="bi bi-box-arrow-in-right"></i>
-        <span>Вход</span>
-      </a>
-      <a class="card" rel="noopener" routerLink="register" *ngIf="!authService.isAuthenticated()">
-        <i class="bi bi-r-circle"></i>
-        <span>Регистрация</span>
-      </a>
-
-      <a class="card" rel="noopener" (click)="logout()" routerLink="home" *ngIf="authService.isAuthenticated()">
-        <i class="bi bi-box-arrow-left"></i>
-        <span>Выйти</span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="home">
-        <i class="bi bi-house"></i>
-        <span>Домой</span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="part/members" *ngIf="authService.isAuthenticated()">
-        <i class="bi bi-file-person"></i>
-        <span> Управление доступом </span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="member" *ngIf="authService.isAuthenticated()">
-        <i class="bi bi-file-person"></i>
-        <span>{{ memberProfileString }}</span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="part/member" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader)&&partService.isPartSelected()">
-        <i class="bi bi-cup-hot"></i>
-        <span>{{ partName }}</span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="member/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected()">
-        <i class="bi bi-list-task"></i>
-        <span>Задачи</span>
-      </a>
-
-      <a class="card" rel="noopener" routerLink="part/tasks" *ngIf="authService.isAuthenticated()&&partService.isPartSelected">
-        <i class="bi bi-list-task"></i>
-        <span>Задачи проекта</span>
-      </a>
-    </div>
-
     <router-outlet></router-outlet>
     <hr/>
   </div>
 
- 
   <!-- Footer -->
   <footer>
       
@@ -97,7 +60,7 @@
       </pattern>
       <pattern id="pattern24" patternTransform="matrix(31.005 0 0 13.777 -701.8 -2290.6)" preserveAspectRatio="xMidYMid" xlink:href="#hollow Circle"/>
       <pattern id="hollow Circle" width="30" height="30" style="fill:#000000" patternTransform="translate(-15,-15)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">
-      <path d="m15 0c-8.225 0-15 6.775-15 15 0 8.225 6.775 15 15 15 8.225 0 15-6.775 15-15 0-8.225-6.775-15-15-15zm0 10c2.8206 0 5 2.1794 5 5s-2.1794 5-5 5-5-2.1794-5-5 2.1794-5 5-5z" style="-inkscape-stroke:none;color:#000000;paint-order:markers fill stroke;stroke-linecap:square"/>
+      <path d="m15 0c-8.225 0-15 6.775-15 15 0 8.225 6.775 15 15 15 8.225 0 15-6.775 15-15 0-8.225-6.775-15-15-15zm0 10c2.8206 0 5 2.1794 5 5s-2.1794 5-5 5-5-2.1794-5-5 2.1794-5 5-5z" style="color:#000000;paint-order:markers fill stroke;stroke-linecap:square"/>
       </pattern>
       <pattern id="pattern17" patternTransform="matrix(31.005 0 0 13.777 17436 878.1)" preserveAspectRatio="xMidYMid" xlink:href="#pattern11"/>
       <pattern id="pattern11" width="15" height="25" style="fill:#000000" patternTransform="translate(570,215)" patternUnits="userSpaceOnUse" preserveAspectRatio="xMidYMid">

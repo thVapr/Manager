@@ -12,12 +12,14 @@ public class TaskDataModel : BaseDataModel
     public int Level { get; set; } = -1;
     public int Status { get; set; } = -1;
     public int Priority { get; set; } = -1;
+    public Guid? PartRoleId { get; set; }
     public DateTime? StartTime { get; set; }
     public DateTime? Deadline { get; set; }
     public DateTime? ClosedAt { get; set; }
     public string Path { get; set; } = string.Empty;
 
     public PartDataModel? CurrentPart { get; set; }
+    public PartRole? PartRole { get; set; }
     public ICollection<TaskMember> TaskMembers { get; set; } = null!;
     public ICollection<MemberDataModel> Members { get; set; } = null!;
 }

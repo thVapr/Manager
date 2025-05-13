@@ -1,6 +1,7 @@
 ﻿using ManagerLogic.Models;
 using ManagerData.Constants;
 using System.Security.Claims;
+using ManagerCore.Models;
 using ManagerLogic.Management;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -17,9 +18,13 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
             !user.IsInRole(RoleConstants.SpaceOwner) && isZeroLevelCreationAccess
         )
         {
-            var userId = GetUserId(context.HttpContext.User);
-            var partIds = GetPartIds(context);
-
+            var userId = FilterHelper.GetUserId(context.HttpContext.User);
+            var partIds = FilterHelper.GetPartIds(context);
+            if (!partIds.Any())
+            {
+                context.Result = new ForbidResult();
+                return;
+            }
             foreach (var partId in partIds)
             {
                 if (await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
@@ -30,38 +35,5 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZe
         }
 
         await next();
-    }
-
-    private string? GetRole(ClaimsPrincipal user)
-    {
-        return user.FindFirst(ClaimTypes.Role)?.Value;
-    }
-
-    private Guid GetUserId(ClaimsPrincipal user)
-    {
-        return Guid.TryParse(user.FindFirst("id")?.Value, out var id)
-            ? id
-            : Guid.Empty;
-    }
-
-    private List<Guid> GetPartIds(ActionExecutingContext context)
-    {
-        var partId = (context.ActionArguments.TryGetValue("partId", out var id) 
-            ? id : null)
-                ?? (context.ActionArguments.TryGetValue("masterId", out id)
-            ? id : null)
-                ?? (context.ActionArguments.Values.OfType<PartModel>().FirstOrDefault()?.MainPartId);
-        
-        var list = new List<string>();
-        if (partId != null)
-            list.Add(partId.ToString()!);
-
-        var partIds = context.ActionArguments.Values.OfType<List<PartModel>>().FirstOrDefault();
-        if (partIds != null) 
-            list.AddRange(partIds.Select(potentialPartId => potentialPartId.Id!));
-
-        return list.Select(l => Guid.TryParse(l, out var parsedId)
-            ? parsedId
-            : Guid.Empty).ToList();
     }
 }

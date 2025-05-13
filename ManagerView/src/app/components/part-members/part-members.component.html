@@ -14,11 +14,10 @@
         dataKey="id"
         (onMoveToTarget)="onMoveToTarget($event)"
         (onMoveToSource)="onMoveToSource($event)"
-        metaKeySelection="false" 
-        class="d-flex flex-row gap-3 w-100 mb-2">
+        metaKeySelection="false" >
         <ng-template let-option pTemplate="item">
             <p-card (dblclick)="doubleClick(option)"
-                [subheader]="option.firstName + ' ' + option.lastName" class="d-flex flex-column gap-2"> 
+                [subheader]="option.firstName + ' ' + option.lastName" class="flex-fill"> 
                 <ng-template *ngIf="option.privilege != undefined" pTemplate="footer">
                     <span>Уровень доступа: </span>
                     <p-tag [value]="option.privilege"></p-tag>
@@ -53,8 +52,8 @@
         <ul class="list-group" *ngIf="roles.length > 0">
             <li *ngFor="let role of roles" class="list-group-item d-flex justify-content-between align-items-center">
             {{ role.name }}
-            <button class="btn btn-sm btn-outline-danger"
-                    (click)="removeRole(role.id!)">
+            <button class="btn btn-danger text-white btn-outline-danger"
+                (click)="removeRole(role.id!)">
                 &times;
             </button>
             </li>

@@ -29,6 +29,36 @@ public class PartController(IPartLogic partLogic) : ControllerBase
         return Ok(await partLogic.GetPartTaskStatuses(partId));
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader, true])]
+    [HttpPost]
+    [Route("statuses/create")]
+    public async Task<IActionResult> CreatePartTaskStatus([FromBody] PartTaskStatusModel model)
+    {
+        if (await partLogic.AddPartTaskStatus(model))
+            return Ok();
+        return BadRequest();
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
+    [HttpPut]
+    [Route("statuses/update")]
+    public async Task<IActionResult> UpdatePartTaskStatus([FromBody] PartTaskStatusModel model)
+    {
+        if (await partLogic.ChangePartTaskStatus(model))
+            return Ok();
+        return BadRequest();
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
+    [HttpDelete]
+    [Route("statuses/remove")]
+    public async Task<IActionResult> RemovePartTaskStatus(string partId, string partTaskStatusId)
+    {
+        if (await partLogic.RemovePartTaskStatus(Guid.Parse(partId), Guid.Parse(partTaskStatusId)))
+            return Ok();
+        return BadRequest();
+    }
+    
     [HttpGet]
     [Route("check_privileges")]
     public async Task<IActionResult> CheckPrivileges(Guid userId, Guid partId, int privilege)

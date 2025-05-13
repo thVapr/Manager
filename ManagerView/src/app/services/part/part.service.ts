@@ -138,6 +138,21 @@ export class PartService {
     return this.http.put<any>(`${this.apiUrl}/update`, project);
   }
 
+  addPartStatus(taskStatus : TaskStatus) : Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/statuses/create`, 
+      taskStatus);
+  }
+
+  updatePartStatus(taskStatus: TaskStatus) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/statuses/update`, taskStatus);
+  }
+
+  removePartStatus(partTaskStatusId : string) : Observable<any> {
+    const partId = this.getPartId();
+
+    return this.http.delete<any>(`${this.apiUrl}/statuses/remove?partId=${partId}&partTaskStatusId=${partTaskStatusId}`);
+  }
+
   addMemberToPart(memberId : string) : Observable<any> {
     const partId = this.getPartId();
 
@@ -170,26 +185,26 @@ export class PartService {
   }
 
   setPartId(id : string) : void {
-    localStorage.setItem('part_id',id);
+    sessionStorage.setItem('part_id',id);
   }
 
   getPartId() : string | null {
-    const id = localStorage.getItem('part_id');
+    const id = sessionStorage.getItem('part_id');
     
     return id;
   }
 
   setPartName(name : string) : void {
-    localStorage.setItem('part_name', name);
+    sessionStorage.setItem('part_name', name);
   }
 
   removePartData() : void {
-    localStorage.removeItem('part_id');
-    localStorage.removeItem('part_name');
+    sessionStorage.removeItem('part_id');
+    sessionStorage.removeItem('part_name');
   }
 
   getPartName() : string | null {
-    const name = localStorage.getItem('part_name');
+    const name = sessionStorage.getItem('part_name');
 
     return name;
   }

@@ -433,7 +433,76 @@ public class PartRepository : IPartRepository
             Console.WriteLine(e);
             return [];
         }
+    }
 
+    public async Task<bool> AddPartTaskStatus(PartTaskStatus status)
+    {
+        await using var database = new MainDbContext();
+        try
+        {
+            var part = await database.Parts.FindAsync(status.PartId);
+            if (part == null)
+                return false;
+            await database.PartTaskStatuses.AddAsync(status);
+            await database.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
+    public async Task<bool> ChangePartTaskStatus(PartTaskStatus status)
+    {
+        await using var database = new MainDbContext();
+        try
+        {
+            var existingStatus = await database.PartTaskStatuses
+                .FirstOrDefaultAsync(s => s.PartId == status.PartId && s.Id == status.Id);
+            if (existingStatus == null)
+                return false;
+            if (!string.IsNullOrEmpty(status.Name))
+                existingStatus.Name = status.Name;
+            if (!existingStatus.IsFixed && status.Order is > 0 and < 110)
+                existingStatus.Order = status.Order;
+            if (!existingStatus.IsFixed && status.GlobalStatus is >= 0 and <= 5)
+                existingStatus.GlobalStatus = status.GlobalStatus;
+            if (status.PartRoleId.HasValue && status.PartRoleId != Guid.Empty)
+                existingStatus.PartRoleId = status.PartRoleId;
+            if (status.PartRoleId == Guid.Empty)
+                existingStatus.PartRoleId = null;
+            await database.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
+    public async Task<bool> RemovePartTaskStatus(Guid partId, Guid partTaskStatusId)
+    {
+        await using var database = new MainDbContext();
+        try
+        {
+            var existingStatus = await database.PartTaskStatuses
+                .FirstOrDefaultAsync(x => x.Id == partTaskStatusId && x.PartId == partId);
+            if (existingStatus == null) 
+                return false;
+
+            database.PartTaskStatuses.Remove(existingStatus);
+            await database.SaveChangesAsync();
+            
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 
     public async Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId)
