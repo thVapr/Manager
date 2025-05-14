@@ -5,7 +5,12 @@ using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMemberLogic memberLogic, IHistoryRepository historyRepository) : ITaskLogic
+public class TaskLogic(
+    ITaskRepository repository,
+    IPartLogic partLogic,
+    IMemberLogic memberLogic,
+    IHistoryRepository historyRepository
+    ) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
     {
@@ -73,6 +78,15 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMember
                 await RemoveMemberFromTask(member, Guid.Parse(model.Id!));
             }
         }
+        else
+        {
+            var task = await repository.GetEntityById(Guid.Parse(model.Id!));
+            var path = task.Path.Split("-").ToList();
+            if (task.Status != model.Status && path.All(pathItem => pathItem != model.Status.ToString()))
+            {
+                return false;
+            }
+        }
 
         return await repository.UpdateEntity(new TaskDataModel
         {
@@ -127,6 +141,28 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMember
     public async Task<bool> DeleteEntity(Guid id)
     {
         return await repository.DeleteEntity(id);
+    }
+
+    public async Task<bool> UpdateTask(HistoryModel? historyModel, TaskModel taskModel)
+    {
+        if (historyModel is not null && !string.IsNullOrEmpty(historyModel.InitiatorId))
+        {
+            var task = await GetEntityById(Guid.Parse(taskModel.Id!));
+            if (task.Status != taskModel.Status)
+            {
+                await historyRepository.Create(new TaskHistory
+                {
+                    TaskId = Guid.Parse(task.Id!),
+                    SourceStatusId = task.Status,
+                    DestinationStatusId = taskModel.Status,
+                    InitiatorId = Guid.Parse(historyModel.InitiatorId),
+                    Description = historyModel.Description!,
+                    Name = historyModel.Name!,
+                });   
+            }
+        }
+
+        return await UpdateEntity(taskModel);
     }
 
     public async Task<bool> AddMemberToTask(Guid memberId, Guid taskId, int groupId)
@@ -245,11 +281,43 @@ public class TaskLogic(ITaskRepository repository, IPartLogic partLogic, IMember
         return await UpdateEntity(ConvertToLogicModel(task));
     }
 
-    public async Task<ICollection<TaskModel>> GetFreeTasks(Guid projectId)
+    public async Task<ICollection<TaskModel>> GetFreeTasks(Guid partId)
     {
-        var tasks = await repository.GetFreeTasks(projectId);
+        var tasks = await repository.GetFreeTasks(partId);
 
         return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
+    }
+
+    public async Task<ICollection<TaskModel>> GetAvailableTasks(Guid memberId, Guid partId)
+    {
+        var roles = await partLogic.GetPartMemberRoles(partId, memberId);
+        var statuses = await partLogic.GetPartTaskStatuses(partId);
+        var tasks = (await repository.GetFreeTasks(partId)).ToList();
+        
+        var availableTasks = new List<TaskModel>();
+        foreach (var task in tasks)
+        {
+            var targetStatus = task.Status.ToString();
+            if (task.Status == 0)
+            {
+                var array = task.Path.Split('-');
+                var index = Array.IndexOf(array, task.Status.ToString());
+                targetStatus = index >= 0 && index < array.Length - 1 
+                    ? array[index + 1] 
+                    : null;
+            }
+
+            var taskStatus = statuses
+                .FirstOrDefault(status => status.Order.ToString() == targetStatus);
+            if (taskStatus == null)
+                continue;
+            if (taskStatus!.PartRoleId is null || roles.Any(role => role.Id == taskStatus!.PartRoleId))
+            {
+                availableTasks.Add(ConvertToLogicModel(task!));
+            }
+        }
+        
+        return availableTasks;
     }
 
     public async Task<ICollection<TaskModel>> GetMemberTasks(Guid employeeId)

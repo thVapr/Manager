@@ -45,18 +45,22 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.updateMenuItems();
     const id = this.authService.getId();
-    
     if (id !== null ) {
       this.memberService.getMemberById(id).subscribe({
         next: (member) => {
           if (member.lastName !== null && member.firstName !== null) {
             this.memberProfileString = member.lastName + ' ' + member.firstName;
             this.isMemberExist = true;
+            const partId = this.partService.getPartId();
 
-            if(member.partId !== null && member.partId !== undefined) {
-              this.partService.setPartId(member.partId);
-              if (member.partName !== "" && member.partName !== undefined)
-                this.partService.setPartName(member.partName);
+            if(partId !== null) {
+              this.partService.hasPrivileges(id, partId, 5).subscribe({
+                next: (response) => {
+                  this.isPartLeader = response;
+                  this.updateMenuItems();
+                },
+                error: () => this.isPartLeader = false
+              });
             }
           }
           this.updateMenuItems();
@@ -149,17 +153,16 @@ export class AppComponent implements OnInit {
     });
 
     if (this.authService.isAuthenticated()) {
-      this.items.push({
-        label: 'Управление доступом',
-        icon: 'bi bi-file-person',
-        routerLink: 'part/members'
-      });
-
       if ((this.authService.isAdmin() || this.isPartLeader) && this.partService.isPartSelected()) {
         this.items.push({
-          label: this.partName,
+          label: 'Управление доступом',
+          icon: 'bi bi-file-person',
+          routerLink: 'part/members'
+        });
+        this.items.push({
+          label: 'Профиль',
           icon: 'bi bi-cup-hot',
-          routerLink: 'part/member'
+          routerLink: 'part/about'
         });
       }
 

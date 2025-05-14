@@ -30,6 +30,7 @@ import { Panel } from 'primeng/panel'
 import { Avatar } from 'primeng/avatar'
 import { CardModule } from 'primeng/card';
 import { ChipsModule } from 'primeng/chips';
+import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabel } from 'primeng/floatlabel'
 import { EditorModule } from 'primeng/editor';
@@ -75,6 +76,7 @@ import { InputNumberModule } from 'primeng/inputnumber'
         TreeModule,
         ChipsModule,
         FormsModule,
+        ToastModule,
         EditorModule,
         ButtonModule,
         CommonModule,

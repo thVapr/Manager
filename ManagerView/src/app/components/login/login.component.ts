@@ -11,14 +11,14 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class LoginComponent {
   loginForm = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
+    login: new FormControl('', [Validators.required, Validators.minLength(4)]),
     password: new FormControl('', [Validators.required, Validators.minLength(8)])
   });
 
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
-    const email = this.loginForm.value.email;
+    const email = this.loginForm.value.login;
     const password = this.loginForm.value.password;
     this.authService.login(email!, password!)
       .subscribe({

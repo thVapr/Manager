@@ -102,7 +102,7 @@ export class TaskProfileComponent {
     task.description = this.updateTaskForm.value.description!;
     task.status = this.taskStatus;
 
-    this.taskService.updateTask(task).subscribe(() => {
+    this.taskService.updateTask("", "", task).subscribe(() => {
       this.update();
     });
   }
@@ -113,7 +113,7 @@ export class TaskProfileComponent {
     task.id = this.taskId;
     task.status = Status.DOING;
 
-    this.taskService.updateTask(task).subscribe(() => {
+    this.taskService.updateTask("", "", task).subscribe(() => {
       this.update();
     });
   }

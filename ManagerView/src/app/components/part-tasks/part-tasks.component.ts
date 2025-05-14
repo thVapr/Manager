@@ -7,12 +7,15 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task/task.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
+import { finalize } from 'rxjs';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-project-tasks',
     templateUrl: './part-tasks.component.html',
     styleUrls: ['./part-tasks.component.scss'],
-    standalone: false
+    standalone: false,
+    providers: [MessageService]
 })
 export class PartTasksComponent implements OnInit {
 
@@ -25,7 +28,8 @@ export class PartTasksComponent implements OnInit {
     description: new FormControl('', [Validators.required, Validators.minLength(4)]),
     startDate: new FormControl(null, [Validators.required]),
     deadlineDate: new FormControl(null, [Validators.required]),
-    selectedStatusColumns: new FormControl<TaskStatus[]>([],[])
+    selectedStatusColumns: new FormControl<TaskStatus[]>([],[]),
+    priority: new FormControl(0,[])
   });
 
   changeTaskStatusForm = new FormGroup({
@@ -38,6 +42,11 @@ export class PartTasksComponent implements OnInit {
     name: new FormControl('', [Validators.required, Validators.minLength(4)]),
     globalStatus: new FormControl(0,[]),
     partRoleId: new FormControl('',[])
+  });
+
+  changeTaskForm = new FormGroup({
+    name: new FormControl('', []),
+    description: new FormControl('', [])
   });
 
   isLeader : boolean = false;
@@ -55,12 +64,27 @@ export class PartTasksComponent implements OnInit {
   partRoles : PartRole[] = [];
   listStatusColumns : TaskStatus[] = [];
 
-  isDraggedBlock: boolean = false;
+  //TODO: Есть повторение из task.component
+  //TODO: Также можно объеденить логику для drag and drop
+  isTaskChangeStatusFormVisible : boolean = false;
+  private targetTask : Task = {};
+  statusFrom : TaskStatus | undefined = {};
+  statusTo : TaskStatus | undefined = {};
+
+  isDraggedBlock : boolean = false;
+
+  textMapColor : Map<number, string[]> = new Map([
+    [0, ["text-primary", "Обычный"]],
+    [1, ["text-warning", "Средний"]],
+    [2, ["text-danger", "Высокий"]],
+    [3, ["text-danger bg-dark", "Экстремальный"]],
+  ]);
 
   constructor(private taskService : TaskService,
     public authService: AuthService,
     public partService: PartService,
-    private router: Router) {}
+    private router: Router,
+    private messageService : MessageService) {}
 
   showAddTaskDialog() : void
   {
@@ -69,6 +93,16 @@ export class PartTasksComponent implements OnInit {
       selectedStatusColumns: this.listStatusColumns
     });
     this.isAddTaskFormVisible = !this.isAddTaskFormVisible;
+  }
+
+  getStatusNameByOrder(order : number) {
+    return this.statusColumns.find(status => status.order === order)?.name;
+  }
+
+  getStatusColor(order : number): string {
+    const status = this.statusColumns.find(status => status.order === order)?.globalStatus;
+
+    return this.getHeaderColor(status!);
   }
 
   getHeaderColor(status: number): string {
@@ -102,6 +136,38 @@ export class PartTasksComponent implements OnInit {
       partRoleId: '-1'
     });
     this.isAddStatusFormVisible = !this.isAddStatusFormVisible;
+  }
+
+  changeTaskStatusFormInitialise(task : Task | undefined) : void {
+    this.targetTask = task!;
+    
+    const parsedPath = this.targetTask.path?.split('-');
+    const pathIndex = parsedPath!.findIndex(node => node === task!.status?.toString());
+    this.statusFrom = this.statusColumns.find(status => status.order?.toString() === parsedPath![pathIndex]);
+    this.statusTo = this.statusColumns.find(status => status.order?.toString() === parsedPath![pathIndex + 1]);
+
+    this.isTaskChangeStatusFormVisible = !this.isTaskChangeStatusFormVisible;
+  }
+
+  changeTaskStatus() : void {
+    const name = this.changeTaskStatusForm.value.name;
+    const description = this.changeTaskForm.value.description;
+    this.taskService.changeTaskStatus(name!, description!, this.targetTask!.id!)
+      .subscribe({
+        next: () => {
+          this.update();
+          this.canceledStatusChange();
+          this.changeTaskForm.patchValue({
+            name: '',
+            description: ''
+          });
+        }
+      });
+  }
+
+  canceledStatusChange() : void {
+    this.targetTask = {};
+    this.isTaskChangeStatusFormVisible = false;
   }
 
   getTaskByStatus(tasks : Task[], status : number)
@@ -158,16 +224,43 @@ export class PartTasksComponent implements OnInit {
     this.router.navigate(['task','about',task.id]);    
   }
 
-  drop(index : number) {
-
+  drop(index : number) : void {
     if (this.draggedTask) {
       var taskIndex = this.findIndex(this.draggedTask);
-      this.tasks[taskIndex].status = index;
-      this.tasks[taskIndex].partId = this.partService.getPartId()!;
-      this.taskService.updateTask(this.tasks[taskIndex]).subscribe(() => {});
-      this.draggedTask = {};
-      this.isDraggedBlock = false;
+      if (taskIndex === -1 || taskIndex >= this.tasks.length) {
+        return;
+      }
+
+      this.statusFrom = this.statusColumns.find(status => status.order === this.tasks[taskIndex].status);
+      this.statusTo = this.statusColumns.find(status => status.order === index);
+      this.targetTask = this.tasks[taskIndex];
+      this.targetTask.status = index;
+      this.isTaskChangeStatusFormVisible = true;
     }
+  }
+
+  updateTask() : void {
+    const name = this.changeTaskForm.value.name;
+    const description = this.changeTaskForm.value.description;
+    this.taskService.updateTask(name!, description!, this.targetTask)
+      .pipe(finalize(() => {
+          this.draggedTask = {};
+          this.isDraggedBlock = false;
+          this.isTaskChangeStatusFormVisible = false;
+          this.update();
+          this.canceledStatusChange();
+          this.changeTaskForm.patchValue({
+            name: '',
+            description: ''
+          });
+      }))
+      .subscribe({
+        error: () => {
+          this.messageService.add(
+            { severity: 'error', summary: 'Ошибка', detail: 'Не удалось обновить задачу', life: 3000 }
+          );
+        }
+      });
   }
 
   dragEnd() {
@@ -207,7 +300,7 @@ export class PartTasksComponent implements OnInit {
           this.statusColumns = statuses.sort((statusA, statusB) => {
             return statusA.order! - statusB.order!;
           });
-          this.tasks = tasks;
+          this.tasks = tasks.sort((a,b) => (b.level!-a.level!));
           this.tasks.forEach(task => {
             this.taskService.getMembersFromTask(task.id!).subscribe({
               next: (members) => {
@@ -229,7 +322,7 @@ export class PartTasksComponent implements OnInit {
       }
     });
   }
- 
+
   addTask() : void {
     let task = new Task;
 
@@ -240,7 +333,7 @@ export class PartTasksComponent implements OnInit {
     task.path = this.addTaskForm.value.selectedStatusColumns!
       .map(value => value.order?.toString())
       .join('-');
-
+    task.level = this.addTaskForm.value.priority!;
     this.taskService.addTask(task).subscribe({
       next: () => {
         this.update();
@@ -327,5 +420,9 @@ export class PartTasksComponent implements OnInit {
     {
       this.update();
     }
+  }
+
+  isValidTimestamp(timestamp : Date) : boolean {
+    return (new Date(timestamp)).getTime() > (new Date(0)).getTime();
   }
 }

@@ -1,21 +1,18 @@
-﻿using ManagerLogic.Models;
-using ManagerData.Constants;
-using System.Security.Claims;
-using ManagerCore.Models;
+﻿using ManagerData.Constants;
 using ManagerLogic.Management;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ManagerCore.Utils;
 
-public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isZeroLevelCreationAccess = false) : IAsyncActionFilter
+public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isNotZeroLevelCreationAccess = false) : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var user = context.HttpContext.User;
         
-        if (!user.IsInRole(RoleConstants.Admin) ||
-            !user.IsInRole(RoleConstants.SpaceOwner) && isZeroLevelCreationAccess
+        if (!user.IsInRole(RoleConstants.Admin) &&
+            !user.IsInRole(RoleConstants.SpaceOwner) && !isNotZeroLevelCreationAccess
         )
         {
             var userId = FilterHelper.GetUserId(context.HttpContext.User);

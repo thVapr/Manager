@@ -12,7 +12,7 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/tasks")]
 [Authorize]
-public class TaskController(ITaskLogic taskLogic, IPartLogic partLogic) : ControllerBase
+public class TaskController(ITaskLogic taskLogic) : ControllerBase
 {
     [HttpGet]
     [Route("get")]
@@ -28,11 +28,20 @@ public class TaskController(ITaskLogic taskLogic, IPartLogic partLogic) : Contro
         return Ok(await taskLogic.GetTaskMembers(Guid.Parse(taskId)));
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
     [HttpGet]
     [Route("get_free_tasks")]
     public async Task<IActionResult> GetFreeTasks(string partId)
     {
         return Ok(await taskLogic.GetFreeTasks(Guid.Parse(partId)));
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
+    [HttpGet]
+    [Route("get_available_tasks")]
+    public async Task<IActionResult> GetAvailableTasks(string memberId, string partId)
+    {
+        return Ok(await taskLogic.GetAvailableTasks(Guid.Parse(memberId), Guid.Parse(partId)));
     }
 
     [HttpGet]
@@ -47,7 +56,6 @@ public class TaskController(ITaskLogic taskLogic, IPartLogic partLogic) : Contro
     [Route("all")]
     public async Task<IActionResult> GetModels(string partId)
     {
-
         return Ok((await taskLogic.GetEntitiesById(Guid.Parse(partId)))
             .Select(task => new TaskModel()
             {
@@ -97,29 +105,42 @@ public class TaskController(ITaskLogic taskLogic, IPartLogic partLogic) : Contro
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
     [HttpPatch]
     [Route("change")]
-    public async Task<IActionResult> ChangeTaskStatus(string partId, string taskId, string? name, string? description)
+    public async Task<IActionResult> ChangeTaskStatus([FromBody] ChangeTaskStatusModel model)
     {
-        var task = await taskLogic.GetEntityById(Guid.Parse(partId));
-        if (task.PartId != null && task.PartId == Guid.Parse(partId))
+        var task = await taskLogic.GetEntityById(Guid.Parse(model.PartId));
+        if (task.PartId != null && task.PartId == Guid.Parse(model.PartId))
             return Forbid();
         return Ok(
             await taskLogic.ChangeTaskStatus(
                 new HistoryModel
                 {
                     InitiatorId = User.FindFirst("id")?.Value!,
-                    Description = description ?? string.Empty,
-                    Name = name ?? string.Empty,
+                    Description = model.Description ?? string.Empty,
+                    Name = model.Name ?? string.Empty,
                 },
-                Guid.Parse(taskId!))
+                Guid.Parse(model.TaskId!))
         );
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [HttpPut]
     [Route("update")]
-    public async Task<IActionResult> UpdateTask(TaskModel model)
+    public async Task<IActionResult> UpdateTask(
+        UpdateTaskRequest model)
     {
-        if (await taskLogic.UpdateEntity(model))
+        var history = new HistoryModel
+        {
+            InitiatorId = User.FindFirst("id")?.Value!,
+            Description = model.Description ?? string.Empty,
+            Name = model.Name ?? string.Empty,
+        };
+        
+        var isTaskUpdated = await taskLogic.UpdateTask(
+            history!,
+            model.Task
+        );
+        
+        if (isTaskUpdated)
             return Ok();
         return BadRequest();
     }

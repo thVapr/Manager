@@ -42,6 +42,13 @@ export class TaskService {
     return this.http.get<Task[]>(`${this.apiUrl}/get_free_tasks?partId=${partId}`);
   }
 
+  getAvailableTasks() : Observable<Task[]> {
+    const partId = this.partService.getPartId();
+    const memberId = this.authService.getId();
+
+    return this.http.get<Task[]>(`${this.apiUrl}/get_available_tasks?partId=${partId}&memberId=${memberId}`);
+  }
+
   getTaskById(taskId : string) : Observable<Task> {
     return this.http.get<Task>(`${this.apiUrl}/get?taskId=${taskId}`);
   }
@@ -52,16 +59,20 @@ export class TaskService {
     return this.http.get<Task[]>(`${this.apiUrl}/search?query=${query}&partId=${partId}`);
   }
 
-  updateTask(task : Task) : Observable<any> {
+  updateTask(name : string, description : string, task : Task) : Observable<any> {
     const partId =  this.partService.getPartId();
     task.partId = partId!;
     
-    return this.http.put<any>(`${this.apiUrl}/update`, task);
+    return this.http.put<any>(`${this.apiUrl}/update`, { name, description, task });
   }
 
-  changeTaskStatus(taskId : string) : Observable<boolean> {
+  changeTaskStatus(name : string, description : string, taskId : string) : Observable<boolean> {
     const partId = this.partService.getPartId();
-    return this.http.patch<boolean>(`${this.apiUrl}/change?taskId=${taskId}&partId=${partId}`, null);
+
+    return this.http.patch<boolean>(
+      `${this.apiUrl}/change`,
+      { taskId, partId, name, description }
+    );
   }
 
   addTask(task : Task) : Observable<any> {

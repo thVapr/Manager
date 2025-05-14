@@ -23,7 +23,7 @@ public class AuthenticationController(IAuthentication authentication) : Controll
             return await Login(user);
         }
         
-        return BadRequest();
+        return BadRequest("Пользователь с таким именем уже существует");
     }
                 
     [HttpPost("login")]
@@ -31,12 +31,12 @@ public class AuthenticationController(IAuthentication authentication) : Controll
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest("Некорректный логин или пароль");
         }
 
         var tokenPair = await authentication.Authenticate(user);
         return !string.IsNullOrWhiteSpace(tokenPair.Item1) ? 
-            Ok(tokenPair) : StatusCode(401, "Invalid username or password");
+            Ok(tokenPair) : StatusCode(401, "Неподходящая пара логина и пароля");
     }
 
     [HttpPost("logout")]
@@ -49,7 +49,7 @@ public class AuthenticationController(IAuthentication authentication) : Controll
     public async Task<IActionResult> Refresh(RefreshModel? model)
     {
         if (model is null)
-            return BadRequest();
+            return BadRequest("Токен не валиден");
 
         return Ok(await authentication.UpdateToken(model));
 
