@@ -20,7 +20,7 @@ import { PartProfileComponent } from './components/part-profile/part-profile.com
 import { TaskProfileComponent } from './components/task-profile/task-profile.component';
 import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
-import Lara from '@primeng/themes/lara';
+import Material from '@primeng/themes/Material';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -29,6 +29,7 @@ import { Menu } from 'primeng/menu'
 import { Panel } from 'primeng/panel'
 import { Avatar } from 'primeng/avatar'
 import { CardModule } from 'primeng/card';
+import { TabsModule } from 'primeng/tabs';
 import { ChipsModule } from 'primeng/chips';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
@@ -43,7 +44,22 @@ import { MenubarModule } from 'primeng/menubar';
 import { DragDropModule } from 'primeng/dragdrop'
 import { PickListModule } from 'primeng/picklist';
 import { DatePickerModule  } from 'primeng/datepicker'
+import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber'
+import { definePreset } from '@primeng/themes';
+
+const MyPreset = definePreset(Material, {
+  primitive: {
+    green: {
+      500: '#2f4f4f',
+    },
+  },
+  semantic: {
+    primary: {
+      500: '{green.500}',
+    },
+  },
+});
 
 @NgModule({ 
     declarations: [
@@ -74,6 +90,7 @@ import { InputNumberModule } from 'primeng/inputnumber'
         FloatLabel,
         CardModule,
         TreeModule,
+        TabsModule,
         ChipsModule,
         FormsModule,
         ToastModule,
@@ -90,21 +107,18 @@ import { InputNumberModule } from 'primeng/inputnumber'
         PickListModule,
         AppRoutingModule,
         DatePickerModule,
+        FileUploadModule,
         InputNumberModule,
         ReactiveFormsModule,
     ],
     providers: [
         provideAnimationsAsync(),
         providePrimeNG({ theme : { 
-            preset : Lara,
+            preset : MyPreset,
             options: {
                 darkModeSelector: false || 'none',
-                presetOptions: {
-                    primary: '#3B82F6',
-                    surface: '#ffffff',
-                    borderRadius: 12
-                }
-            }}}),
+            },
+        }}),
         {
             provide: HTTP_INTERCEPTORS,
             useClass: TokenInterceptor,

@@ -146,11 +146,7 @@ export class AppComponent implements OnInit {
       }
     }
 
-    this.items.push({
-      label: 'Домой',
-      icon: 'bi bi-house',
-      routerLink: 'home'
-    });
+
 
     if (this.authService.isAuthenticated()) {
       if ((this.authService.isAdmin() || this.isPartLeader) && this.partService.isPartSelected()) {
@@ -159,14 +155,22 @@ export class AppComponent implements OnInit {
           icon: 'bi bi-file-person',
           routerLink: 'part/members'
         });
-        this.items.push({
-          label: 'Профиль',
-          icon: 'bi bi-cup-hot',
-          routerLink: 'part/about'
-        });
+        if (false)
+        {
+          this.items.push({
+            label: 'Профиль',
+            icon: 'bi bi-cup-hot',
+            routerLink: 'part/about'
+          });
+        }
       }
 
       if (this.partService.isPartSelected()) {
+        this.items.push({
+          label: 'Домой',
+          icon: 'bi bi-house',
+          routerLink: 'home'
+        });
         this.items.push({
           label: 'Задачи',
           icon: 'bi bi-list-task',

@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { Status } from 'src/app/status'
 import { Constants } from 'src/app/constants';
 import { Member } from 'src/app/components/models/member';
+import { TaskHistory } from 'src/app/components/models/task-history';
 
 @Injectable({
   providedIn: 'root'
@@ -59,6 +60,18 @@ export class TaskService {
     return this.http.get<Task[]>(`${this.apiUrl}/search?query=${query}&partId=${partId}`);
   }
 
+  getAvailableMembersForTask(taskId : string) : Observable<Member[]> {
+    const partId =  this.partService.getPartId();
+
+    return this.http.get<Member[]>(`${this.apiUrl}/get_available_members_for_task` +
+      `?taskId=${taskId}&partId=${partId}`);
+  }
+
+  getTaskHistory(taskId : string) : Observable<TaskHistory[]> {
+    return this.http.get<TaskHistory[]>(`${this.apiUrl}/get_task_history` +
+      `?taskId=${taskId}`);
+  }
+
   updateTask(name : string, description : string, task : Task) : Observable<any> {
     const partId =  this.partService.getPartId();
     task.partId = partId!;
@@ -82,15 +95,28 @@ export class TaskService {
     return this.http.post<any>(`${this.apiUrl}/create`, task);
   }
 
-  addTaskToMember(taskId : string) : Observable<any> {
+  addTaskToCurrentMember(taskId : string) : Observable<any> {
     const memberId = this.authService.getId();
     const groupId = 0;
+
+    return this.addTaskToMember(memberId, taskId, groupId);
+  }
+
+  addTaskToMember(memberId : string, taskId : string, groupId : number) : Observable<any> {
+    const partId = this.partService.getPartId();
+
+    return this.http.post<any>(`${this.apiUrl}/add_member`,{ memberId, taskId, groupId, partId});
+  }
+
+  removeMemberFromTask(memberId : string, taskId : string) : Observable<any> {
     const partId = this.partService.getPartId();
     
-    return this.http.post<any>(`${this.apiUrl}/add`,{ memberId, taskId, groupId, partId});
+    return this.http.post<any>(`${this.apiUrl}/remove_member`,{ memberId, taskId, partId});
   }
-  
-  removeEmployeeFromTask(employeeId : string, taskId : string) : Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/remove`,{ employeeId, taskId });
+
+  removeTask(taskId : string) : Observable<any> {
+    const partId = this.partService.getPartId();
+
+    return this.http.delete<any>(`${this.apiUrl}/delete?partId=${partId}&taskId=${taskId}`);
   }
 }

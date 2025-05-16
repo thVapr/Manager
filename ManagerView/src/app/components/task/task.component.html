@@ -5,17 +5,17 @@
         <div class="col" *ngFor="let task of tasks">
           <p-card class="h-100">
             <div class="d-flex align-items-center justify-content-between">
-              <a class="text-decoration-none" [href]="'/task/about/' + task.id">
-                <h5 class="m-0">{{task.name}}</h5>
+              <a class="text-decoration-none text-truncate" [href]="'/task/about/' + task.id">
+                <h5 class="text-truncate m-0">{{task.name}}</h5>
                 <span class="text-muted small rounded-1" [style.background]="getStatusColor(task.status!)">
                   {{getStatusNameByOrder(task.status!)}}
                 </span>
+                  <p *ngIf="task.level !== 0" 
+                    class="text-center text-truncate rounded-2" 
+                    [class]="textMapColor.get(task.level!)![0]">
+                  {{textMapColor.get(task.level!)![1]}}
+                </p>
               </a>
-              <p *ngIf="task.level !== 0" 
-                  class="text-center text-truncate rounded-2" 
-                  [class]="textMapColor.get(task.level!)![0]">
-                {{textMapColor.get(task.level!)![1]}}
-              </p>
               <p-button 
                 label="Взять" 
                 styleClass="btn-sm"
@@ -34,7 +34,7 @@
         <div class="col" *ngFor="let task of myTasks">
           <p-card class="h-100">
             <div class="d-flex align-items-center justify-content-between">
-              <a class="text-decoration-none" [href]="'/task/about/' + task.id">
+              <a class="text-decoration-none text-truncate" [href]="'/task/about/' + task.id">
                 <h5 class="text-truncate m-0">{{task.name}}</h5>
                 <span class="text-muted small rounded-1" [style.background]="getStatusColor(task.status!)">
                   {{getStatusNameByOrder(task.status!)}}

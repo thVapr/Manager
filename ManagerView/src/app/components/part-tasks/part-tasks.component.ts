@@ -90,7 +90,8 @@ export class PartTasksComponent implements OnInit {
   {
     this.listStatusColumns = this.statusColumns.filter(col => col.order !== 111);
     this.addTaskForm.patchValue({
-      selectedStatusColumns: this.listStatusColumns
+      selectedStatusColumns: this.listStatusColumns,
+      priority: 0
     });
     this.isAddTaskFormVisible = !this.isAddTaskFormVisible;
   }
@@ -112,7 +113,7 @@ export class PartTasksComponent implements OnInit {
       [2, 'rgba(252, 255, 173, 0.4)'],
       [3, 'rgba(0, 255, 0, 0.4)'],
       [4, 'rgba(255, 0, 0, 0.4)'],
-      [5, 'rgba(252, 255, 173, 0.4)']
+      [5, 'rgba(56, 240, 253, 0.4)']
     ]);
     return colorMap.get(status) || 'rgba(51, 170, 51, .1) ';
   }
@@ -155,12 +156,7 @@ export class PartTasksComponent implements OnInit {
     this.taskService.changeTaskStatus(name!, description!, this.targetTask!.id!)
       .subscribe({
         next: () => {
-          this.update();
           this.canceledStatusChange();
-          this.changeTaskForm.patchValue({
-            name: '',
-            description: ''
-          });
         }
       });
   }
@@ -168,6 +164,11 @@ export class PartTasksComponent implements OnInit {
   canceledStatusChange() : void {
     this.targetTask = {};
     this.isTaskChangeStatusFormVisible = false;
+    this.update();
+    this.changeTaskForm.patchValue({
+      name: '',
+      description: ''
+    });
   }
 
   getTaskByStatus(tasks : Task[], status : number)
@@ -337,7 +338,6 @@ export class PartTasksComponent implements OnInit {
     this.taskService.addTask(task).subscribe({
       next: () => {
         this.update();
-        this.tasks = [...this.tasks, task];
         this.addTaskForm.reset();
         this.isAddTaskFormVisible = false
       }

@@ -17,7 +17,7 @@
 
 <div class="d-flex overflow-auto flex-nowrap gap-3 mb-3 mt-3">
   <div *ngFor="let col of statusColumns" 
-       style="min-width: 20vh;"
+       style="min-width: 25vh;"
        pDroppable
        [pDroppableDisabled]="isStatusesDraggable"
        (onDrop)="statusDrop(col.order!)">
@@ -142,7 +142,7 @@
         <option *ngFor="let role of this.partRoles" [value]="role.id">{{role.name}}</option>
       </select>
     </div>
-    <div class="d-flex">
+    <div class="d-flex justify-content-between">
       <p-button class="d-flex flex-column flex-fill" label="Отменить" severity="secondary" (click)="isChangeStatusFormVisible = false" />
       <p-button class="d-flex flex-column flex-fill" type="submit" class="">Обновить</p-button>
     </div>
@@ -176,7 +176,7 @@
         <option *ngFor="let role of this.partRoles" [value]="role.id">{{role.name}}</option>
       </select>
     </div>
-    <div class="text-center text-lg-start justify-content-between">
+    <div class="d-flex justify-content-between">
       <p-button label="Отменить" severity="secondary" (click)="isAddStatusFormVisible = false" />
       <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
     </div>

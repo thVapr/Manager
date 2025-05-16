@@ -43,12 +43,28 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     {
         return Ok(await taskLogic.GetAvailableTasks(Guid.Parse(memberId), Guid.Parse(partId)));
     }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
+    [HttpGet]
+    [Route("get_available_members_for_task")]
+    public async Task<IActionResult> GetAvailableMembersForTask(string partId, string taskId)
+    {
+        return Ok(await taskLogic.GetAvailableMemberForTask( Guid.Parse(partId), Guid.Parse(taskId)));
+    }
 
     [HttpGet]
     [Route("get_member_tasks")]
     public async Task<IActionResult> GetMemberTasks(string memberId)
     {
         return Ok(await taskLogic.GetMemberTasks(Guid.Parse(memberId)));
+    }
+    
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpGet]
+    [Route("get_task_history")]
+    public async Task<IActionResult> GetTaskHistory(string taskId)
+    {
+        return Ok(await taskLogic.GetTaskHistory(Guid.Parse(taskId)));
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
@@ -94,10 +110,30 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
     [TypeFilter(typeof(TaskAccessFilter))]
     [HttpPost]
-    [Route("add")]
+    [Route("add_member")]
     public async Task<IActionResult> AddMemberToTask([FromBody] MemberTasks model)
     {
-        if (await taskLogic.AddMemberToTask(Guid.Parse(model.MemberId!), Guid.Parse(model.TaskId!), model.GroupId!.Value))
+        var isMemberAdded = await taskLogic.AddMemberToTask(
+            Guid.Parse(User.FindFirst("id")?.Value!),
+            Guid.Parse(model.MemberId!), 
+            Guid.Parse(model.TaskId!),
+            model.GroupId!.Value);
+        if (isMemberAdded)
+            return Ok();
+        return BadRequest();
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpPost]
+    [Route("remove_member")]
+    public async Task<IActionResult> RemoveMemberToTask([FromBody] MemberTasks model)
+    {
+        var isMemberRemoved = await taskLogic.RemoveMemberFromTask(
+            Guid.Parse(User.FindFirst("id")?.Value!),
+            Guid.Parse(model.MemberId!), 
+            Guid.Parse(model.TaskId!));
+        if (isMemberRemoved)
             return Ok();
         return BadRequest();
     }
@@ -141,6 +177,20 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
         );
         
         if (isTaskUpdated)
+            return Ok();
+        return BadRequest();
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Create])]
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpDelete]
+    [Route("delete")]
+    public async Task<IActionResult> DeletePart(string partId, string taskId)
+    {
+        var task = await taskLogic.GetEntityById(Guid.Parse(taskId));
+        if (task.PartId != null && task.PartId != Guid.Parse(partId))
+            Forbid($"У вас нет прав для доступа к задаче с id: {taskId}");
+        if (await taskLogic.DeleteEntity(Guid.Parse(taskId)))
             return Ok();
         return BadRequest();
     }

@@ -3,42 +3,62 @@ import { Status } from '../../status';
 import { Component } from '@angular/core';
 import { Member } from '../models/member';
 import { Constants } from '../../constants';
+import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { TaskService } from '../../services/task/task.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Location } from '@angular/common';
 import { MemberService } from '../../services/member/member.service';
-
+import { TaskActionHeader, TaskActionType, TaskHistory } from '../models/task-history';
+import { TaskStatus } from '../models/task-status';
+import { PartService } from 'src/app/services/part/part.service';
 
 @Component({
     selector: 'app-task-profile',
     templateUrl: './task-profile.component.html',
     styleUrls: ['./task-profile.component.scss'],
-    standalone: false
+    standalone: false,
+    providers: [MessageService],
 })
 export class TaskProfileComponent {
+
+  TaskActionType = TaskActionType;
 
   updateTaskForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(4)]),
     description: new FormControl('', [Validators.required, Validators.minLength(4)])
   });
 
+  addMemberForm = new FormGroup({
+    member: new FormControl<Member|null>(null, [Validators.required]),
+  });
 
+  value: number = 1;
   taskId : string = "";
   taskName : string | undefined = "";
   taskDescription : string | undefined = "";
   status : string | undefined = "";
   taskStatus : number | undefined = 0;
+  uploadedFiles: any[] = [];
+  taskHistory: TaskHistory[] = [];
+  statuses : TaskStatus[] = [];
 
-  isAdminOrCreator : boolean = false;
+  availableMembers : Member[] = [];
+  isAddMemberFormVisible : boolean = false;
 
-  creator : Member = new Member("","","","");
-  member : Member = new Member("","","","");
+  hasAcceesForEdit : boolean = false;
+
+  creator : Member = {};
+  members : Member[] = [];
 
   constructor(private taskService : TaskService,
               private route : ActivatedRoute,
+              private location: Location,
               private memberService : MemberService,
-              private authService : AuthService) {}
+              private authService : AuthService,
+              private partService : PartService,
+              private messageService: MessageService) {}
 
   ngOnInit(): void {
     const id : string = this.route.snapshot.params['id'];
@@ -46,40 +66,28 @@ export class TaskProfileComponent {
     this.update();
   }
 
-  update() : void {
-    this.getTaskProfile(this.taskId);
+  removeMemberFromTask(member : Member) : void {
+    this.taskService.removeMemberFromTask(member.id!, this.taskId).subscribe(
+      () => {
+        this.update();
+      }
+    )
   }
 
-  getTaskProfile(id : string) : void {
-    this.taskService.getTaskById(id).subscribe((task) => {
+  update() : void {
+    this.taskService.getTaskById(this.taskId).subscribe((task) => {
       this.taskName = task.name;
       this.taskDescription = task.description;
       this.taskStatus = task.status;
-
-      switch(task.status) {
-        case(Status.TODO):
-          this.status = Constants.TODO;
-          break;
-        case(Status.DOING):
-          this.status = Constants.DOING;
-          break;
-        case(Status.DONE):
-          this.status = Constants.DONE;
-          break;
-        case(Status.CANCELED):
-          this.status = Constants.CANCELED;
-          break;
-      }
-      
+ 
       if (task.creatorId !== undefined)
         this.memberService.getMemberById(task.creatorId).subscribe((employee) => {
           this.creator = employee;
 
           const id = this.authService.getId();
 
-          this.isAdminOrCreator = id === this.creator.id || this.authService.isAdmin();
-
-          if (this.isAdminOrCreator) {
+          this.hasAcceesForEdit = id === this.creator.id || this.authService.isAdmin();
+          if (this.hasAcceesForEdit) {
             if (this.taskName !== undefined && this.taskDescription !== undefined)
               this.updateTaskForm.setValue({
                 name: this.taskName,
@@ -87,8 +95,20 @@ export class TaskProfileComponent {
               });
           }
           this.taskService.getMembersFromTask(task.id!).subscribe((members) => {
-            this.member = members[0];
-            console.log(members);
+            this.members = members;
+            this.taskService.getTaskHistory(this.taskId).subscribe({
+              next: (history) => {
+                this.taskHistory = history.sort((a,b) => {
+                  return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                });
+                console.log(this.taskHistory);
+              }
+            });
+          });
+          this.partService.getPartTaskStatuses().subscribe({
+            next: (statuses) => {
+              this.statuses = statuses;
+            }
           });
         });
     });
@@ -107,14 +127,61 @@ export class TaskProfileComponent {
     });
   }
 
-  returnTask() : void {
-    let task = new Task;
+  onUpload(event:any) {
+    for(let file of event.files) {
+        this.uploadedFiles.push(file);
+    }
 
-    task.id = this.taskId;
-    task.status = Status.DOING;
+    this.messageService.add({severity: 'info', summary: 'File Uploaded', detail: ''});
+  }
 
-    this.taskService.updateTask("", "", task).subscribe(() => {
-      this.update();
+  showAddMemberToTaskForm() : void {
+    this.isAddMemberFormVisible = true;
+    this.taskService.getAvailableMembersForTask(this.taskId).subscribe({
+      next: (members) => {
+        this.availableMembers = members;
+        this.addMemberForm.patchValue({
+          member: members[0]
+        });
+      }
+    })
+  }
+
+  addTaskToMember() : void {
+    if (this.addMemberForm.valid) {
+      const member = this.addMemberForm.value.member!;
+      this.taskService.addTaskToMember(member.id!, this.taskId, 0).subscribe(
+        () => {
+          this.update();
+          this.isAddMemberFormVisible = false;
+        }
+      );
+    }
+  }
+
+  removeTask() : void {
+    this.taskService.removeTask(this.taskId).subscribe({
+      next: () => {
+        this.location.back();
+      }
     });
+  }
+
+  //TODO: вынести в отдельный helper
+  getStatusColor(order : number): string {
+    const status = this.statuses.find(status => status.order === order)?.globalStatus;
+    const colorMap = new Map([
+      [0, 'rgba(211, 224, 211, 0.4)'],
+      [1, 'rgba(17, 0, 255, 0.4)'],
+      [2, 'rgba(252, 255, 173, 0.4)'],
+      [3, 'rgba(0, 255, 0, 0.4)'],
+      [4, 'rgba(255, 0, 0, 0.4)'],
+      [5, 'rgba(252, 255, 173, 0.4)']
+    ]);
+    return colorMap.get(status!) || 'rgba(51, 170, 51, .1) ';
+  }
+
+  getStatusNameByOrder(order : number) {
+    return this.statuses.find(status => status.order === order)?.name;
   }
 }

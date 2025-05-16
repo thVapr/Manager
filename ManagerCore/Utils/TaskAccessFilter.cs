@@ -26,8 +26,13 @@ public class TaskAccessFilter(IPartLogic partLogic, ITaskLogic taskLogic) : IAsy
             {
                 var userHasPrivileges = await partLogic.IsUserHasPrivileges(userId, partId.Value, (int)AccessLevel.Leader);
                 userHasPrivileges = userHasPrivileges || await partLogic.IsUserHasPrivileges(userId, partId.Value, (int)AccessLevel.Control);
+                
                 if (!userHasPrivileges)
                 {
+                    var memberId = FilterHelper.GetMemberId(context);
+                    if (memberId.HasValue && memberId != userId)
+                        return;
+                    
                     var role = await partLogic.GetPartMemberRoles(partId.Value, userId);
                     var status = (await partLogic.GetPartTaskStatuses(partId.Value))
                         .FirstOrDefault(status => status.Order == task.Status);

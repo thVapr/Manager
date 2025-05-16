@@ -21,6 +21,7 @@
     "@primeng/themes": "^19.1.0",
     "bootstrap": "^5.3.6",
     "bootstrap-icons": "^1.12.1",
+    "chart.js": "^4.4.9",
     "jwt-decode": "^4.0.0",
     "path-to-regexp": "^8.2.0",
     "primeng": "^19.1.0",

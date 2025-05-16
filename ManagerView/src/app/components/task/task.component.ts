@@ -95,7 +95,7 @@ export class TaskComponent implements OnInit {
  
   chooseTask(id : string | undefined) : void {
     if(id !== undefined)
-      this.taskService.addTaskToMember(id).subscribe(() => this.update());
+      this.taskService.addTaskToCurrentMember(id).subscribe(() => this.update());
   }
 
   changeTaskStatusFormInitialise(task : Task | undefined) : void {

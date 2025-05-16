@@ -1,20 +1,7 @@
-<h2 class="text-center mb-5">Задача</h2>
+<p-toast />
+<h2 class="text-center mb-5">Информация о задаче</h2>
 
-<div class="card border-primary mb-3">
-    <div class="card-header">Создатель</div>
-    <div class="card-body text-primary">
-        <a [href]="'member/about/' + creator.id" class="card-title h5">{{creator.lastName}} {{ creator.firstName }}</a>
-    </div>
-</div>
-
-<div class="card border-primary mb-3">
-    <div class="card-header">{{ status }}</div>
-    <div class="card-body text-primary">
-        <a [href]="'member/about/' + member.id" class="card-title h5">{{member.lastName}} {{ member.firstName }}</a>
-    </div>
-</div>
-
-<form *ngIf="!isAdminOrCreator">
+<form *ngIf="!hasAcceesForEdit">
     <fieldset disabled>       
         <div class="form-outline mb-3">
             <label class="form-label" for="form1">Заголовок</label>
@@ -29,14 +16,148 @@
     </fieldset>
 </form>
 
-<form [formGroup]="updateTaskForm" (ngSubmit)="updateTask()" class="row mb-5" *ngIf="isAdminOrCreator">
+<form [formGroup]="updateTaskForm" (ngSubmit)="updateTask()" class="row mb-5" *ngIf="hasAcceesForEdit">
+    <div class="d-flex justify-content-between mb-2">
+      <button type="submit" class="btn btn-primary btn-lg">Обновить</button>
+      <p-button severity="danger" label="Удалить" (click)="removeTask()"/>
+    </div>
     <div class="form-outline mb-2">
       <input type="text" class="form-control form-control-lg"
         placeholder="Название" formControlName="name"/>
     </div>
     <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
-    <div class="text-center text-lg-start">
+</form>
+
+<p-tabs [value]="value">
+    <p-tablist>
+        <p-tab [value]="0">Участники</p-tab>
+        <p-tab [value]="1">История</p-tab>
+        <p-tab [value]="2">Комментарии</p-tab>
+        <p-tab [value]="3">Файлы</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+        <p-tabpanel [value]="0">
+            <p-card class="p-2">
+                <ng-template #title>
+                    <div class="bg-white card-header">
+                        <i class="bi bi-brush"></i>
+                        Создатель
+                    </div>
+                </ng-template>
+                <ng-template #content>
+                    <div class="card-body text-primary">
+                        <a [href]="'member/about/' + creator.id" class="card-title h5">{{creator.lastName}} {{ creator.firstName }}</a>
+                    </div>
+                </ng-template>
+            </p-card>
+
+            <p-card class="p-1">
+                <ng-template #title>
+                    <div class="bg-white card-header">
+                        <i class="bi bi-person-lines-fill"></i>
+                        Исполнители
+                    </div>
+                </ng-template>
+                <ng-template #content>
+                    <div class="d-flex text-primary justify-content-between mb-2" 
+                        *ngFor="let member of members">
+                        <a [href]="'member/about/' + member.id" class="card-title h5">
+                            {{member.lastName}} {{ member.firstName }}
+                        </a>
+                        <button *ngIf="hasAcceesForEdit" class="btn btn-danger text-white btn-outline-danger"
+                            (click)="removeMemberFromTask(member)">
+                            &times;
+                        </button>
+                    </div>
+                    <p-button 
+                        *ngIf="hasAcceesForEdit" 
+                        (click)="showAddMemberToTaskForm()" 
+                        label="Добавить исполнителя">
+                    </p-button>
+                </ng-template>
+            </p-card>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+            <p-card class="p-1" *ngFor="let history of taskHistory">
+                <ng-template pTemplate="footer">
+                    <div class="card-header">
+                        <span>{{ history.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+                    </div>
+                </ng-template>
+                <div>
+                    <div class="d-flex flex-nowrap" *ngIf="history.initiator" [ngSwitch]="history.actionType">
+                        <span class="text-primary p-1">
+                            <i class="bi bi-clock-history"></i>
+                            {{ history.initiator.firstName }} {{ history.initiator.lastName }}
+                        </span>
+                        <span *ngSwitchCase="TaskActionType.Created" class="p-1">
+                            создал задачу
+                        </span>
+                        <span *ngSwitchCase="TaskActionType.MemberAdded" class="p-1">
+                            добавил исполнителя к задаче
+                        </span>
+                        <span *ngSwitchCase="TaskActionType.Reassigned" class="p-1">
+                            удалил исполнителя с задачи
+                        </span>
+                        <span *ngSwitchCase="TaskActionType.StatusChanged" class="p-1">
+                            обновил статус задачи
+                        </span>
+                    </div>
+                    <div class="d-flex flex-nowrap mb-2" 
+                        *ngIf="history.destinationStatusId != undefined && history.sourceStatusId != undefined">
+                        <span class="text-muted small rounded-1 p-2" 
+                            [style.background]="getStatusColor(history.destinationStatusId)">
+                            {{getStatusNameByOrder(history.destinationStatusId)}}
+                        </span>
+                        <i class="bi bi-arrow-right p-2"></i>
+                        <span class="text-muted small rounded-1 p-2" 
+                            [style.background]="getStatusColor(history.sourceStatusId)">
+                            {{getStatusNameByOrder(history.sourceStatusId)}}
+                        </span>
+                    </div>
+                    <div *ngIf="history.description" class="mb-2">
+                        {{ history.description }}
+                    </div>
+                    <div *ngIf="history.targetMember" class="mb-2">
+                        <span class="text-muted">
+                            Исполнитель: {{ history.targetMember.firstName }} {{ history.targetMember.lastName }}
+                        </span>
+                    </div>
+                </div>
+            </p-card>
+        </p-tabpanel>
+        <p-tabpanel [value]="2">
+
+        </p-tabpanel>
+        <p-tabpanel [value]="3">
+            <p-fileupload name="demo[]" [multiple]="true" maxFileSize="1000000" mode="advanced">
+                <ng-template #empty>
+                    <div>Перенесите файлы для загрузки.</div>
+                </ng-template>
+                <ng-template #content>
+                    <ul *ngIf="uploadedFiles.length">
+                        <li *ngFor="let file of uploadedFiles">{{ file.name }} - {{ file.size }} bytes</li>
+                    </ul>
+                </ng-template>
+            </p-fileupload>
+        </p-tabpanel>
+    </p-tabpanels>
+</p-tabs>
+
+<p-dialog header="Добавление исполнителя" [modal]="true" [(visible)]="isAddMemberFormVisible">
+  <form class="forg-group" [formGroup]="addMemberForm" (ngSubmit)="addTaskToMember()" 
+    *ngIf="hasAcceesForEdit">
+    <div class="form-outline mb-2 flex-row">
+      <select name="select" class="form-control form-control-lg" 
+            type="select" formControlName="member">
+        <option *ngFor="let member of availableMembers" [ngValue]="member">
+            {{member.firstName}} {{member.lastName}}
+        </option>
+      </select>
+    </div>
+    <div class="d-flex justify-content-between">
+      <p-button label="Отменить" severity="secondary" (click)="isAddMemberFormVisible = false" />
       <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
     </div>
-</form>
-<button *ngIf="taskStatus === 2" class="btn btn-dark btn-lg" (click)="returnTask()">Вернуть</button>
+  </form>
+</p-dialog>

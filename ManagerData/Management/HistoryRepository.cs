@@ -18,14 +18,6 @@ public class HistoryRepository : IHistoryRepository
                 .FirstOrDefaultAsync(x => x.Id == model.TaskId);
             if (task == null)
                 return false;
-            var sourceStatus = await database.PartTaskStatuses
-                .FirstOrDefaultAsync(status => status.Order == model.SourceStatusId);
-            if (sourceStatus == null)
-                return false;
-            var destinationStatus = await database.PartTaskStatuses
-                .FirstOrDefaultAsync(status => status.Order == model.SourceStatusId);
-            if (destinationStatus == null)
-                return false;
             var initiator = await database.Members
                 .FirstOrDefaultAsync(member => member.Id == model.InitiatorId);
             if (initiator == null)

@@ -26,7 +26,8 @@ public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isNo
             {
                 if (await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
                     continue;
-                context.Result = new ForbidResult();
+                context.Result = 
+                    new ForbidResult("Недостаточно привилегий для доступа к данной сущности");
                 return;
             }
         }

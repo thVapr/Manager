@@ -3,6 +3,7 @@ using System;
 using ManagerData.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515084444_ExpandTaskHistoryModel")]
+    partial class ExpandTaskHistoryModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -316,7 +319,7 @@ namespace ManagerData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("DestinationStatusId")
+                    b.Property<int>("DestinationStatusId")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("InitiatorId")
@@ -326,7 +329,7 @@ namespace ManagerData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("SourceStatusId")
+                    b.Property<int>("SourceStatusId")
                         .HasColumnType("integer");
 
                     b.Property<Guid?>("TargetMemberId")

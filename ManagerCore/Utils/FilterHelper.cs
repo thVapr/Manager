@@ -8,6 +8,16 @@ namespace ManagerCore.Utils;
 
 public static class FilterHelper
 {
+    public static Guid? GetMemberId(ActionExecutingContext context)
+    {
+        var memberId = (context.ActionArguments.TryGetValue("memberId", out var id) 
+            ? id : null)
+            ?? context.ActionArguments.Values.OfType<MemberTasks>().FirstOrDefault()?.MemberId;
+
+        return Guid.TryParse(memberId?.ToString(), out var parsedId)
+            ? parsedId : null;
+    }
+    
     public static Guid GetUserId(ClaimsPrincipal user)
     {
         return Guid.TryParse(user.FindFirst("id")?.Value, out var id)
