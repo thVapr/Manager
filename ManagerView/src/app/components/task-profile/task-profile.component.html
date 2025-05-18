@@ -106,13 +106,13 @@
                     <div class="d-flex flex-nowrap mb-2" 
                         *ngIf="history.destinationStatusId != undefined && history.sourceStatusId != undefined">
                         <span class="text-muted small rounded-1 p-2" 
-                            [style.background]="getStatusColor(history.destinationStatusId)">
-                            {{getStatusNameByOrder(history.destinationStatusId)}}
+                            [style.background]="getStatusColor(history.sourceStatusId)">
+                            {{getStatusNameByOrder(history.sourceStatusId)}}
                         </span>
                         <i class="bi bi-arrow-right p-2"></i>
                         <span class="text-muted small rounded-1 p-2" 
-                            [style.background]="getStatusColor(history.sourceStatusId)">
-                            {{getStatusNameByOrder(history.sourceStatusId)}}
+                            [style.background]="getStatusColor(history.destinationStatusId)">
+                            {{getStatusNameByOrder(history.destinationStatusId)}}
                         </span>
                     </div>
                     <div *ngIf="history.description" class="mb-2">

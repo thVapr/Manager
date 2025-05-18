@@ -167,7 +167,7 @@ export class AppComponent implements OnInit {
 
       if (this.partService.isPartSelected()) {
         this.items.push({
-          label: 'Домой',
+          label: 'Статистика',
           icon: 'bi bi-house',
           routerLink: 'home'
         });

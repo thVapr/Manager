@@ -32,11 +32,13 @@ import { CardModule } from 'primeng/card';
 import { TabsModule } from 'primeng/tabs';
 import { ChipsModule } from 'primeng/chips';
 import { ToastModule } from 'primeng/toast';
+import { ChartModule } from 'primeng/chart';
 import { ButtonModule } from 'primeng/button';
-import { FloatLabel } from 'primeng/floatlabel'
 import { EditorModule } from 'primeng/editor';
 import { RippleModule } from 'primeng/ripple';
 import { DialogModule } from 'primeng/dialog';
+import { definePreset } from '@primeng/themes';
+import { FloatLabel } from 'primeng/floatlabel'
 import { ListboxModule } from 'primeng/listbox';
 import { TreeModule, Tree } from 'primeng/tree';
 import { InplaceModule } from 'primeng/inplace';
@@ -46,7 +48,7 @@ import { PickListModule } from 'primeng/picklist';
 import { DatePickerModule  } from 'primeng/datepicker'
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber'
-import { definePreset } from '@primeng/themes';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 const MyPreset = definePreset(Material, {
   primitive: {
@@ -91,6 +93,7 @@ const MyPreset = definePreset(Material, {
         CardModule,
         TreeModule,
         TabsModule,
+        ChartModule,
         ChipsModule,
         FormsModule,
         ToastModule,
@@ -108,6 +111,7 @@ const MyPreset = definePreset(Material, {
         AppRoutingModule,
         DatePickerModule,
         FileUploadModule,
+        ProgressBarModule,
         InputNumberModule,
         ReactiveFormsModule,
     ],

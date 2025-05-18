@@ -19,6 +19,6 @@ export class Part {
 
     mainPartId: string = "00000000-0000-0000-0000-000000000000";
     typeId? : number;
-    leaderIds?: string[]
-    parts?: Part[]
+    leaderIds?: string[];
+    parts?: Part[];
 }
