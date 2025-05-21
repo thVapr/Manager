@@ -1,65 +1,86 @@
-
 using System.Text;
-using ManagerData.Authentication;
-using ManagerData.Contexts;
-using ManagerData.DataModels;
-using ManagerData.Management;
-using ManagerLogic.Authentication;
-using ManagerLogic.Management;
-using ManagerLogic.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+using ManagerData.Contexts;
+using ManagerData.Management;
+using ManagerLogic.Management;
+using ManagerData.Authentication;
+using ManagerLogic.Authentication;
+using ManagerLogic.Background;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", 
     policy =>
     {
+        policy.WithOrigins(builder.Configuration.GetSection("Cors:Urls").Get<string[]>()!);
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
-        policy.WithOrigins(builder.Configuration.GetSection("Cors:Urls").Get<string[]>()!);
     }
 ));
 
 builder.Services.AddControllers();
 
-// Adding database contexts
 builder.Services.AddDbContext<AuthenticationDbContext>();
-builder.Services.AddDbContext<ManagerDbContext>();
+builder.Services.AddDbContext<MainDbContext>();
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters()
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecureKey"]!)), 
-    };
-});
+        options.TokenValidationParameters = new TokenValidationParameters()
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecureKey"]!)), 
+        };
+    });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            []
+        }
+    });
+});
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
 builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository>();
 builder.Services.AddSingleton<IAuthentication,Authentication>();
 builder.Services.AddSingleton<IEncrypt,Encrypt>();
 
-builder.Services.AddSingleton<IManagementRepository<WorkspaceDataModel>, WorkspaceRepository>();
-builder.Services.AddSingleton<IManagementLogic<WorkspaceModel>, WorkspaceLogic>();
-
-builder.Services.AddSingleton<IManagementRepository<PartDataModel>, PartRepository>();
+builder.Services.AddSingleton<IPartRepository, PartRepository>();
 builder.Services.AddSingleton<IPartLogic, PartLogic>();
 
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
@@ -67,17 +88,21 @@ builder.Services.AddSingleton<IMemberLogic, MemberLogic>();
 
 builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
+builder.Services.AddSingleton<IHistoryRepository, HistoryRepository>();
+builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+
+builder.Services.AddSingleton<IBackgroundTaskRepository, BackgroundTaskRepository>();
+builder.Services.AddHostedService<MessengerHostService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseCors("CorsPolicy");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseCors("CorsPolicy");
 
 app.UseAuthentication(); 
 app.UseAuthorization();

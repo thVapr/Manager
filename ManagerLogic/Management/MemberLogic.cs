@@ -1,24 +1,18 @@
 ﻿
+using ManagerData.Authentication;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class MemberLogic : IMemberLogic
+public class MemberLogic(IMemberRepository repository, IAuthenticationRepository authenticationRepository) : IMemberLogic
 {
-    private readonly IMemberRepository _repository;
-
-    public MemberLogic(IMemberRepository repository)
+    public async Task<MemberModel> GetEntityById(Guid id)
     {
-        _repository = repository;
-    }
-    
-    public async Task<EmployeeModel> GetEntityById(Guid id)
-    {
-        var entity = await _repository.GetEntityById(id);
+        var entity = await repository.GetEntityById(id);
 
-        return new EmployeeModel
+        return new MemberModel
         {
             Id = entity.Id.ToString(),
             FirstName = entity.FirstName,
@@ -27,25 +21,25 @@ public class MemberLogic : IMemberLogic
         };
     }
 
-    public Task<IEnumerable<EmployeeModel>> GetEntities()
+    public Task<ICollection<MemberModel>> GetEntities()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<MemberModel>> GetEntitiesById(Guid id)
     { 
-        var employees = await _repository.GetEntitiesById(id);
+        var members = await repository.GetEntitiesById(id);
 
-        return employees!.Select(e => new EmployeeModel
+        return members!.Select(e => new MemberModel
         {
             Id = e.Id.ToString(),
             FirstName = e.FirstName,
             LastName = e.LastName,
             Patronymic = e.Patronymic,
-        });
+        }).ToList();
     }
 
-    public async Task<bool> CreateEntity(EmployeeModel model)
+    public async Task<bool> CreateEntity(MemberModel model)
     {
         if (model.Id == null) return false;
 
@@ -57,21 +51,62 @@ public class MemberLogic : IMemberLogic
             Patronymic = model.Patronymic!,
         };
 
-        return await _repository.CreateEntity(entity);
+        if (model.MessengerId != null)
+        {
+            var user = await authenticationRepository.GetUserById(Guid.Parse(model.Id));
+            if (user.Id != Guid.Empty)
+            {
+                user.MessengerId = model.MessengerId;
+                await authenticationRepository.UpdateUser(user);
+            }
+        }
+
+        return await repository.CreateEntity(entity);
     }
 
-    public Task<bool> UpdateEntity(EmployeeModel model)
+    public async Task<bool> UpdateEntity(MemberModel model)
     {
-        return _repository.UpdateEntity(new MemberDataModel
+        if (model.MessengerId != null)
+        {
+            var user = await authenticationRepository.GetUserById(Guid.Parse(model.Id!));
+            if (user.Id != Guid.Empty)
+            {
+                user.MessengerId = model.MessengerId;
+                await authenticationRepository.UpdateUser(user);
+            }
+        }
+        
+        return await repository.UpdateEntity(new MemberDataModel
         {
             Id = Guid.Parse(model.Id!),
+            
             FirstName = model.FirstName!,
             LastName = model.LastName!,
             Patronymic = model.Patronymic!,
         });
     }
 
-    public Task<IEnumerable<EmployeeModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ICollection<MemberModel>> GetEntitiesByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }
@@ -81,12 +116,25 @@ public class MemberLogic : IMemberLogic
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetMembersWithoutPart()
+    public async Task<ICollection<MemberModel>> GetAvailableMembers(Guid? partId)
     {
-        // TODO: Нужно изменить структуру учитывая уровень части
-        var employees = await _repository.GetMembersWithoutPart(0);
+        if (partId is null || Guid.Empty == partId) 
+            return await GetMembersWithoutPart();
+        var membersFromData = await repository.GetAvailableMembersFromPart(partId!.Value);
+        return membersFromData.Select(member => new MemberModel
+        {
+            Id = member.Id.ToString(),
+            FirstName = member.FirstName,
+            LastName = member.LastName,
+            Patronymic = member.Patronymic
+        }).ToList();
+    }
+    
+    public async Task<ICollection<MemberModel>> GetMembersWithoutPart()
+    {
+        var members = await repository.GetMembersWithoutPart();
 
-        return employees.Select(v => new EmployeeModel
+        return members.Select(v => new MemberModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,
@@ -95,13 +143,13 @@ public class MemberLogic : IMemberLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetFreeMembersInPart(Guid id)
+    public async Task<ICollection<MemberModel>> GetFreeMembersInPart(Guid id)
     {
         // TODO: Сейчас работает некорректно, нужно также фильтровать по наличию низкоуровневых частей
         //       или пересмотреть необходимость данного метода
-        var employees = await _repository.GetMembersFromPart(id);
+        var members = await repository.GetMembersFromPart(id);
 
-        return employees.Select(v => new EmployeeModel
+        return members.Select(v => new MemberModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,
@@ -110,13 +158,11 @@ public class MemberLogic : IMemberLogic
         }).ToList();
     }
 
-    public async Task<IEnumerable<EmployeeModel>> GetMembersFromPart(Guid id)
+    public async Task<ICollection<MemberModel>> GetMembersFromPart(Guid id)
     {
-        // TODO: Нужно подумать о том, какие участники должны быть возвращены,
-        //       в текущей части или включая все нижестоящие
-        var members = await _repository.GetMembersFromPart(id);
+        var members = await repository.GetMembersFromPart(id);
 
-        return members.Select(v => new EmployeeModel
+        return members.Select(v => new MemberModel
         {
             Id = v.Id.ToString(),
             FirstName = v.FirstName,

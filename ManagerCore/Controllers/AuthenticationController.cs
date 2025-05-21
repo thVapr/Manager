@@ -1,22 +1,13 @@
-﻿
-using ManagerLogic.Models;
+﻿using ManagerLogic.Models;
 using Microsoft.AspNetCore.Mvc;
 using ManagerLogic.Authentication;
-using Microsoft.AspNetCore.Authorization;
 
 namespace ManagerCore.Controllers;
 
 [ApiController]
 [Route("/api/authentication")]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController(IAuthentication authentication) : ControllerBase
 {
-    private readonly IAuthentication _authentication;
-
-    public AuthenticationController(IAuthentication authentication)
-    {
-        _authentication = authentication;
-    }
-
     [HttpPost]
     [Route("register")]
     public async Task<IActionResult> Register(LoginModel user)
@@ -26,12 +17,12 @@ public class AuthenticationController : ControllerBase
             return BadRequest();
         }
 
-        if (await _authentication.CreateUser(user))
+        if (await authentication.CreateUser(user))
         {
             return await Login(user);
         }
         
-        return BadRequest();
+        return BadRequest("Пользователь с таким именем уже существует");
     }
                 
     [HttpPost("login")]
@@ -39,26 +30,27 @@ public class AuthenticationController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest();
+            return BadRequest("Некорректный логин или пароль");
         }
 
-        return Ok(await _authentication.Authenticate(user));
+        var tokenPair = await authentication.Authenticate(user);
+        return !string.IsNullOrWhiteSpace(tokenPair.Item1) ? 
+            Ok(tokenPair) : StatusCode(401, "Неподходящая пара логина и пароля");
     }
 
     [HttpPost("logout")]
-    [Authorize]
     public async Task<IActionResult> Logout(RefreshTokenModel model)
     {
-        return await _authentication.Logout(model.RefreshToken) ? Ok() : BadRequest();
+        return await authentication.Logout(model.RefreshToken!) ? Ok() : BadRequest();
     }
 
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(RefreshModel? model)
     {
         if (model is null)
-            return BadRequest();
+            return BadRequest("Токен не валиден");
 
-        return Ok(await _authentication.UpdateToken(model));
+        return Ok(await authentication.UpdateToken(model));
 
     }
 }

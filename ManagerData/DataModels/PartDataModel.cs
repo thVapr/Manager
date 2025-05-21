@@ -1,4 +1,4 @@
-﻿
+﻿using System.Collections;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ManagerData.DataModels;
@@ -6,11 +6,16 @@ namespace ManagerData.DataModels;
 [Table("Parts")]
 public class PartDataModel: BaseDataModel
 {
-    public Guid? ManagerId { get; set; }
-    public int Level { get; set; } = 0;
+    public int Level { get; set; } = -1;
+    public int PartTypeId { get; set; } = 0;
 
-    public WorkspacePartsDataModel? WorkspaceParts { get; set; }
-    public IEnumerable<PartDataModel>? Subparts { get; set; }
-    public IEnumerable<PartTasksDataModel>? PartTasks { get; set; }
-    public IEnumerable<PartMembersDataModel>? PartMembers { get; set; }
+    public IEnumerable<PartDataModel> Parts { get; set; } = new List<PartDataModel>();
+    public PartType? PartType { get; set; }
+    public Guid? MainPartId { get; set; }
+    public PartDataModel? MainPart { get; set; }
+    public IEnumerable<TaskDataModel> Tasks { get; set; }
+    public IEnumerable<MemberDataModel> Members { get; set; }
+    public IEnumerable<PartMemberDataModel> PartMembers { get; set; }
+    public IEnumerable<PartTaskStatus> TaskStatuses { get; set; }
+    public IEnumerable<PartRole>? PartRoles { get; set; }
 }

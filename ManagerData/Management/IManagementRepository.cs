@@ -1,15 +1,15 @@
-﻿
-using ManagerData.DataModels;
-
-namespace ManagerData.Management;
+﻿namespace ManagerData.Management;
 
 public interface IManagementRepository<T> : IDisposable
 {
     Task<bool> CreateEntity(T model);
     Task<bool> CreateEntity(Guid id, T model);
 
-    Task<bool> LinkEntities(Guid firstId, Guid secondId);
-    Task<bool> UnlinkEntities(Guid firstId, Guid secondId);
+    Task<bool> AddToEntity(Guid destinationId, Guid sourceId);
+    Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId);
+    
+    Task<bool> LinkEntities(Guid masterId, Guid slaveId);
+    Task<bool> UnlinkEntities(Guid masterId, Guid slaveId);
 
     Task<T> GetEntityById(Guid id);
     Task<IEnumerable<T>?> GetEntities();

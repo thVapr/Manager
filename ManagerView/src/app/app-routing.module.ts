@@ -1,43 +1,34 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { RegisterComponent } from './register/register.component';
-import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home/home.component';
-import { CompanyComponent } from './company/company.component';
-import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
-import { EmployeeComponent } from './employee/employee.component';
-import { ProjectComponent } from './project/project.component';
-import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
-import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
-import { TaskComponent } from './task/task.component';
-import { ProjectProfileComponent } from './project-profile/project-profile.component';
-import { CompanyProfileComponent } from './company-profile/company-profile.component';
-import { DepartmentProfileComponent } from './department-profile/department-profile.component';
-import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
-import { TaskProfileComponent } from './task-profile/task-profile.component';
+
+import { OwnerGuard } from './guards/owner.guard';
 import { AuthGuard } from './guards/auth-guard.guard';
-import { DepartmentGuard } from './guards/department-guard.guard';
+import { PartGuard } from './guards/part-guard.guard';
 import { AdminGuard } from './guards/admin-guard.guard';
-import { ProjectGuard } from './guards/project-guard.guard';
-import { EmployeeProfileComponent } from './employee-profile/employee-profile.component';
+import { HomeComponent } from './components/home/home.component';
+import { PartComponent } from './components/part/part.component';
+import { TaskComponent } from './components/task/task.component';
+import { LoginComponent } from './components/login/login.component';
+import { MemberComponent } from './components/member/member.component';
+import { RegisterComponent } from './components/register/register.component';
+import { PartTasksComponent } from './components/part-tasks/part-tasks.component';
+import { PartProfileComponent } from './components/part-profile/part-profile.component';
+import { TaskProfileComponent } from './components/task-profile/task-profile.component';
+import { PartMembersComponent } from './components/part-members/part-members.component';
+import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
 const routes: Routes = [
-  {path: 'register', component: RegisterComponent},
+  {path: 'home', component: HomeComponent, canActivate: [AuthGuard, PartGuard]},
   {path: 'login', component: LoginComponent},
-  {path: 'home', component: HomeComponent},
-  {path: 'employee', component: EmployeeComponent, canActivate: [AuthGuard]},
-  {path: 'employee/tasks', component: TaskComponent, canActivate: [AuthGuard]},
-  {path: 'company', component: CompanyComponent, canActivate: [AuthGuard,AdminGuard]},
-  {path: 'company/about/:id', component: CompanyProfileComponent, canActivate: [AuthGuard]},  
-  {path: 'company/departments', component: CompanyDepartmentsComponent, canActivate: [AuthGuard]},
-  {path: 'department/employees', component: DepartmentEmployeesComponent, canActivate: [AuthGuard,DepartmentGuard]},
-  {path: 'department/about/:id', component: DepartmentProfileComponent, canActivate: [AuthGuard]},
-  {path: 'project', component: ProjectComponent, canActivate: [AuthGuard, DepartmentGuard]},
-  {path: 'project/about/:id', component: ProjectProfileComponent, canActivate: [AuthGuard]},
-  {path: 'project/employees', component: ProjectEmployeesComponent, canActivate: [AuthGuard, ProjectGuard]},
-  {path: 'project/tasks', component: ProjectTasksComponent, canActivate: [AuthGuard]},
+  {path: 'register', component: RegisterComponent},
+  {path: 'member', component: MemberComponent, canActivate: [AuthGuard]},
+  {path: 'member/tasks', component: TaskComponent, canActivate: [AuthGuard]},
+  {path: 'part/tasks', component: PartTasksComponent, canActivate: [AuthGuard]},
+  {path: 'parts', component: PartComponent, canActivate: [AuthGuard]},
+  {path: 'part/about/:id', component: PartProfileComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]},
-  {path: 'employee/about/:id', component: EmployeeProfileComponent, canActivate: [AuthGuard]},
+  {path: 'member/about/:id', component: MemberProfileComponent, canActivate: [AuthGuard]},
+  {path: 'part/members', component: PartMembersComponent, canActivate: [AuthGuard, PartGuard]},
 ];
 
 @NgModule({

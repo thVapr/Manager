@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, firstValueFrom, tap } from 'rxjs';
 
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
+import { Constants } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5106/api/authentication';
+  private apiUrl = Constants.SERVER_ADDRESS + '/api/authentication';
 
   constructor(private http: HttpClient) {}
 
@@ -16,8 +17,8 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/register`, { email, password }).pipe(
       tap(response => {
         const { item1, item2 } = response;
-        localStorage.setItem('access_token', item1);
-        localStorage.setItem('refresh_token', item2);
+        sessionStorage.setItem('access_token', item1);
+        sessionStorage.setItem('refresh_token', item2);
       })
     );
   }
@@ -26,38 +27,38 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password}).pipe(
       tap(response => {
         const {item1, item2} = response;
-        localStorage.setItem('access_token', item1);
-        localStorage.setItem('refresh_token', item2);
+        sessionStorage.setItem('access_token', item1);
+        sessionStorage.setItem('refresh_token', item2);
       })
     );
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
+    return sessionStorage.getItem('access_token');
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem('refresh_token');
+    return sessionStorage.getItem('refresh_token');
   }
 
   setAccessToken(accessToken: string): void {
-    localStorage.setItem('access_token', accessToken);
+    sessionStorage.setItem('access_token', accessToken);
   }
 
   setRefreshToken(refreshToken: string): void {
-    localStorage.setItem('refresh_token', refreshToken);
+    sessionStorage.setItem('refresh_token', refreshToken);
   }
 
   getRole() : string {
     const token = this.getAccessToken();
-    const decoded : any = jwt_decode(token!);
+    const decoded : any = jwtDecode(token!);
 
     return decoded.role;
   }
 
   getId() : string {
     const token = this.getAccessToken();
-    const decoded : any = jwt_decode(token!);
+    const decoded : any = jwtDecode(token!);
 
     return decoded.id;
   }
@@ -66,6 +67,16 @@ export class AuthService {
     const role = this.getRole();
     
     return role === 'Admin';
+  }
+
+  isSpaceOwner() : boolean {
+    const role = this.getRole();
+
+    return role === 'SpaceOwner';
+  }
+
+  hasAccess() : boolean {
+    return true;
   }
 
   isAuthenticated(): boolean {
@@ -82,7 +93,7 @@ export class AuthService {
       return new Date(0);
     }
   
-    const tokenData = jwt_decode(token) as any;
+    const tokenData = jwtDecode(token) as any;
     const expirationDate = new Date(0);
 
     expirationDate.setUTCSeconds(tokenData.exp);
@@ -97,17 +108,22 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/refresh`, { accessToken, refreshToken }).pipe(
       tap(response => {
         const {item1, item2} = response;
-        localStorage.setItem('access_token', item1);
-        localStorage.setItem('refresh_token', item2);
+        sessionStorage.setItem('access_token', item1);
+        sessionStorage.setItem('refresh_token', item2);
       })
     );
   }
 
-  async logout() {
-    const refreshToken = localStorage.getItem('refresh_token');
+  async logout() : Promise<void> {
+    try {      
+      const refreshToken = sessionStorage.getItem('refresh_token');
 
-    await firstValueFrom(this.http.post<any>(`${this.apiUrl}/logout`, { refreshToken }));
-
-    localStorage.clear();
+      await firstValueFrom(this.http.post<any>(`${this.apiUrl}/logout`, { refreshToken }));
+      sessionStorage.clear();
+ 
+    } catch (error) {
+      sessionStorage.removeItem('access_token');
+      sessionStorage.removeItem('refresh_token');
+    }
   }
 }

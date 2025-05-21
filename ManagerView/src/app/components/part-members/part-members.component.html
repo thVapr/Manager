@@ -1,0 +1,63 @@
+<p-panel [toggleable]="true" [collapsed]="false">
+    <p-picklist
+        [source]="partMembers"
+        [target]="members"
+        [dragdrop]="true"
+        [responsive]="true"
+        filterBy="firstName,lastName,patronymic"
+        sourceFilterPlaceholder="Поиск"
+        targetFilterPlaceholder="Поиск"
+        sourceHeader="Участники"
+        targetHeader="Свободные"
+        breakpoint="1400px"
+        scrollHeight="30rem"
+        dataKey="id"
+        (onMoveToTarget)="onMoveToTarget($event)"
+        (onMoveToSource)="onMoveToSource($event)"
+        metaKeySelection="false" >
+        <ng-template let-option pTemplate="item">
+            <p-card (dblclick)="doubleClick(option)"
+                [subheader]="option.firstName + ' ' + option.lastName" class="flex-fill"> 
+                <ng-template *ngIf="option.privilege != undefined" pTemplate="footer">
+                    <span>Уровень доступа: </span>
+                    <p-tag [value]="option.privilege"></p-tag>
+                </ng-template>
+            </p-card>
+        </ng-template>
+    </p-picklist>
+</p-panel>
+
+
+<p-panel [toggleable]="true" [collapsed]="true">
+    <ng-template #header>
+        <div class="flex items-center gap-2">
+            <h1 class="font-bold">Роли</h1>
+        </div>
+    </ng-template>
+        <form [formGroup]="addRoleForm" (ngSubmit)="onSubmit()" class="row mb-5" 
+          *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || authService.isSpaceOwner())">
+        <div class="form-outline mb-2">
+          <input type="text" class="form-control form-control-lg"
+            placeholder="Название" formControlName="name"/>
+        </div>
+
+        <p-editor class="form-outline"
+            placeholder="Описание" formControlName="description"></p-editor>
+        <div class="text-center text-lg-start mt-2">
+          <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+        </div>
+    </form>
+    <div class="mb-3">
+        <label class="form-label">Роли</label>
+        <ul class="list-group" *ngIf="roles.length > 0">
+            <li *ngFor="let role of roles" class="list-group-item d-flex justify-content-between align-items-center">
+            {{ role.name }}
+            <button class="btn btn-danger text-white btn-outline-danger"
+                (click)="removeRole(role.id!)">
+                &times;
+            </button>
+            </li>
+        </ul>
+        <p-card *ngIf="roles.length <= 0" header="У данной сущности нет доступных ролей"></p-card>
+    </div>
+</p-panel>

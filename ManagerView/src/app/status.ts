@@ -1,5 +1,6 @@
 export enum Status {
     TODO,
     DOING,
-    DONE
+    DONE = 110,
+    CANCELED
 }

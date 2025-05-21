@@ -1,6 +1,6 @@
 ﻿
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ManagerLogic.Authentication;
 

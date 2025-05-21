@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,7 @@ public class MemberRepository : IMemberRepository
 {
     public async Task<bool> CreateEntity(MemberDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -27,36 +28,36 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> CreateEntity(Guid id, MemberDataModel model)
     {
-        await CreateEntity(model);
-        await using var database = new ManagerDbContext();
-
-        try
-        {
-            await LinkEntities(id, model.Id);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-            return false;
-        }
+        model.Id = id;
+        
+        return await CreateEntity(model);
     }
 
-    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new ManagerDbContext();
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        await using var database = new MainDbContext();
 
         try
         {
-            var department = await database.Parts.Where(e => e.Id == firstId).FirstOrDefaultAsync();
+            var part = await database.Parts.Where(e => e.Id == masterId).FirstOrDefaultAsync();
 
-            if (department == null) return false;
+            if (part == null) return false;
 
             await database.PartMembers.AddAsync(
-                new PartMembersDataModel()
+                new PartMemberDataModel()
                 {
-                    PartId = firstId,
-                    MemberId = secondId,
+                    PartId = masterId,
+                    MemberId = slaveId,
                 }
             );
 
@@ -71,18 +72,19 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
     public async Task<MemberDataModel> GetEntityById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            return await database.Members.Where(m => m.Id == id).FirstOrDefaultAsync() ?? new MemberDataModel();
+            return await database.Members.Where(m => m.Id == id)
+                .FirstOrDefaultAsync() ?? new MemberDataModel();
         }
         catch (Exception ex)
         {
@@ -98,20 +100,20 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            var employeeIds = await database.PartMembers
+            var memberIds = await database.PartMembers
                 .Where(d => d.PartId == id)
                 .Select(de => de.MemberId)
                 .ToListAsync();
 
-            var employees = await database.Members
-                .Where(e => employeeIds.Contains(e.Id))
+            var members = await database.Members
+                .Where(e => memberIds.Contains(e.Id))
                 .ToListAsync();
 
-            return employees;
+            return members;
         }
         catch (Exception ex)
         {
@@ -122,7 +124,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> UpdateEntity(MemberDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -150,7 +152,7 @@ public class MemberRepository : IMemberRepository
     
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -176,7 +178,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetEmployeesWithoutProjectsByDepartmentId(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -199,9 +201,9 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart(int level)
+    public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart()
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -219,7 +221,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetMembersFromPart(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -234,5 +236,84 @@ public class MemberRepository : IMemberRepository
             return [];
 
         }
+    }
+
+    public async Task<IEnumerable<MemberDataModel>> GetAvailableMembersFromPart(Guid id)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var ids = await GetAvailableMemberIds(database, id);
+            ids.UnionWith(await GetAvailableMemberIdsFromRoot(database, id));
+            var currentPartMemberIds = await GetMembersFromPart(id);
+            ids.ExceptWith(currentPartMemberIds.Select(member => member.Id));
+            
+            return await database.Members.Where(member => ids.Contains(member.Id)).ToListAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return [];
+        }
+    }
+
+    private async Task<ISet<Guid>> GetAvailableMemberIdsFromRoot(MainDbContext database, Guid? rootPartId)
+    {
+        var memberIds = new HashSet<Guid>();
+        var processedParts = new HashSet<Guid>();
+        var partsToProcess = new Queue<Guid>();
+
+        if (rootPartId.HasValue)
+        {
+            partsToProcess.Enqueue(rootPartId.Value);
+        }
+
+        while (partsToProcess.Count > 0)
+        {
+            var currentPartId = partsToProcess.Dequeue();
+
+            var currentMembers = await database.PartMembers
+                .Where(pm => pm.PartId == currentPartId)
+                .Select(pm => pm.MemberId)
+                .ToListAsync();
+
+            memberIds.UnionWith(currentMembers);
+            
+            var childParts = await database.Parts
+                .Where(p => p.MainPartId == currentPartId)
+                .Select(p => p.Id)
+                .ToListAsync();
+
+            foreach (var childPartId in childParts)
+            {
+                if (!processedParts.Contains(childPartId))
+                {
+                    partsToProcess.Enqueue(childPartId);
+                    processedParts.Add(childPartId);
+                }
+            }
+        }
+
+        return memberIds;
+    }
+    private async Task<ISet<Guid>> GetAvailableMemberIds(MainDbContext database, Guid? id)
+    {
+        var set = new HashSet<Guid>();
+        Guid? mainPartId = id;
+        
+        while (mainPartId != null)
+        {
+            var currentPartId = mainPartId.Value;
+            mainPartId = await database.Parts
+                .Where(part => part.Id == currentPartId)
+                .Select(data => data.MainPartId).FirstOrDefaultAsync();
+            var links = await database.PartMembers
+                .Where(pe => pe.PartId == mainPartId)
+                .Select(pm => pm.MemberId).ToListAsync();
+            set.UnionWith(links);
+        }
+        
+        return set;
     }
 }

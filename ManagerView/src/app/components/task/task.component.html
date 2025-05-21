@@ -1,0 +1,98 @@
+<div class="row g-3">
+  <div class="col-12 col-md-6">
+    <p-panel header="Доступные задачи">
+      <div class="row row-cols-1 g-3">
+        <div class="col" *ngFor="let task of tasks">
+          <p-card class="h-100">
+            <div class="d-flex align-items-center justify-content-between">
+              <a class="text-decoration-none text-truncate" [href]="'/task/about/' + task.id">
+                <h5 class="text-truncate m-0">{{task.name}}</h5>
+                <span class="text-muted small rounded-1" [style.background]="getStatusColor(task.status!)">
+                  {{getStatusNameByOrder(task.status!)}}
+                </span>
+                  <p *ngIf="task.level !== 0" 
+                    class="text-center text-truncate rounded-2" 
+                    [class]="textMapColor.get(task.level!)![0]">
+                  {{textMapColor.get(task.level!)![1]}}
+                </p>
+              </a>
+              <p-button 
+                label="Взять" 
+                styleClass="btn-sm"
+                severity="secondary"
+                (click)="chooseTask(task.id)">
+              </p-button>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <div class="col-12 col-md-6">
+    <p-panel header="Задачи в работе">
+      <div class="row row-cols-1 g-3">
+        <div class="col" *ngFor="let task of myTasks">
+          <p-card class="h-100">
+            <div class="d-flex align-items-center justify-content-between">
+              <a class="text-decoration-none text-truncate" [href]="'/task/about/' + task.id">
+                <h5 class="text-truncate m-0">{{task.name}}</h5>
+                <span class="text-muted small rounded-1" [style.background]="getStatusColor(task.status!)">
+                  {{getStatusNameByOrder(task.status!)}}
+                </span>
+              </a>
+              <p *ngIf="task.level !== 0" 
+                  class="text-center text-truncate rounded-2" 
+                  [class]="textMapColor.get(task.level!)![0]">
+                {{textMapColor.get(task.level!)![1]}}
+              </p>
+              <p-button 
+                label="Сменить статус" 
+                styleClass="btn-sm"
+                severity="secondary"
+                (click)="changeTaskStatusFormInitialise(task)">
+              </p-button>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+</div>
+
+<p-dialog header="Обновление статуса" [modal]="true" [(visible)]="isTaskChangeStatusFormVisible">
+  <div class="d-flex flex-nowrap mb-2" *ngIf="statusFrom&&statusTo">
+    <span class="text-muted small rounded-1 p-2" 
+      *ngIf="!changeTaskStatusForm.value.forward" 
+      [style.background]="getStatusColor(statusPrev!.order!)">
+        {{getStatusNameByOrder(statusPrev!.order!)}}
+    </span>
+    <i class="bi bi-arrow-left p-2" *ngIf="!changeTaskStatusForm.value.forward"></i>
+    <span class="text-muted small rounded-1 p-2" 
+      [style.background]="getStatusColor(statusFrom!.order!)">
+        {{getStatusNameByOrder(statusFrom!.order!)}}
+    </span>
+    <i class="bi bi-arrow-right p-2" *ngIf="changeTaskStatusForm.value.forward"></i>
+    <span class="text-muted small rounded-1 p-2" 
+      *ngIf="changeTaskStatusForm.value.forward"
+      [style.background]="getStatusColor(statusTo!.order!)">
+        {{getStatusNameByOrder(statusTo!.order!)}}
+    </span>
+  </div>
+  <form class="forg-group" [formGroup]="changeTaskStatusForm" (ngSubmit)="changeTaskStatus()" 
+    *ngIf="authService.isAuthenticated()">
+    <div class="form-outline mb-2 flex-row">
+      <input type="text" class="form-control form-control-lg"
+        placeholder="Заголовок" formControlName="name"/>
+    </div>
+    <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
+    <div class="d-flex justify-content-between mt-2">
+      <p-button label="Отменить" severity="secondary" (click)="canceledStatusChange()" />
+      <button class="btn btn-primary" 
+        (click)="toggleDirection()"
+        type="button">
+          Сменить направление
+      </button>
+      <button type="submit" class="btn btn-primary btn-lg">Обновить</button>
+    </div>
+  </form>
+</p-dialog>

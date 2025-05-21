@@ -1,58 +1,128 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-import { TokenInterceptor } from './services/auth/token.intercept';
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home/home.component';
-import { LoginComponent } from './login/login.component';
-import { RegisterComponent } from './register/register.component';
-import { CompanyComponent } from './company/company.component';
-import { CompanyDepartmentsComponent } from './company-departments/company-departments.component';
-import { EmployeeComponent } from './employee/employee.component';
-import { ProjectComponent } from './project/project.component';
-import { ProjectEmployeesComponent } from './project-employees/project-employees.component';
-import { DepartmentEmployeesComponent } from './department-employees/department-employees.component';
-import { TaskComponent } from './task/task.component';
-import { CompanyProfileComponent } from './company-profile/company-profile.component';
-import { DepartmentProfileComponent } from './department-profile/department-profile.component';
-import { ProjectProfileComponent } from './project-profile/project-profile.component';
-import { ProjectTasksComponent } from './project-tasks/project-tasks.component';
-import { TaskProfileComponent } from './task-profile/task-profile.component';
-import { EmployeeProfileComponent } from './employee-profile/employee-profile.component';
+import { AppRoutingModule } from './app-routing.module';
+import { TaskComponent } from './components/task/task.component';
+import { PartComponent } from './components/part/part.component';
+import { HomeComponent } from './components/home/home.component';
+import { TokenInterceptor } from './services/auth/token.intercept';
+import { LoginComponent } from './components/login/login.component';
+import { MemberComponent } from './components/member/member.component';
+import { RegisterComponent } from './components/register/register.component';
+import { PartTasksComponent } from './components/part-tasks/part-tasks.component';
+import { PartMembersComponent } from './components/part-members/part-members.component';
+import { PartProfileComponent } from './components/part-profile/part-profile.component';
+import { TaskProfileComponent } from './components/task-profile/task-profile.component';
+import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
-@NgModule({ declarations: [
+import Material from '@primeng/themes/Material';
+import { providePrimeNG } from 'primeng/config';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
+import { Tag } from 'primeng/tag'
+import { Menu } from 'primeng/menu'
+import { Panel } from 'primeng/panel'
+import { Avatar } from 'primeng/avatar'
+import { CardModule } from 'primeng/card';
+import { TabsModule } from 'primeng/tabs';
+import { ChipsModule } from 'primeng/chips';
+import { ToastModule } from 'primeng/toast';
+import { ChartModule } from 'primeng/chart';
+import { ButtonModule } from 'primeng/button';
+import { EditorModule } from 'primeng/editor';
+import { RippleModule } from 'primeng/ripple';
+import { DialogModule } from 'primeng/dialog';
+import { definePreset } from '@primeng/themes';
+import { FloatLabel } from 'primeng/floatlabel'
+import { ListboxModule } from 'primeng/listbox';
+import { TreeModule, Tree } from 'primeng/tree';
+import { InplaceModule } from 'primeng/inplace';
+import { MenubarModule } from 'primeng/menubar';
+import { DragDropModule } from 'primeng/dragdrop'
+import { PickListModule } from 'primeng/picklist';
+import { DatePickerModule  } from 'primeng/datepicker'
+import { FileUploadModule } from 'primeng/fileupload';
+import { InputNumberModule } from 'primeng/inputnumber'
+import { ProgressBarModule } from 'primeng/progressbar';
+
+const MyPreset = definePreset(Material, {
+  primitive: {
+    green: {
+      500: '#2f4f4f',
+    },
+  },
+  semantic: {
+    primary: {
+      500: '{green.500}',
+    },
+  },
+});
+
+@NgModule({ 
+    declarations: [
         AppComponent,
         HomeComponent,
-        LoginComponent,
-        RegisterComponent,
-        CompanyComponent,
-        CompanyDepartmentsComponent,
-        EmployeeComponent,
-        ProjectComponent,
-        ProjectEmployeesComponent,
-        DepartmentEmployeesComponent,
+        PartComponent,
         TaskComponent,
-        CompanyProfileComponent,
-        DepartmentProfileComponent,
-        ProjectProfileComponent,
-        ProjectTasksComponent,
+        LoginComponent,
+        MemberComponent,
+        RegisterComponent,
+        PartTasksComponent,
+        PartMembersComponent,
+        PartProfileComponent,
         TaskProfileComponent,
-        EmployeeProfileComponent,
+        MemberProfileComponent,
     ],
     exports: [
         LoginComponent,
-        RegisterComponent
+        RegisterComponent,
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
-        AppRoutingModule,
+    bootstrap: [AppComponent], 
+    imports: [
+        Tag,
+        Tree,
+        Menu,
+        Panel,
+        Avatar,
+        FloatLabel,
+        CardModule,
+        TreeModule,
+        TabsModule,
+        ChartModule,
+        ChipsModule,
         FormsModule,
+        ToastModule,
+        EditorModule,
+        ButtonModule,
         CommonModule,
-        ReactiveFormsModule], providers: [
+        RippleModule,
+        DialogModule,
+        InplaceModule,
+        ListboxModule,
+        BrowserModule,
+        MenubarModule,
+        DragDropModule,
+        PickListModule,
+        AppRoutingModule,
+        DatePickerModule,
+        FileUploadModule,
+        ProgressBarModule,
+        InputNumberModule,
+        ReactiveFormsModule,
+    ],
+    providers: [
+        provideAnimationsAsync(),
+        providePrimeNG({ theme : { 
+            preset : MyPreset,
+            options: {
+                darkModeSelector: false || 'none',
+            },
+        }}),
         {
             provide: HTTP_INTERCEPTORS,
             useClass: TokenInterceptor,

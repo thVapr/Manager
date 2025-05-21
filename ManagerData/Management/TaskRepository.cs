@@ -9,12 +9,11 @@ public class TaskRepository : ITaskRepository
 {
     public async Task<bool> CreateEntity(TaskDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
             await database.Tasks.AddAsync(model);
-
             await database.SaveChangesAsync();
 
             return true;
@@ -29,22 +28,20 @@ public class TaskRepository : ITaskRepository
     public async Task<bool> CreateEntity(Guid id, TaskDataModel model)
     {
         if (!await CreateEntity(model)) return false;
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            var project = database.Parts.FirstOrDefault(p => p.Id == id);
-
-            if (project == null) return false;
-
-            await database.PartTasks.AddAsync(new PartTasksDataModel()
-            {
-                PartId = id,
-                TaskId = model.Id,
-            });
-
+            var part = database.Parts.FirstOrDefault(p => p.Id == id);
+            if (part is null) 
+                return false;
+            var task = await database.Tasks
+                .FirstOrDefaultAsync(t => t.Id == model.Id);
+            if (task is null)
+                return false;
+            
+            task!.PartId = id;
             await database.SaveChangesAsync();
-
             return true;
         }
         catch (Exception ex)
@@ -54,16 +51,17 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<bool> LinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            await database.MemberTasks.AddAsync(new MemberTasksDataModel()
+            await database.TaskMembers.AddAsync(new TaskMember()
             {
-                MemberId = firstId,
-                TaskId = secondId,
+                MemberId = destinationId,
+                TaskId = sourceId,
+                ParticipationPurpose = 1
             });
             
             await database.SaveChangesAsync();
@@ -77,19 +75,19 @@ public class TaskRepository : ITaskRepository
         }
     }
 
-    public async Task<bool> UnlinkEntities(Guid firstId, Guid secondId)
+    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            var link = await database.MemberTasks
-                .Where(et => et.MemberId == firstId && et.TaskId == secondId)
+            var link = await database.TaskMembers
+                .Where(et => et.MemberId == destinationId && et.TaskId == sourceId)
                 .FirstOrDefaultAsync();
 
             if (link == null) return false;
 
-            database.MemberTasks.Remove(link);
+            database.TaskMembers.Remove(link);
             await database.SaveChangesAsync();
 
             return true;
@@ -101,9 +99,19 @@ public class TaskRepository : ITaskRepository
         }
     }
 
+    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<TaskDataModel> GetEntityById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -120,7 +128,7 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<TaskDataModel>?> GetEntities()
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -129,19 +137,19 @@ public class TaskRepository : ITaskRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            return [];
         }
     }
 
     public async Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            var tasksId = await database.PartTasks
+            var tasksId = await database.Tasks
                 .Where(d => d.PartId == id)
-                .Select(d => d.TaskId)
+                .Select(d => d.Id)
                 .ToListAsync();
 
             return await database.Tasks
@@ -151,31 +159,37 @@ public class TaskRepository : ITaskRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            return [];
         }
     }
 
     public async Task<bool> UpdateEntity(TaskDataModel model)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            var task = await database.Tasks.Where(t => t.Id == model.Id).FirstOrDefaultAsync();
+            var task = await database.Tasks
+                .Where(t => t.Id == model.Id)
+                .FirstOrDefaultAsync();
 
-            if (task == null) return false;
+            if (task == null) 
+                return false;
 
             if(!string.IsNullOrEmpty(model.Name))
                 task.Name = model.Name;
             if (!string.IsNullOrEmpty(model.Description))
                 task.Description = model.Description;
-
-            if (model.EmployeeId != Guid.Empty)
-                task.EmployeeId = model.EmployeeId; 
-            
-            task.Level = model.Level;
-
-            task.Status = model.Status;
+            if (model.StartTime.HasValue)
+                model.Deadline = model.Deadline;
+            if (model.Deadline.HasValue)
+                model.Deadline = model.Deadline;
+            if (model.ClosedAt.HasValue)
+                model.ClosedAt = model.ClosedAt;
+            if (model.Level >= 0)
+                task.Level = model.Level;
+            if (model.Status >= 0)
+                task.Status = model.Status;
 
             await database.SaveChangesAsync();
 
@@ -190,7 +204,7 @@ public class TaskRepository : ITaskRepository
 
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
@@ -209,20 +223,16 @@ public class TaskRepository : ITaskRepository
             return false;
         }
     }
-
-    public void Dispose()
-    {
-    }
-
+    
     public async Task<IEnumerable<TaskDataModel>> GetFreeTasks(Guid projectId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
             var entities = await GetEntitiesById(projectId);
 
-            var tasksIds = await database.MemberTasks
+            var tasksIds = await database.TaskMembers
                 .Select(et => et.TaskId)
                 .ToListAsync();
 
@@ -239,11 +249,11 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<TaskDataModel>> GetMemberTasks(Guid employeeId)
     {
-        await using var database = new ManagerDbContext();
+        await using var database = new MainDbContext();
 
         try
         {
-            var taskIds = await database.MemberTasks
+            var taskIds = await database.TaskMembers
                 .Where(et => et.MemberId == employeeId)
                 .Select(et => et.TaskId)
                 .ToListAsync();
@@ -255,7 +265,50 @@ public class TaskRepository : ITaskRepository
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            return [];
         }
+    }
+
+    public async Task<IEnumerable<Guid>> GetTaskMembersIds(Guid taskId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var memberIds = await database.TaskMembers
+                .Where(et => et.TaskId == taskId)
+                .Select(et => et.MemberId)
+                .ToListAsync();
+
+            return memberIds;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return [];
+        }
+    }
+
+    public async Task<IEnumerable<TaskMember>> GetTaskMembers(Guid taskId)
+    {
+        await using var database = new MainDbContext();
+
+        try
+        {
+            var members = await database.TaskMembers
+                .Where(et => et.TaskId == taskId)
+                .ToListAsync();
+
+            return members;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return [];
+        }
+    }
+    
+    public void Dispose()
+    {
     }
 }

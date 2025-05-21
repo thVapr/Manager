@@ -2,6 +2,7 @@
 using ManagerData.Constants;
 using ManagerData.Contexts;
 using ManagerData.DataModels.Authentication;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Authentication;
@@ -42,6 +43,38 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
     }
 
+    public async Task<UserDataModel> GetUserById(Guid userId)
+    {
+        await using var database = new AuthenticationDbContext();
+
+        try
+        {
+            return await database.Users
+                .FirstOrDefaultAsync(user => user.Id == userId) ?? new UserDataModel();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return new UserDataModel();
+        }
+    }
+
+    public async Task<ICollection<UserDataModel>> GetUsers()
+    {
+        await using var database = new AuthenticationDbContext();
+
+        try
+        {
+            return await database.Users
+                .ToListAsync() ?? [];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return [];
+        }
+    }
+
     public async Task<string> GetUserRole(string email)
     {
         await using var database = new AuthenticationDbContext();
@@ -63,17 +96,17 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return String.Empty;
+            return string.Empty;
         }
     }
 
-    public async Task<RefreshTokenDataModel?> GetToken(Guid UserId)
+    public async Task<RefreshTokenDataModel?> GetToken(Guid userId)
     {
         await using var database = new AuthenticationDbContext();
 
         try
         {
-            return await database.Tokens.FirstOrDefaultAsync(u => u.UserId == UserId) ?? new RefreshTokenDataModel();
+            return await database.Tokens.FirstOrDefaultAsync(u => u.UserId == userId) ?? new RefreshTokenDataModel();
         }
         catch (Exception ex)
         {
@@ -177,7 +210,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            return Enumerable.Empty<Guid>();
+            return [];
         }
     }
 
@@ -256,10 +289,22 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
             if (user == null) return false;
 
-            user.Email = model.Email;
-            user.Roles = model.Roles;
-            user.PasswordHash = model.PasswordHash;
-            user.Salt = model.Salt;
+            if (!string.IsNullOrEmpty(model.Email))
+                user.Email = model.Email;
+            if (!string.IsNullOrEmpty(model.PasswordHash) && !string.IsNullOrEmpty(model.Salt))
+            {
+                user.PasswordHash = model.PasswordHash;
+                user.Salt = model.Salt;
+            }
+            if (!string.IsNullOrEmpty(model.MessengerId))
+            {
+                user.MessengerId = model.MessengerId;
+            }
+
+            if (!string.IsNullOrEmpty(model.ChatId))
+            {
+                user.ChatId = model.ChatId;
+            }
 
             await database.SaveChangesAsync();
             return true;
@@ -294,11 +339,9 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
 
     private async Task SeedRoles()
     {
-        await using var database = new AuthenticationDbContext();
-
-        await AddRole(Constants.RoleConstants.Moderator);
-        await AddRole(Constants.RoleConstants.Default);
-        await AddRole(Constants.RoleConstants.Admin);
+        await AddRole(RoleConstants.SpaceOwner);
+        await AddRole(RoleConstants.Default);
+        await AddRole(RoleConstants.Admin);
     }
 
     public void Dispose()

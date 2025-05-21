@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from './services/auth/auth.service';
-import { CompanyService } from './services/company/company.service';
-import { CompanyDepartmentsService } from './services/company-departments/company-departments.service';
-import { EmployeeService } from './services/employee/employee.service';
-import { ProjectService } from './services/project/project.service';
+import { MemberService } from './services/member/member.service';
+import { PartService } from './services/part/part.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-root',
@@ -13,114 +12,189 @@ import { ProjectService } from './services/project/project.service';
 })
 
 export class AppComponent implements OnInit {
-  employeeProfileString = 'Создайте профиль сотрудника';
-  isEmployeeExist : boolean = false;
-  isProjectManager : boolean = false;
-  isDepartmentManager : boolean = false;
+  memberProfileString : string = 'Создайте профиль сотрудника';
+  isMemberExist : boolean = false;
+  isPartLeader : boolean = false;
+  isMainPartLeader : boolean = false;
+  items : CustomMenuItem[] = [];
 
-  get companyName() {
-    const name = this.companyService.getCompanyName();
+  isCollapsed = true;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!(event.target as Element).closest('.navbar-collapse') && 
+        !(event.target as Element).closest('.navbar-toggler')) {
+      this.isCollapsed = true;
+    }
+  }
+
+  get partName() {
+    const name = this.partService.getPartName();
 
     if (name !== null)
       return name;
 
-    if(!this.authService.isAdmin())
-      return 'Ожидайте распределения в компанию';
-    return 'Выберите компанию';
-  }
-
-  get departmentName() {
-    const name = this.companyDepartmentsService.getDepartmentName();
-
-    if (name !== null && name !== '')
-      return name;
-
-    if(!this.authService.isAdmin())
-      return 'Ожидайте распределения в отдел';
-    return 'Выберите отдел'
-  }
-
-  get projectName() {
-    const name = this.projectService.getProjectName();
-
-    if (name !== null && name !== '')
-      return name;
-
-    if(!this.authService.isAdmin() && !this.isDepartmentManager)
-      return 'Ожидайте распределения в проект';
-    return 'Выберите проект';
+    return 'Выберите сущность';
   }
 
   constructor (public authService: AuthService,
-               public companyService : CompanyService,
-               public companyDepartmentsService : CompanyDepartmentsService,
-               public employeeService : EmployeeService,
-               public projectService: ProjectService) {}
+               public partService : PartService,
+               public memberService : MemberService,
+               public router : Router) {}
 
   ngOnInit(): void {
+    this.updateMenuItems();
     const id = this.authService.getId();
-
     if (id !== null ) {
-      this.employeeService.getEmployeeById(id).subscribe({
-        next: (employee) => {
-          if (employee.lastName !== null && employee.firstName !== null) {
-            this.employeeProfileString = employee.lastName + ' ' + employee.firstName;
-            this.isEmployeeExist = true;
+      this.memberService.getMemberById(id).subscribe({
+        next: (member) => {
+          if (member.lastName !== null && member.firstName !== null) {
+            this.memberProfileString = member.lastName + ' ' + member.firstName;
+            this.isMemberExist = true;
+            const partId = this.partService.getPartId();
 
-            if(employee.companyId !== null && employee.companyId !== undefined) {
-              this.companyService.setCompanyId(employee.companyId);
-              if (employee.companyName !== "" && employee.companyName !== undefined)
-                this.companyService.setCompanyName(employee.companyName);
+            if(partId !== null) {
+              this.partService.hasPrivileges(id, partId, 5).subscribe({
+                next: (response) => {
+                  this.isPartLeader = response;
+                  this.updateMenuItems();
+                },
+                error: () => this.isPartLeader = false
+              });
             }
-            
-            if(employee.projectId !== null && employee.projectId !== undefined) {
-              this.projectService.setProjectId(employee.projectId);
-              if (employee.projectName !== "" && employee.projectName !== undefined)
-                this.projectService.setProjectName(employee.projectName);
-            }
-
-            if(employee.departmentId !== null && employee.departmentId !== undefined) {
-              this.companyDepartmentsService.setDepartmentId(employee.departmentId);
-              if (employee.departmentName !== "" && employee.departmentName !== undefined)
-                this.companyDepartmentsService.setDepartmentName(employee.departmentName);
-            }
-
           }
+          this.updateMenuItems();
         },
         error: () => {
-          this.employeeProfileString = 'Создайте профиль сотрудника';
-          this.isEmployeeExist = false;
+          this.memberProfileString = 'Создайте профиль сотрудника';
+          this.isMemberExist = false;
+          this.updateMenuItems();
         }
       });
     }
-
-    const departmentId = this.companyDepartmentsService.getDepartmentId();
-
-    if (departmentId !== null) {
-      this.companyDepartmentsService.getDepartment(departmentId).subscribe({
-        next: (department) => {
-          if (department.managerId !== null && department.managerId !== undefined && department.managerId == id)
-            this.isDepartmentManager = true;
-        },
-        error: () => this.isDepartmentManager = false
-      });
-    }
-
-    const projectId = this.projectService.getProjectId();
-
-    if (projectId !== null) {
-      this.projectService.getProjectById(projectId).subscribe({
-        next: (project) => {
-          if (project.managerId !== null && project.managerId !== undefined && project.managerId == id)
-            this.isProjectManager = true;
-        },
-        error: () => this.isProjectManager = false
-      });
-    }
-
   }
 
-  async logout() {
+  async logout() : Promise<void> {
     await this.authService.logout();
+    this.updateMenuItems();
   }
+
+  executeCommand(event: Event, item: any) {
+    if (item.command) {
+        event.preventDefault();
+    }
+    
+    if (typeof item.command === 'function') {
+        item.command({
+            originalEvent: event,
+            item: item
+        });
+    }
+    
+    if (!item.routerLink && !item.command) {
+        event.preventDefault();
+    }
+    if (window.innerWidth < 992) {
+      this.isCollapsed = true;
+    }
+  }
+
+  updateMenuItems() : void {
+    this.items = [];
+
+    if (!this.authService.isAuthenticated()) {
+      this.items.push(
+        {
+          label: 'Вход',
+          icon: 'bi bi-box-arrow-in-right',
+          routerLink: 'login'
+        },
+        {
+          label: 'Регистрация',
+          icon: 'bi bi-r-circle',
+          routerLink: 'register'
+        }
+      );
+    }
+
+    if (this.authService.isAuthenticated()) {
+      const item : CustomMenuItem = {
+        label: this.memberProfileString,
+        icon: 'bi bi-person-lines-fill',
+        items: [
+          {        
+            label: 'Профиль',
+            icon: 'bi bi-file-person',
+            routerLink: 'member'
+          },
+          {        
+            label: 'Выйти',
+            icon: 'bi bi-box-arrow-left',
+            command: () => this.logout()
+          }
+        ]
+      };
+      this.items.push(item);
+
+      if (this.isMemberExist && 
+        (this.authService.isAdmin()||this.authService.isSpaceOwner()||this.authService.hasAccess())) {
+        this.items.push({
+          label: this.partName,
+          icon: 'bi bi-person-workspace',
+          routerLink: 'parts'
+        });
+      }
+    }
+
+
+
+    if (this.authService.isAuthenticated()) {
+      if ((this.authService.isAdmin() || this.isPartLeader) && this.partService.isPartSelected()) {
+        this.items.push({
+          label: 'Управление доступом',
+          icon: 'bi bi-file-person',
+          routerLink: 'part/members'
+        });
+        if (false)
+        {
+          this.items.push({
+            label: 'Профиль',
+            icon: 'bi bi-cup-hot',
+            routerLink: 'part/about'
+          });
+        }
+      }
+
+      if (this.partService.isPartSelected()) {
+        this.items.push({
+          label: 'Статистика',
+          icon: 'bi bi-house',
+          routerLink: 'home'
+        });
+        this.items.push({
+          label: 'Задачи',
+          icon: 'bi bi-list-task',
+          routerLink: 'member/tasks'
+        });
+
+        this.items.push({
+          label: 'Задачи проекта',
+          icon: 'bi bi-kanban',
+          routerLink: 'part/tasks'
+        });
+      }
+
+      if (window.innerWidth < 992) {
+        this.isCollapsed = true;
+      }
+    }
+  }
+}
+
+class CustomMenuItem {
+  public label? : string;
+  public icon? : string;
+  public routerLink? : string;
+  public command? : (() => void);
+  public items? : CustomMenuItem[];
 }
