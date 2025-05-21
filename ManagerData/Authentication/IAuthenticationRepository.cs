@@ -5,6 +5,7 @@ namespace ManagerData.Authentication;
 public interface IAuthenticationRepository
 {
     Task<UserDataModel> GetUser(string email);
+    Task<UserDataModel> GetUserById(Guid userId);
     Task<ICollection<UserDataModel>> GetUsers();
     Task<string> GetUserRole(string email);
 

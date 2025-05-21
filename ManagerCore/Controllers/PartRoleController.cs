@@ -1,6 +1,6 @@
-﻿using ManagerCore.Models;
+﻿using ManagerLogic;
 using ManagerCore.Utils;
-using ManagerLogic;
+using ManagerCore.Models;
 using ManagerLogic.Management;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;

@@ -49,7 +49,7 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     [Route("get_available_members_for_task")]
     public async Task<IActionResult> GetAvailableMembersForTask(string partId, string taskId)
     {
-        return Ok(await taskLogic.GetAvailableMemberForTask( Guid.Parse(partId), Guid.Parse(taskId)));
+        return Ok(await taskLogic.GetAvailableMembersForTask( Guid.Parse(partId), Guid.Parse(taskId)));
     }
 
     [HttpGet]
@@ -154,7 +154,8 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
                     Description = model.Description ?? string.Empty,
                     Name = model.Name ?? string.Empty,
                 },
-                Guid.Parse(model.TaskId!))
+                Guid.Parse(model.TaskId!),
+                model.Forward)
         );
     }
     

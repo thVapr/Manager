@@ -104,6 +104,17 @@ public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenti
         return authenticationData.GetUser(email);
     }
 
+    public async Task<UserDataModel> GetUserById(Guid id)
+    {
+        return await authenticationData.GetUserById(id);
+    }
+
+    public async Task<UserDataModel> GetUserByMessengerId(string id)
+    {
+        return (await authenticationData.GetUsers())
+            .FirstOrDefault(u => u.MessengerId == id) ?? new UserDataModel();
+    }
+
     public async Task<IEnumerable<string>> GetAdminIds()
     {
         var adminIds = await authenticationData.GetAdminIds();
@@ -157,8 +168,13 @@ public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenti
         return true;
     }
 
-    public Task<bool> RemoveUser(Guid id)
+    public async Task<bool> UpdateUser(UserDataModel user)
     {
-        return authenticationData.DeleteUser(id);
+        return await authenticationData.UpdateUser(user);
+    }
+
+    public async Task<bool> RemoveUser(Guid id)
+    {
+        return await authenticationData.DeleteUser(id);
     }
 }

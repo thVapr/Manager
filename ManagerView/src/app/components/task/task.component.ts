@@ -19,12 +19,14 @@ export class TaskComponent implements OnInit {
   statuses : TaskStatus[] = [];
   isTaskChangeStatusFormVisible : boolean = false;
   private targetTask : Task = {};
+  statusPrev : TaskStatus | undefined = undefined;
   statusFrom : TaskStatus | undefined = {};
   statusTo : TaskStatus | undefined = {};
 
   changeTaskStatusForm = new FormGroup({
     name: new FormControl('', []),
-    description: new FormControl('', [])
+    description: new FormControl('', []),
+    forward: new FormControl(true, [])
   });
 
   textMapColor : Map<number, string[]> = new Map([
@@ -73,6 +75,7 @@ export class TaskComponent implements OnInit {
     });
     this.taskService.getTasksByMemberId().subscribe({
       next: (tasks) => {
+        const partId = this.partService.getPartId();
         this.myTasks = tasks.filter(task => {
           if (task.status === undefined || task.path === undefined)
             return false;
@@ -81,6 +84,8 @@ export class TaskComponent implements OnInit {
           if (path === undefined || path.length === 0)
             return false;
           if (task.status >= path[path.length - 1])
+            return false;
+          if (partId !== task.partId)
             return false;
           return true;
         }).sort((a,b) => (b.level!-a.level!));
@@ -103,6 +108,8 @@ export class TaskComponent implements OnInit {
     
     const parsedPath = this.targetTask.path?.split('-');
     const pathIndex = parsedPath!.findIndex(node => node === task!.status?.toString());
+    if (pathIndex != 0)
+      this.statusPrev = this.statuses.find(status => status.order?.toString() === parsedPath![pathIndex - 1]);
     this.statusFrom = this.statuses.find(status => status.order?.toString() === parsedPath![pathIndex]);
     this.statusTo = this.statuses.find(status => status.order?.toString() === parsedPath![pathIndex + 1]);
 
@@ -112,20 +119,33 @@ export class TaskComponent implements OnInit {
   changeTaskStatus() : void {
     const name = this.changeTaskStatusForm.value.name;
     const description = this.changeTaskStatusForm.value.description;
-    this.taskService.changeTaskStatus(name!, description!, this.targetTask!.id!)
+    const forward = this.changeTaskStatusForm.value.forward;
+
+    this.taskService.changeTaskStatus(name!, description!, this.targetTask!.id!, forward!)
       .subscribe({
         next: () => {
           this.update();
           this.canceledStatusChange();
           this.changeTaskStatusForm.patchValue({
             name: '',
-            description: ''
+            description: '',
+            forward: true
           });
         }
       });
   }
 
+  toggleDirection(): void {
+    if (this.statusPrev === undefined)
+      return;
+    const current = this.changeTaskStatusForm.get('forward')?.value;
+    this.changeTaskStatusForm.get('forward')?.setValue(!current);
+  }
+
   canceledStatusChange() : void {
+    this.statusPrev = undefined;
+    this.statusFrom = {};
+    this.statusTo = {};
     this.targetTask = {};
     this.isTaskChangeStatusFormVisible = false;
   }

@@ -23,8 +23,8 @@ export class MemberService {
     return this.http.post<any>(`${this.apiUrl}/create`, {id, firstName, lastName, patronymic});
   }
 
-  updateMember(id : string, firstName? : string, lastName? : string, patronymic? : string) : Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/update`, {id, firstName, lastName, patronymic});
+  updateMember(id : string, firstName? : string, lastName? : string, patronymic? : string, messengerId? : string) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update`, {id, firstName, lastName, patronymic,messengerId});
   }
 
   isCurrentMember(employeeId : string | undefined) {

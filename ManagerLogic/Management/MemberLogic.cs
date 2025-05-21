@@ -1,11 +1,12 @@
 ﻿
+using ManagerData.Authentication;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
-public class MemberLogic(IMemberRepository repository) : IMemberLogic
+public class MemberLogic(IMemberRepository repository, IAuthenticationRepository authenticationRepository) : IMemberLogic
 {
     public async Task<MemberModel> GetEntityById(Guid id)
     {
@@ -50,14 +51,35 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
             Patronymic = model.Patronymic!,
         };
 
+        if (model.MessengerId != null)
+        {
+            var user = await authenticationRepository.GetUserById(Guid.Parse(model.Id));
+            if (user.Id != Guid.Empty)
+            {
+                user.MessengerId = model.MessengerId;
+                await authenticationRepository.UpdateUser(user);
+            }
+        }
+
         return await repository.CreateEntity(entity);
     }
 
-    public Task<bool> UpdateEntity(MemberModel model)
+    public async Task<bool> UpdateEntity(MemberModel model)
     {
-        return repository.UpdateEntity(new MemberDataModel
+        if (model.MessengerId != null)
+        {
+            var user = await authenticationRepository.GetUserById(Guid.Parse(model.Id!));
+            if (user.Id != Guid.Empty)
+            {
+                user.MessengerId = model.MessengerId;
+                await authenticationRepository.UpdateUser(user);
+            }
+        }
+        
+        return await repository.UpdateEntity(new MemberDataModel
         {
             Id = Guid.Parse(model.Id!),
+            
             FirstName = model.FirstName!,
             LastName = model.LastName!,
             Patronymic = model.Patronymic!,
@@ -110,7 +132,6 @@ public class MemberLogic(IMemberRepository repository) : IMemberLogic
     
     public async Task<ICollection<MemberModel>> GetMembersWithoutPart()
     {
-        // TODO: Нужно изменить структуру учитывая уровень части
         var members = await repository.GetMembersWithoutPart();
 
         return members.Select(v => new MemberModel

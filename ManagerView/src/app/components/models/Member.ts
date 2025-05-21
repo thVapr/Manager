@@ -16,4 +16,7 @@ export class Member {
     firstName? : string;
     lastName? : string;
     patronymic? : string;
+    
+    messengerId? : string;
+    isMessengerConfirmed? : boolean;
 }

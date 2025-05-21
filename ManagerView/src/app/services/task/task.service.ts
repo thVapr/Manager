@@ -79,12 +79,12 @@ export class TaskService {
     return this.http.put<any>(`${this.apiUrl}/update`, { name, description, task });
   }
 
-  changeTaskStatus(name : string, description : string, taskId : string) : Observable<boolean> {
+  changeTaskStatus(name : string, description : string, taskId : string, forward : boolean) : Observable<boolean> {
     const partId = this.partService.getPartId();
 
     return this.http.patch<boolean>(
       `${this.apiUrl}/change`,
-      { taskId, partId, name, description }
+      { taskId, partId, name, description, forward }
     );
   }
 

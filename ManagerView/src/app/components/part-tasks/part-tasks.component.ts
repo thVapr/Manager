@@ -153,7 +153,8 @@ export class PartTasksComponent implements OnInit {
   changeTaskStatus() : void {
     const name = this.changeTaskStatusForm.value.name;
     const description = this.changeTaskForm.value.description;
-    this.taskService.changeTaskStatus(name!, description!, this.targetTask!.id!)
+
+    this.taskService.changeTaskStatus(name!, description!, this.targetTask!.id!, true)
       .subscribe({
         next: () => {
           this.canceledStatusChange();

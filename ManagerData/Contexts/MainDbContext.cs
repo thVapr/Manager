@@ -20,6 +20,7 @@ public sealed class MainDbContext : DbContext
     public DbSet<PartTaskStatus> PartTaskStatuses { get; set; } = null!;
     public DbSet<TaskHistory> TaskHistories { get; set; } = null!;
     public DbSet<PartRole> PartRoles { get; set; } = null!;
+    public DbSet<BackgroundTask> BackgroundTasks { get; set; } = null!;
     public DbSet<PartMemberRole> PartMemberRoles { get; set; } = null!;
     public DbSet<TagDataModel> Tags { get; set; } = null!;
     public DbSet<MemberTag> MemberTags { get; set; } = null!;

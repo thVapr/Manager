@@ -10,6 +10,9 @@ public class MemberModel
     public string? Patronymic { get; set; }
 
     public Guid? PartId { get; set; }
+    
+    public string? MessengerId { get; set; }
+    public bool IsMessengerIdConfirmed { get; set; }
 
     public IEnumerable<PartModel>? Parts { get; set; }
 }

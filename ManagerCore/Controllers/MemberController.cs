@@ -1,4 +1,5 @@
-﻿using ManagerCore.Utils;
+﻿using ManagerCore.Models;
+using ManagerCore.Utils;
 using ManagerCore.ViewModels;
 using ManagerLogic.Authentication;
 using ManagerLogic.Management;
@@ -72,23 +73,23 @@ public class MemberController(
     public async Task<IActionResult> GetMemberProfile(string id)
     {
         var member = await memberLogic.GetEntityById(Guid.Parse(id));
-
-        if (member.Id != id) return BadRequest(); 
-
-        // TODO: Добавить логику
-        //var employeeLinks = await _employeeLogic.GetEmployeeLinks(Guid.Parse(id));
-
-        //var company = await _companyLogic.GetEntityById(employeeLinks.CompanyId);
-        //var department = await _departmentLogic.GetEntityById(employeeLinks.DepartmentId);
-
+        
+        if (member.Id != id)
+            return BadRequest(); 
+        
+        var user = await authentication.GetUserById(Guid.Parse(member.Id!));
+        
         return Ok(new MemberViewModel()
-        {
-            Id = member.Id,
-          
-            FirstName = member.FirstName!,
-            LastName = member.LastName!,
-            Patronymic = member.Patronymic!,
-        }
+            {
+                Id = member.Id,
+              
+                FirstName = member.FirstName!,
+                LastName = member.LastName!,
+                Patronymic = member.Patronymic!,
+                
+                MessengerId = user.MessengerId!,
+                IsMessengerConfirmed = !string.IsNullOrEmpty(user.ChatId),
+            }
         );
 
     }

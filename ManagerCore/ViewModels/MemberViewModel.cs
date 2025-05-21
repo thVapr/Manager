@@ -8,6 +8,9 @@ public class MemberViewModel
     public string? LastName { get; set; }
     public string? Patronymic { get; set; }
 
+    public string? MessengerId { get; set; }
+    public bool? IsMessengerConfirmed { get; set; }
+    
     public string? PartId { get; set; }
     public string? PartName { get; set; }
 }

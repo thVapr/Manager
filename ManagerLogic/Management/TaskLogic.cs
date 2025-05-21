@@ -2,6 +2,7 @@
 using ManagerData.Constants;
 using ManagerData.DataModels;
 using ManagerData.Management;
+using ManagerLogic.Background;
 using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
@@ -10,7 +11,8 @@ public class TaskLogic(
     ITaskRepository repository,
     IPartLogic partLogic,
     IMemberLogic memberLogic,
-    IHistoryRepository historyRepository
+    IHistoryRepository historyRepository,
+    IBackgroundTaskRepository backgroundTaskRepository
     ) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
@@ -79,6 +81,20 @@ public class TaskLogic(
                 Name = "",
                 ActionType = TaskActionType.Created,
             });
+            var members = await GetAvailableMembersForTask(
+                entity.PartId ?? Guid.Empty, entity.Id
+            );
+            foreach (var member in members)
+            {
+                await backgroundTaskRepository.Create(new BackgroundTask
+                {
+                    PartId = entity.PartId! ?? Guid.Empty,
+                    TaskId = entity.Id,
+                    MemberId = Guid.Parse(member.Id!),
+                    Type = (int)BackgroundTaskType.Available,
+                    Timeline = DateTime.UtcNow,
+                });
+            }
         }
         return isTaskCreated;
     }
@@ -305,7 +321,7 @@ public class TaskLogic(
         return isMemberRemoved;
     }
 
-    public async Task<bool> ChangeTaskStatus(HistoryModel historyModel, Guid taskId)
+    public async Task<bool> ChangeTaskStatus(HistoryModel historyModel, Guid taskId, bool forward)
     {
         //TODO: Нужно это разобрать на отдельные методы
         var task = await repository.GetEntityById(taskId);
@@ -338,9 +354,12 @@ public class TaskLogic(
         if (nodes.Any(node => !statuses.Contains(node)))
             return false;
         var index = nodes.IndexOf(task.Status);
-        if (index == nodes.Last()) 
+        if (forward && index == nodes.Count - 1) 
             return false;
-        if (index + 1 == nodes.Last())
+        else if (!forward && index == 0)
+            return false;
+        var targetIndex = forward ? index + 1 : index - 1;
+        if (targetIndex == nodes.Count - 1)
             task.ClosedAt = DateTime.Now;
         
         var taskMembers = (await repository.GetTaskMembers(taskId))
@@ -352,7 +371,7 @@ public class TaskLogic(
             memberRoles[memberId] = await partLogic.GetPartMemberRoles(task.PartId ?? Guid.Empty, memberId);
         }
         var nextStatus = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
-            .FirstOrDefault(status => status.Order == nodes[index+1]);
+            .FirstOrDefault(status => status.Order == nodes[targetIndex]);
         if (nextStatus!.PartRoleId != null && nextStatus.PartRoleId != Guid.Empty)
         {
             foreach (var memberRole in memberRoles)
@@ -363,7 +382,7 @@ public class TaskLogic(
         }
 
         var sourceStatus = task.Status;
-        task.Status = nodes[index+1];
+        task.Status = nodes[targetIndex];
         
         var isEntityUpdated = await UpdateEntity(ConvertToLogicModel(task));
         
@@ -423,7 +442,7 @@ public class TaskLogic(
         return availableTasks;
     }
 
-    public async Task<ICollection<MemberModel>> GetAvailableMemberForTask(Guid partId, Guid taskId)
+    public async Task<ICollection<MemberModel>> GetAvailableMembersForTask(Guid partId, Guid taskId)
     {
         var statuses = await partLogic.GetPartTaskStatuses(partId);
         var members = (await memberLogic.GetMembersFromPart(partId));

@@ -1,0 +1,90 @@
+﻿using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using ManagerData.Constants;
+using ManagerData.Management;
+using ManagerLogic.Authentication;
+using Microsoft.Extensions.Hosting;
+
+namespace ManagerLogic.Background;
+
+public class MessengerHostService(
+    IBackgroundTaskRepository repository, 
+    IAuthentication authenticationRepository,
+    ITaskRepository taskRepository) : BackgroundService
+{
+    private int _executionCount;
+    private TelegramBotClient botClient;
+    
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        Console.WriteLine
+            ("Timed Hosted Service running.");
+        
+        using PeriodicTimer timer = new(TimeSpan.FromSeconds(30));
+        using var cts = new CancellationTokenSource();
+        var secretProvider = new SecretProvider();
+        var token = secretProvider.GetBotToken();
+        
+        botClient = new TelegramBotClient(token!, cancellationToken: cts.Token);
+        botClient.OnMessage += OnMessage;
+        
+        try
+        {
+            await DoWork();
+            while (await timer.WaitForNextTickAsync(stoppingToken))
+            {
+                await DoWork();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine
+                ("Timed Hosted Service is stopping.");
+        }
+    }
+
+    private async Task DoWork()
+    {
+        int count = Interlocked.Increment(ref _executionCount);
+
+        var nearest = await repository.GetAllNearest();
+        foreach (var task in nearest)
+        {
+            if (task.Type == 0)
+            {
+                var user = await authenticationRepository.GetUserById(task.MemberId);
+                if (user.Id == task.MemberId && !string.IsNullOrEmpty(user.ChatId))
+                {
+                    await botClient.SendMessage(user.ChatId!, 
+                        $"Задача \n{task.Task.Name}\n доступна для вас!\n[{DateTime.Now}]");
+                    await repository.Delete(task.Id);
+                }
+            }
+        }
+        Console.WriteLine
+            ($"Timed Hosted Service is working. Count: {count}\n" +
+             $"{nearest.Count()} nearest");
+    }
+    
+    private async Task OnMessage(Message msg, UpdateType type)
+    {
+        if (msg.Text is null) return;
+        Console.WriteLine($"Полученное сообщение {type} '{msg.Text}' in {msg.Chat}");
+        if (msg.Text.StartsWith('/') && msg.Text.Contains($"/register"))
+        {
+            var user = await authenticationRepository.GetUserByMessengerId(msg.From!.Username);
+            if (user.MessengerId == msg.From.Username)
+            {
+                user.ChatId = msg.Chat.Id.ToString();
+                await authenticationRepository.UpdateUser(user);
+            }
+            await botClient.SendMessage(msg.Chat, $"{msg.From!.Username} зарегистрирован");
+        }
+        else
+        {
+            await botClient.SendMessage(msg.Chat, $"Не получается распознать следующую команду: {msg.Text}");
+        }
+    }
+    
+}

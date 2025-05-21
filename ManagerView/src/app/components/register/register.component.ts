@@ -24,7 +24,7 @@ export class RegisterComponent {
     .subscribe({
       next: () => {
        console.log('Register successful');
-       this.router.navigate(['/home']).then(() => {
+       this.router.navigate(['/member']).then(() => {
         window.location.reload();
       });
       },

@@ -17,4 +17,9 @@ public class SecretProvider
         return Configuration["ManagerData"];
     }
 
+    public string? GetBotToken()
+    {
+        return Configuration["TelegramBotToken"];
+    }
+
 }

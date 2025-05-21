@@ -12,7 +12,7 @@ import { Member } from '../models/member';
 })
 export class MemberComponent implements OnInit {
 
-  employee: Member = new Member("","","","");
+  member: Member = new Member("","","","");
   
   addEmployeeForm = new FormGroup({
     firstName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
@@ -23,7 +23,8 @@ export class MemberComponent implements OnInit {
   changeEmployeeForm = new FormGroup({
     firstName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
     lastName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
-    patronymic: new FormControl('', [Validators.required, Validators.maxLength(20)])
+    patronymic: new FormControl('', [Validators.required, Validators.maxLength(20)]),
+    messengerId: new FormControl('', [])
   });
 
   public isEmployeeProfileExist : boolean = false;
@@ -39,19 +40,20 @@ export class MemberComponent implements OnInit {
     
     this.memberService.getMemberById(id)
       .subscribe({
-        next: (employee) => {
-          if (employee.firstName === null) {
+        next: (member) => {
+          if (member.firstName === null) {
             this.isEmployeeProfileExist = false;
             return;
           }
           
           this.isEmployeeProfileExist = true;
 
-          this.employee = employee;
+          this.member = member;
           this.changeEmployeeForm.setValue({
-            firstName: employee.firstName!,
-            lastName: employee.lastName!,
-            patronymic: employee.patronymic!,
+            firstName: member.firstName!,
+            lastName: member.lastName!,
+            patronymic: member.patronymic!,
+            messengerId: member.messengerId!
           });
         },
         error: (error) => {
@@ -70,7 +72,6 @@ export class MemberComponent implements OnInit {
     this.memberService.addMember(id, firstName!, lastName!, patronymic!)
     .subscribe({
       next: () => {
-        console.log('successful')
         this.update();
       },
       error: (error) => console.error('failed', error)
@@ -82,15 +83,14 @@ export class MemberComponent implements OnInit {
     const firstName = this.changeEmployeeForm.value.firstName;
     const lastName = this.changeEmployeeForm.value.lastName;
     const patronymic = this.changeEmployeeForm.value.patronymic;
+    const messengerId = this.changeEmployeeForm.value.messengerId;
 
-    this.memberService.updateMember(id, firstName!, lastName!, patronymic!)
-    .subscribe({
-      next: () => {
-        console.log('successful')
-        this.update();
-      },
-      error: (error) => console.error('failed', error)
-      });
+    this.memberService.updateMember(id, firstName!, lastName!, patronymic!, messengerId!)
+      .subscribe({
+        next: () => {
+          this.update();
+        }
+    });
   }
 
 }

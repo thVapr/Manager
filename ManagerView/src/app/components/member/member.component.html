@@ -42,6 +42,15 @@
       <input type="text" class="form-control form-control-lg"
         placeholder="Отчество" formControlName="patronymic" id="patronymic"/>
   </div>
+  <div class="form-outline mb-3">
+      <label class="form-label" for="messengerId">
+        <i class="bi bi-check-circle" *ngIf="member.isMessengerConfirmed"></i>
+        <i class="bi bi-x-circle" *ngIf="!member.isMessengerConfirmed"></i>
+        Телеграм
+      </label>
+      <input type="text" class="form-control form-control-lg"
+        placeholder="@Username" formControlName="messengerId" id="messengerId"/>
+  </div>
 
   <div class="text-center text-lg-start mt-4 pt-2">
     <button type="submit" class="btn btn-primary btn-lg">Обновить</button>

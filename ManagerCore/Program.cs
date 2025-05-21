@@ -8,6 +8,7 @@ using ManagerData.Management;
 using ManagerLogic.Management;
 using ManagerData.Authentication;
 using ManagerLogic.Authentication;
+using ManagerLogic.Background;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,9 @@ builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
 builder.Services.AddSingleton<IHistoryRepository, HistoryRepository>();
 builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+
+builder.Services.AddSingleton<IBackgroundTaskRepository, BackgroundTaskRepository>();
+builder.Services.AddHostedService<MessengerHostService>();
 
 var app = builder.Build();
 
