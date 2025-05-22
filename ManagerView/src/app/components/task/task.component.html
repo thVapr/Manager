@@ -45,7 +45,8 @@
                   [class]="textMapColor.get(task.level!)![0]">
                 {{textMapColor.get(task.level!)![1]}}
               </p>
-              <p-button 
+              <p-button
+                *ngIf="task.isAvailable"
                 label="Сменить статус" 
                 styleClass="btn-sm"
                 severity="secondary"

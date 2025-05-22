@@ -15,4 +15,6 @@ public class TaskModel : BaseModel
     public DateTime? StartTime { get; set; }
     public DateTime? Deadline { get; set; }
     public DateTime? ClosedAt { get; set; }
+    
+    public bool? IsAvailable { get; set; }
 }

@@ -10,7 +10,7 @@
   </div>
 </form>
 <hr class="mb-2 mt-2"/>
-<div class="d-flex justify-content-between">
+<div class="d-flex justify-content-between" *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
   <p-button severity="secondary" (click)="showAddTaskDialog()" label="Добавить задачу"/>
   <p-button severity="secondary" (click)="showAddStatusDialog()" label="Добавить статус"/>
 </div>
@@ -76,9 +76,9 @@
   </div>
 </div>
 
-<p-dialog header="Добавление задачи" [modal]="true" [(visible)]="isAddTaskFormVisible">
-  <form class="forg-group" [formGroup]="addTaskForm" (ngSubmit)="addTask()" 
+<p-dialog header="Добавление задачи" [modal]="true" [(visible)]="isAddTaskFormVisible"
     *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
+  <form class="forg-group" [formGroup]="addTaskForm" (ngSubmit)="addTask()">
     <div class="form-outline mb-2 flex-row">
       <input type="text" class="form-control form-control-lg"
         placeholder="Название" formControlName="name"/>
@@ -121,9 +121,10 @@
   </form>
 </p-dialog>
 
-<p-dialog header="Изменение статуса" [modal]="true" [(visible)]="isChangeStatusFormVisible">
-  <form class="forg-group" [formGroup]="changeTaskStatusForm" (ngSubmit)="changeStatus()" 
+<p-dialog header="Изменение статуса" [modal]="true" [(visible)]="isChangeStatusFormVisible"
     *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
+  <form class="forg-group" [formGroup]="changeTaskStatusForm" 
+      (ngSubmit)="changeStatus()">
     <div class="form-outline mb-2 flex-row">
       <input type="text" class="form-control form-control-lg"
         placeholder="Имя" formControlName="name"/>
@@ -155,7 +156,8 @@
   </form>
 </p-dialog>
 
-<p-dialog header="Добавление статуса" [modal]="true" [(visible)]="isAddStatusFormVisible">
+<p-dialog header="Добавление статуса" [modal]="true" [(visible)]="isAddStatusFormVisible"
+    *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
   <form class="forg-group" [formGroup]="addTaskStatusForm" (ngSubmit)="addStatus()" 
     *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isLeader)">
     <div class="form-outline mb-2 flex-row">

@@ -10,8 +10,7 @@ namespace ManagerLogic.Background;
 
 public class MessengerHostService(
     IBackgroundTaskRepository repository, 
-    IAuthentication authenticationRepository,
-    ITaskRepository taskRepository) : BackgroundService
+    IAuthentication authenticationRepository) : BackgroundService
 {
     private int _executionCount;
     private TelegramBotClient botClient;
@@ -21,7 +20,7 @@ public class MessengerHostService(
         Console.WriteLine
             ("Timed Hosted Service running.");
         
-        using PeriodicTimer timer = new(TimeSpan.FromSeconds(30));
+        using PeriodicTimer timer = new(TimeSpan.FromSeconds(5));
         using var cts = new CancellationTokenSource();
         var secretProvider = new SecretProvider();
         var token = secretProvider.GetBotToken();
@@ -31,10 +30,10 @@ public class MessengerHostService(
         
         try
         {
-            await DoWork();
+            await QueueProcessing();
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                await DoWork();
+                await QueueProcessing();
             }
         }
         catch (OperationCanceledException)
@@ -44,22 +43,35 @@ public class MessengerHostService(
         }
     }
 
-    private async Task DoWork()
+    private async Task QueueProcessing()
     {
         int count = Interlocked.Increment(ref _executionCount);
 
         var nearest = await repository.GetAllNearest();
         foreach (var task in nearest)
         {
-            if (task.Type == 0)
+            var user = await authenticationRepository.GetUserById(task.MemberId);
+            if (user.Id != task.MemberId || string.IsNullOrEmpty(user.ChatId))
+                continue;
+            if (task.Type == (int)BackgroundTaskType.Available)
             {
-                var user = await authenticationRepository.GetUserById(task.MemberId);
-                if (user.Id == task.MemberId && !string.IsNullOrEmpty(user.ChatId))
-                {
-                    await botClient.SendMessage(user.ChatId!, 
-                        $"Задача \n{task.Task.Name}\n доступна для вас!\n[{DateTime.Now}]");
-                    await repository.Delete(task.Id);
-                }
+                await botClient.SendMessage(user.ChatId!, 
+                    $"Задача \n{task.Task.Name}\n доступна для вас!\n[{DateTime.Now}]" +
+                    $"{user.Email}");
+                await repository.Delete(task.Id);
+            }
+            else if (task.Type == (int)BackgroundTaskType.Removed)
+            { 
+                await botClient.SendMessage(user.ChatId!, 
+                    $"Вы удалены с задачи: \n{task.Task.Name}\n[{DateTime.Now}]");
+                await repository.Delete(task.Id);
+            }
+            else if (task.Type == (int)BackgroundTaskType.StatusUpdate)
+            {
+                await botClient.SendMessage(user.ChatId!, 
+                    $"Задача \n{task.Task.Name}\n {task.Message} \n[{DateTime.Now}]" +
+                    $"{user.Email}");
+                await repository.Delete(task.Id);
             }
         }
         Console.WriteLine

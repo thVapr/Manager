@@ -1,8 +1,6 @@
 import { Task } from '../models/task';
-import { Status } from '../../status';
 import { Component } from '@angular/core';
 import { Member } from '../models/member';
-import { Constants } from '../../constants';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
@@ -10,7 +8,7 @@ import { TaskService } from '../../services/task/task.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Location } from '@angular/common';
 import { MemberService } from '../../services/member/member.service';
-import { TaskActionHeader, TaskActionType, TaskHistory } from '../models/task-history';
+import { TaskActionType, TaskHistory } from '../models/task-history';
 import { TaskStatus } from '../models/task-status';
 import { PartService } from 'src/app/services/part/part.service';
 
