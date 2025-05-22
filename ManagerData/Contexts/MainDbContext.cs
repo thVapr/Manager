@@ -24,6 +24,7 @@ public sealed class MainDbContext : DbContext
     public DbSet<PartMemberRole> PartMemberRoles { get; set; } = null!;
     public DbSet<TagDataModel> Tags { get; set; } = null!;
     public DbSet<MemberTag> MemberTags { get; set; } = null!;
+    public DbSet<TaskFile> TaskFiles { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +89,9 @@ public sealed class MainDbContext : DbContext
             .HasKey(k => new {k.MemberId, k.TagId});
         modelBuilder.Entity<PartMemberRole>()
             .HasKey(k => new { k.MemberId, k.PartRoleId, k.PartId });
+
+        modelBuilder.Entity<TaskFile>()
+            .HasKey(k => new { k.TaskId, k.Path });
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

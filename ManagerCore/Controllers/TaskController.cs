@@ -12,7 +12,7 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/tasks")]
 [Authorize]
-public class TaskController(ITaskLogic taskLogic) : ControllerBase
+public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic) : ControllerBase
 {
     [HttpGet]
     [Route("get")]
@@ -181,6 +181,35 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
         if (isTaskUpdated)
             return Ok();
         return BadRequest();
+    }
+    
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpPost]
+    [Route("upload_file")]
+    public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] string taskId)
+    {
+        await fileLogic.Upload(file, taskId);
+        return Ok();
+    }
+    
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpGet]
+    [Route("get_files")]
+    public async Task<IActionResult> GetFileList(string taskId)
+    {
+        var list = await fileLogic.GetFileList(taskId);
+        return Ok(list);
+    }
+    
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpGet]
+    [Route("download_file")]
+    public async Task<IActionResult> GetFile(string fileName, string taskId)
+    {
+        var stream = await fileLogic.Download(fileName, taskId);
+        string contentType = "application/octet-stream";
+        stream.Position = 0;
+        return File(stream, contentType, fileName);
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Create])]

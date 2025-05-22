@@ -1,5 +1,5 @@
 import { Task } from '../models/task';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Member } from '../models/member';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
@@ -11,6 +11,7 @@ import { MemberService } from '../../services/member/member.service';
 import { TaskActionType, TaskHistory } from '../models/task-history';
 import { TaskStatus } from '../models/task-status';
 import { PartService } from 'src/app/services/part/part.service';
+import { FileUpload, FileUploadEvent, FileUploadHandlerEvent } from 'primeng/fileupload';
 
 @Component({
     selector: 'app-task-profile',
@@ -31,7 +32,7 @@ export class TaskProfileComponent {
   addMemberForm = new FormGroup({
     member: new FormControl<Member|null>(null, [Validators.required]),
   });
-
+ @ViewChild('fileUploader') fileUploader!: FileUpload;
   value: number = 1;
   taskId : string = "";
   taskName : string | undefined = "";
@@ -99,7 +100,12 @@ export class TaskProfileComponent {
                 this.taskHistory = history.sort((a,b) => {
                   return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                 });
-                console.log(this.taskHistory);
+                this.taskService.getFileList(this.taskId).subscribe({
+                  next: (files) => {
+                    console.log(files);
+                    this.uploadedFiles = [...files];
+                  }
+                });
               }
             });
           });
@@ -125,12 +131,31 @@ export class TaskProfileComponent {
     });
   }
 
-  onUpload(event:any) {
+  download(fileName : string) {
+    this.taskService.getFile(fileName, this.taskId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }
+    });
+  }
+  
+  onUpload(event:FileUploadHandlerEvent) {
     for(let file of event.files) {
-        this.uploadedFiles.push(file);
+      this.taskService.addFile(file, this.taskId).subscribe({
+        next: () => {
+          this.update();
+          this.fileUploader.clear();
+          this.messageService.add({severity: 'info', summary: 'Файл загружен', detail: ''})
+        }
+      });
     }
-
-    this.messageService.add({severity: 'info', summary: 'File Uploaded', detail: ''});
   }
 
   showAddMemberToTaskForm() : void {

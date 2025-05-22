@@ -130,13 +130,24 @@
 
         </p-tabpanel>
         <p-tabpanel [value]="3">
-            <p-fileupload name="demo[]" [multiple]="true" maxFileSize="1000000" mode="advanced">
+            <p-fileupload 
+                #fileUploader
+                name="demo[]"
+                [customUpload]="true"
+                (uploadHandler)="onUpload($event)"
+                [multiple]="false" 
+                maxFileSize="1000000" 
+                mode="advanced">
                 <ng-template #empty>
                     <div>Перенесите файлы для загрузки.</div>
                 </ng-template>
                 <ng-template #content>
-                    <ul *ngIf="uploadedFiles.length">
-                        <li *ngFor="let file of uploadedFiles">{{ file.name }} - {{ file.size }} bytes</li>
+                    <ul *ngIf="uploadedFiles.length > 0" class="file-list">
+                        <li *ngFor="let file of uploadedFiles">
+                            <a href="#" (click)="download(file); $event.preventDefault()">
+                            {{ file }}
+                            </a>
+                        </li>
                     </ul>
                 </ng-template>
             </p-fileupload>

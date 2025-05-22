@@ -71,6 +71,17 @@ export class TaskService {
       `?taskId=${taskId}`);
   }
 
+  getFileList(taskId : string) : Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/get_files?taskId=${taskId}`);
+  }
+
+  getFile(fileName : string,taskId : string) : Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/download_file?fileName=${fileName}&taskId=${taskId}`,
+    {
+      responseType: 'blob'
+    });
+  }
+
   updateTask(name : string, description : string, task : Task) : Observable<any> {
     const partId =  this.partService.getPartId();
     task.partId = partId!;
@@ -92,6 +103,14 @@ export class TaskService {
     task.partId =  this.partService.getPartId()!;
 
     return this.http.post<any>(`${this.apiUrl}/create`, task);
+  }
+
+  addFile(file : File, taskId : string) : Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('taskId', taskId);
+    console.log(taskId);
+    return this.http.post<any>(`${this.apiUrl}/upload_file`, formData);
   }
 
   addTaskToCurrentMember(taskId : string) : Observable<any> {

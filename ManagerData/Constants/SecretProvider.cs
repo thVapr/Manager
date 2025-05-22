@@ -17,6 +17,16 @@ public class SecretProvider
         return Configuration["ManagerData"];
     }
 
+    public string? GetStorageAccessKey()
+    {
+        return Configuration["StorageAccessKey"];
+    }
+
+    public string? GetStorageSecretKey()
+    {
+        return Configuration["StorageSecretKey"];
+    }
+    
     public string? GetBotToken()
     {
         return Configuration["TelegramBotToken"];

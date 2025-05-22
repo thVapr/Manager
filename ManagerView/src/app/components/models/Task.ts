@@ -3,19 +3,21 @@ export class Task {
 
     name?: string;
     description?: string;
-    path? : string;
+    path?: string;
     
     memberId?: string;
     memberName?: string;
-    memberLastName? : string;
+    memberLastName?: string;
 
     creatorId?: string;
     partId?: string;
 
-    startTime? : Date;
-    deadline? : Date;
-    closedAt? : Date;
+    startTime?: Date;
+    deadline?: Date;
+    closedAt?: Date;
 
     status?: number;
     level?: number;
+
+    isAvailable?: boolean;
 }

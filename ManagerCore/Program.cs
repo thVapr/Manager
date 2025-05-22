@@ -26,6 +26,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AuthenticationDbContext>();
 builder.Services.AddDbContext<MainDbContext>();
 
+builder.Services.AddSingleton<IFileRepository, FileRepository>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -90,6 +92,7 @@ builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
 builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
 builder.Services.AddSingleton<IHistoryRepository, HistoryRepository>();
 builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+builder.Services.AddSingleton<IFileLogic, FileLogic>();
 
 builder.Services.AddSingleton<IBackgroundTaskRepository, BackgroundTaskRepository>();
 builder.Services.AddHostedService<MessengerHostService>();
