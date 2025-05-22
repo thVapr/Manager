@@ -1,9 +1,8 @@
-﻿using System.Collections;
+﻿using ManagerLogic.Models;
 using ManagerData.Constants;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Background;
-using ManagerLogic.Models;
 
 namespace ManagerLogic.Management;
 
@@ -86,6 +85,8 @@ public class TaskLogic(
             );
             foreach (var member in members)
             {
+                if (Guid.Parse(member.Id!) == entity.CreatorId)
+                    continue;
                 await backgroundTaskRepository.Create(new BackgroundTask
                 {
                     PartId = entity.PartId! ?? Guid.Empty,
@@ -228,25 +229,34 @@ public class TaskLogic(
 
     public async Task<bool> UpdateTask(HistoryModel? historyModel, TaskModel taskModel)
     {
-        if (historyModel is not null && !string.IsNullOrEmpty(historyModel.InitiatorId))
+        var partId = taskModel.PartId ?? Guid.Empty;
+        var taskId = Guid.Parse(taskModel.Id!);
+        var savedAvailableMembers = await GetAvailableMembersForTask(partId, taskId, true);
+        var rawStatuses = (await partLogic.GetPartTaskStatuses(partId));
+        var savedTask = await GetEntityById(Guid.Parse(taskModel.Id!));
+        
+        var isEntityUpdated = await UpdateEntity(taskModel);
+        if (isEntityUpdated && historyModel is not null && !string.IsNullOrEmpty(historyModel.InitiatorId))
         {
             var task = await GetEntityById(Guid.Parse(taskModel.Id!));
-            if (task.Status != taskModel.Status)
+            if (task.Status != savedTask.Status)
             {
                 await historyRepository.Create(new TaskHistory
                 {
                     TaskId = Guid.Parse(task.Id!),
-                    SourceStatusId = task.Status,
+                    SourceStatusId = savedTask.Status,
                     DestinationStatusId = taskModel.Status,
                     InitiatorId = Guid.Parse(historyModel.InitiatorId),
                     Description = historyModel.Description!,
                     Name = historyModel.Name!,
                     ActionType = TaskActionType.StatusChanged
-                });   
+                });
+                await NotifyAboutStatusUpdate(taskId, partId, task, rawStatuses, savedTask.Status, taskModel.Status);
+                await NotifyAvailableMembers(Guid.Parse(task.Id!), partId, task, rawStatuses, savedAvailableMembers);
             }
         }
 
-        return await UpdateEntity(taskModel);
+        return isEntityUpdated;
     }
 
     public async Task<bool> AddMemberToTask(Guid initiatorId, Guid memberId, Guid taskId, int groupId)
@@ -316,6 +326,14 @@ public class TaskLogic(
                 ActionType = TaskActionType.Reassigned,
                 TargetMemberId = memberId,
             });
+
+            await backgroundTaskRepository.Create(new BackgroundTask
+            {
+                TaskId = taskId,
+                MemberId = memberId,
+                Type = (int)BackgroundTaskType.Removed,
+                Timeline = DateTime.UtcNow
+            });
         }
         
         return isMemberRemoved;
@@ -325,7 +343,11 @@ public class TaskLogic(
     {
         //TODO: Нужно это разобрать на отдельные методы
         var task = await repository.GetEntityById(taskId);
-        var statuses = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
+        var partId = task.PartId ?? Guid.Empty;
+        var savedAvailableMembers = await GetAvailableMembersForTask(partId, taskId, true);
+        
+        var rawStatuses = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty));
+        var statuses = rawStatuses
             .OrderBy(status => status.Order)
             .Select(status => status.Order)
             .SkipLast(1).ToList();
@@ -356,31 +378,12 @@ public class TaskLogic(
         var index = nodes.IndexOf(task.Status);
         if (forward && index == nodes.Count - 1) 
             return false;
-        else if (!forward && index == 0)
+        if (!forward && index == 0)
             return false;
         var targetIndex = forward ? index + 1 : index - 1;
         if (targetIndex == nodes.Count - 1)
             task.ClosedAt = DateTime.Now;
         
-        var taskMembers = (await repository.GetTaskMembers(taskId))
-            .Where(taskMember => taskMember.ParticipationPurpose == 1)
-            .Select(memberMember => memberMember.MemberId);
-        var memberRoles = new Dictionary<Guid, ICollection<PartRole>>();
-        foreach (var memberId in taskMembers)
-        {
-            memberRoles[memberId] = await partLogic.GetPartMemberRoles(task.PartId ?? Guid.Empty, memberId);
-        }
-        var nextStatus = (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
-            .FirstOrDefault(status => status.Order == nodes[targetIndex]);
-        if (nextStatus!.PartRoleId != null && nextStatus.PartRoleId != Guid.Empty)
-        {
-            foreach (var memberRole in memberRoles)
-            {
-                if (memberRole.Value.All(role => role.Id != nextStatus.PartRoleId.Value))
-                    await RemoveMemberFromTask(Guid.Empty, memberRole.Key, taskId);
-            }
-        }
-
         var sourceStatus = task.Status;
         task.Status = nodes[targetIndex];
         
@@ -398,11 +401,84 @@ public class TaskLogic(
                 Name = historyModel.Name!,
                 ActionType = TaskActionType.StatusChanged,
             });
+            await NotifyAboutStatusUpdate(taskId, partId, 
+                ConvertToLogicModel(task), rawStatuses, sourceStatus, task.Status);
+            await NotifyAvailableMembers(taskId, partId, 
+                ConvertToLogicModel(task), rawStatuses, savedAvailableMembers);
         }
         
         return isEntityUpdated;
     }
 
+    private async Task NotifyAboutStatusUpdate(Guid taskId, Guid partId, TaskModel task, 
+        ICollection<PartTaskStatus> rawStatuses, int sourceStatusId, int destinationStatusId)
+    {
+        var taskMembers = await repository.GetTaskMembers(taskId);
+        var sourceStatus = rawStatuses
+            .Where(status => status.Order == sourceStatusId)
+            .Select(status => status.Name).First();
+        var destinatinoStatus = rawStatuses
+            .Where(status => status.Order == destinationStatusId)
+            .Select(status => status.Name).First();
+        
+        foreach (var member in taskMembers)
+        {
+            await backgroundTaskRepository.Create(new BackgroundTask
+            {
+                TaskId = taskId,
+                PartId = partId,
+                MemberId = member.MemberId,
+                Message = !string.IsNullOrEmpty(sourceStatus) && !string.IsNullOrEmpty(destinatinoStatus)
+                    ? $"переведена из {sourceStatus} в {destinatinoStatus}"
+                    : "обновлена",
+                Type = (int)BackgroundTaskType.StatusUpdate,
+                Timeline = DateTime.UtcNow
+            });
+        }
+        
+    }
+    
+    private async Task NotifyAvailableMembers(
+        Guid taskId, Guid partId, TaskModel task, 
+        ICollection<PartTaskStatus> rawStatuses, ICollection<MemberModel> savedAvailableMembers)
+    {
+        var taskMembers = await GetTaskMembers(taskId);
+        int accessCounter = 0;
+            
+        foreach (var taskMember in taskMembers)
+        {
+            var memberId = Guid.Parse(taskMember.Id!);
+
+            if (await HasAccessToTask(memberId, partId, task, rawStatuses))
+                accessCounter++;
+        }
+
+        var availableMembers = await GetAvailableMembersForTask(
+            partId, Guid.Parse(task.Id!), true);
+        
+        var filteredMembers = new List<MemberModel>();
+        if (accessCounter == 0)
+        {
+            filteredMembers.AddRange(availableMembers);
+        }
+        else if (savedAvailableMembers.Count != availableMembers.Count)
+        {
+            filteredMembers.AddRange(availableMembers
+                    .Where(member => savedAvailableMembers.All(savedMember => savedMember.Id != member.Id)));
+        }
+        foreach (var member in filteredMembers)
+        {
+            await backgroundTaskRepository.Create(new BackgroundTask
+            {
+                TaskId = taskId,
+                PartId = partId,
+                MemberId = Guid.Parse(member.Id!),
+                Type = (int)BackgroundTaskType.Available,
+                Timeline = DateTime.UtcNow
+            });
+        }
+    }
+    
     public async Task<ICollection<TaskModel>> GetFreeTasks(Guid partId)
     {
         var tasks = await repository.GetFreeTasks(partId);
@@ -414,7 +490,7 @@ public class TaskLogic(
     {
         var roles = await partLogic.GetPartMemberRoles(partId, memberId);
         var statuses = await partLogic.GetPartTaskStatuses(partId);
-        var tasks = (await repository.GetFreeTasks(partId)).ToList();
+        var tasks = await GetEntitiesById(partId);
         
         var availableTasks = new List<TaskModel>();
         foreach (var task in tasks)
@@ -428,28 +504,52 @@ public class TaskLogic(
                     ? array[index + 1] 
                     : null;
             }
-
+            var taskMembers = await GetTaskMembers(Guid.Parse(task.Id!));
+            
+            int accessCounter = 0;
+            foreach (var taskMember in taskMembers)
+            {
+                if (await HasAccessToTask(Guid.Parse(taskMember.Id!), partId, task, statuses))
+                    accessCounter++;
+            }
+            if (accessCounter != 0)
+                continue;
             var taskStatus = statuses
                 .FirstOrDefault(status => status.Order.ToString() == targetStatus);
             if (taskStatus == null)
                 continue;
             if (taskStatus!.PartRoleId is null || roles.Any(role => role.Id == taskStatus!.PartRoleId))
             {
-                availableTasks.Add(ConvertToLogicModel(task!));
+                availableTasks.Add(task);
             }
         }
         
         return availableTasks;
     }
 
-    public async Task<ICollection<MemberModel>> GetAvailableMembersForTask(Guid partId, Guid taskId)
+    public async Task<ICollection<MemberModel>> GetAvailableMembersForTask(Guid partId, Guid taskId, bool includeExecutors = false)
     {
+        var task = await GetEntityById(taskId);
         var statuses = await partLogic.GetPartTaskStatuses(partId);
         var members = (await memberLogic.GetMembersFromPart(partId));
-        var task = await GetEntityById(taskId);
         var taskMembers = await GetTaskMembers(Guid.Parse(task.Id!));
         
         var availableMembers = new List<MemberModel>();
+        foreach (var member in members)
+        {
+            if ((includeExecutors || taskMembers.All(taskMember => taskMember.Id != member.Id)) 
+                && await HasAccessToTask(Guid.Parse(member.Id!), partId, task, statuses))
+            {
+                availableMembers.Add(await memberLogic.GetEntityById(Guid.Parse(member.Id!)));
+            }
+        }
+
+        return availableMembers;
+    }
+
+    private async Task<bool> HasAccessToTask(
+        Guid memberId, Guid partId, TaskModel task, ICollection<PartTaskStatus> taskStatuses)
+    {
         var targetStatus = task.Status.ToString();
         if (task.Status == 0)
         {
@@ -459,34 +559,33 @@ public class TaskLogic(
                 ? array[index + 1] 
                 : null;
         }
-
-        var taskStatus = statuses
-            .FirstOrDefault(status => status.Order.ToString() == targetStatus);
         
-        foreach (var member in members)
-        {
-            if (string.IsNullOrEmpty(member.Id))
-                continue;
-            var roles = await partLogic.GetPartMemberRoles(partId, Guid.Parse(member.Id!));
-            var isMemberAvailableForThisTask =
-                (taskStatus is null 
-                    || taskStatus!.PartRoleId is null 
-                    || roles.Any(role => role.Id == taskStatus!.PartRoleId))
-                && taskMembers.All(taskMember => taskMember.Id != member.Id);
-            if (isMemberAvailableForThisTask)
-            {
-                availableMembers.Add(await memberLogic.GetEntityById(Guid.Parse(member.Id!)));
-            }
-        }
+        var taskStatus = taskStatuses
+            .FirstOrDefault(status => status.Order.ToString() == targetStatus);
 
-        return availableMembers;
+        var roles = await partLogic.GetPartMemberRoles(partId, memberId);
+        var isMemberAvailableForThisTask =
+            (taskStatus is null 
+             || taskStatus!.PartRoleId is null 
+             || roles.Any(role => role.Id == taskStatus!.PartRoleId));
+        return isMemberAvailableForThisTask;
     }
-
-    public async Task<ICollection<TaskModel>> GetMemberTasks(Guid employeeId)
+    public async Task<ICollection<TaskModel>> GetMemberTasks(Guid memberId)
     {
-        var tasks = await repository.GetMemberTasks(employeeId);
+        var tasks = await repository.GetMemberTasks(memberId);
 
-        return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
+        var updatedTasks = tasks.Select(task => ConvertToLogicModel(task!)).ToList();
+        
+        foreach (var task in updatedTasks)
+        {
+            var partId = task.PartId ?? Guid.Empty;
+            if (partId == Guid.Empty)
+                continue;
+            var statuses = await partLogic.GetPartTaskStatuses(partId);
+
+            task.IsAvailable = await HasAccessToTask(memberId, partId, task, statuses);
+        }
+        return updatedTasks;
     }
 
     public async Task<ICollection<MemberModel>> GetTaskMembers(Guid taskId)

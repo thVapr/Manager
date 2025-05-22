@@ -4,7 +4,6 @@ import { PartService } from '../part/part.service';
 import { HttpClient } from '@angular/common/http';
 import { Task } from 'src/app/components/models/task';
 import { AuthService } from '../auth/auth.service';
-import { Status } from 'src/app/status'
 import { Constants } from 'src/app/constants';
 import { Member } from 'src/app/components/models/member';
 import { TaskHistory } from 'src/app/components/models/task-history';

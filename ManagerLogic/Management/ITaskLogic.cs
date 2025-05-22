@@ -12,7 +12,7 @@ public interface ITaskLogic : IManagementLogic<TaskModel>
     Task<bool> ChangeTaskStatus(HistoryModel historyModel, Guid taskId, bool forward);
     Task<ICollection<TaskModel>> GetFreeTasks(Guid partId);
     Task<ICollection<TaskModel>> GetAvailableTasks(Guid memberId, Guid partId);
-    Task<ICollection<MemberModel>> GetAvailableMembersForTask(Guid partId, Guid taskId);
+    Task<ICollection<MemberModel>> GetAvailableMembersForTask(Guid partId, Guid taskId, bool includeExecutors = false);
     Task<ICollection<TaskModel>> GetMemberTasks(Guid memberId);
     Task<ICollection<MemberModel>> GetTaskMembers(Guid taskId);
 }

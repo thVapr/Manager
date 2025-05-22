@@ -20,7 +20,7 @@ import { PartProfileComponent } from './components/part-profile/part-profile.com
 import { TaskProfileComponent } from './components/task-profile/task-profile.component';
 import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
-import Material from '@primeng/themes/Material';
+import Lara from '@primeng/themes/Lara';
 import { providePrimeNG } from 'primeng/config';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -50,7 +50,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber'
 import { ProgressBarModule } from 'primeng/progressbar';
 
-const MyPreset = definePreset(Material, {
+const MyPreset = definePreset(Lara, {
   primitive: {
     green: {
       500: '#2f4f4f',

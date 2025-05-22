@@ -139,6 +139,7 @@ public class TaskController(ITaskLogic taskLogic) : ControllerBase
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
+    [TypeFilter(typeof(TaskAccessFilter))]
     [HttpPatch]
     [Route("change")]
     public async Task<IActionResult> ChangeTaskStatus([FromBody] ChangeTaskStatusModel model)
