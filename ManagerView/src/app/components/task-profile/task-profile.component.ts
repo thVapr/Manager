@@ -32,7 +32,7 @@ export class TaskProfileComponent {
   addMemberForm = new FormGroup({
     member: new FormControl<Member|null>(null, [Validators.required]),
   });
- @ViewChild('fileUploader') fileUploader!: FileUpload;
+  @ViewChild('fileUploader') fileUploader!: FileUpload;
   value: number = 1;
   taskId : string = "";
   taskName : string | undefined = "";
