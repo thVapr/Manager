@@ -305,6 +305,24 @@ public class TaskLogic(
                 ActionType = TaskActionType.MemberAdded,
                 TargetMemberId = memberId,
             });
+      
+            var members = await GetTaskMembers(taskId);
+            var currentMember = members.FirstOrDefault(member => member.Id == memberId.ToString());
+            foreach (var member in members)
+            {
+                if (member.Id == initiatorId.ToString())
+                    continue;
+                
+                await backgroundTaskRepository.Create(new BackgroundTask
+                {
+                    TaskId = taskId,
+                    PartId = task.PartId ?? Guid.Empty,
+                    MemberId = Guid.Parse(member.Id!),
+                    Timeline = DateTime.UtcNow,
+                    Type = (int)BackgroundTaskType.Added,
+                    Message = currentMember!.FirstName + " " + currentMember.LastName,
+                });
+            }
         }
         
         return isMemberAddedToTask;

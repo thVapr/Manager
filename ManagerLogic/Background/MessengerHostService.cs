@@ -53,25 +53,33 @@ public class MessengerHostService(
             var user = await authenticationRepository.GetUserById(task.MemberId);
             if (user.Id != task.MemberId || string.IsNullOrEmpty(user.ChatId))
                 continue;
-            if (task.Type == (int)BackgroundTaskType.Available)
+            switch (task.Type)
             {
-                await botClient.SendMessage(user.ChatId!, 
-                    $"Задача \n{task.Task.Name}\n доступна для вас!\n[{DateTime.Now}]" +
-                    $"{user.Email}");
-                await repository.Delete(task.Id);
-            }
-            else if (task.Type == (int)BackgroundTaskType.Removed)
-            { 
-                await botClient.SendMessage(user.ChatId!, 
-                    $"Вы удалены с задачи: \n{task.Task.Name}\n[{DateTime.Now}]");
-                await repository.Delete(task.Id);
-            }
-            else if (task.Type == (int)BackgroundTaskType.StatusUpdate)
-            {
-                await botClient.SendMessage(user.ChatId!, 
-                    $"Задача \n{task.Task.Name}\n {task.Message} \n[{DateTime.Now}]" +
-                    $"{user.Email}");
-                await repository.Delete(task.Id);
+                case (int)BackgroundTaskType.Available:
+                {
+                    await botClient.SendMessage(user.ChatId!, 
+                        $"🐍 Задача \n{task.Task.Name}\n доступна для вас\n", parseMode: ParseMode.MarkdownV2);
+                    await repository.Delete(task.Id);
+                } break;
+                case (int)BackgroundTaskType.Removed:
+                { 
+                    await botClient.SendMessage(user.ChatId!, 
+                        $"🐍 Вы удалены с задачи: \n{task.Task.Name}\n", parseMode: ParseMode.MarkdownV2);
+                    await repository.Delete(task.Id);
+                } break;
+                case (int)BackgroundTaskType.StatusUpdate:
+                {
+                    await botClient.SendMessage(user.ChatId!, 
+                        $"🐍 Задача \n{task.Task.Name}\n {task.Message}\n", parseMode: ParseMode.MarkdownV2);
+                    await repository.Delete(task.Id);
+                } break;
+                case (int)BackgroundTaskType.Added:
+                {
+                    await botClient.SendMessage(user.ChatId!, 
+                        $"🐍 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n",
+                        parseMode: ParseMode.MarkdownV2);
+                    await repository.Delete(task.Id);
+                } break;
             }
         }
         Console.WriteLine
