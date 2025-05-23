@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
               })).sort((a,b)=> a.statusOrder! - b.statusOrder!);
               const completedTasks : number = this.statusCounts.find(status => status.statusOrder === 110)?.taskCount!;
               
-              this.progress = completedTasks / tasks.length * 100;
+              this.progress = Math.round(completedTasks / tasks.length * 100);
               this.initChart();
             }
           });
