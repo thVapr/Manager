@@ -2,6 +2,8 @@
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ManagerData.Constants;
+using ManagerData.DataModels;
+using ManagerData.DataModels.Authentication;
 using ManagerData.Management;
 using ManagerLogic.Authentication;
 using Microsoft.Extensions.Hosting;
@@ -45,45 +47,57 @@ public class MessengerHostService(
 
     private async Task QueueProcessing()
     {
-        int count = Interlocked.Increment(ref _executionCount);
-
-        var nearest = await repository.GetAllNearest();
-        foreach (var task in nearest)
+        try
         {
-            var user = await authenticationRepository.GetUserById(task.MemberId);
-            if (user.Id != task.MemberId || string.IsNullOrEmpty(user.ChatId))
-                continue;
-            switch (task.Type)
+            int count = Interlocked.Increment(ref _executionCount);
+
+            var nearest = await repository.GetAllNearest();
+            foreach (var task in nearest)
             {
-                case (int)BackgroundTaskType.Available:
-                {
-                    await botClient.SendMessage(user.ChatId!, 
-                        $"🐍 Задача \n{task.Task.Name}\n доступна для вас\n");
-                    await repository.Delete(task.Id);
-                } break;
-                case (int)BackgroundTaskType.Removed:
-                { 
-                    await botClient.SendMessage(user.ChatId!, 
-                        $"🐍 Вы удалены с задачи: \n{task.Task.Name}\n");
-                    await repository.Delete(task.Id);
-                } break;
-                case (int)BackgroundTaskType.StatusUpdate:
-                {
-                    await botClient.SendMessage(user.ChatId!, 
-                        $"🐍 Задача \n{task.Task.Name}\n {task.Message}\n");
-                    await repository.Delete(task.Id);
-                } break;
-                case (int)BackgroundTaskType.Added:
-                {
-                    await botClient.SendMessage(user.ChatId!, 
-                        $"🐍 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n");
-                    await repository.Delete(task.Id);
-                } break;
+                var user = await authenticationRepository.GetUserById(task.MemberId);
+                if (user.Id != task.MemberId || string.IsNullOrEmpty(user.ChatId))
+                    continue;
+                await HandleMessage(task, user);
             }
+            Console.WriteLine
+                ($"Timed Hosted Service is working. Count: {count}\n" +
+                 $"{nearest.Count()} nearest");
         }
-        Console.WriteLine
-            ($"Timed Hosted Service is working. Count: {count}\n" +
-             $"{nearest.Count()} nearest");
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task HandleMessage(BackgroundTask task, UserDataModel user)
+    {
+        switch (task.Type)
+        {
+            case (int)BackgroundTaskType.Available:
+            {
+                await botClient.SendMessage(user.ChatId!, 
+                    $"🐍 Задача \n{task.Task.Name}\n доступна для вас\n");
+                await repository.Delete(task.Id);
+            } break;
+            case (int)BackgroundTaskType.Removed:
+            { 
+                await botClient.SendMessage(user.ChatId!, 
+                    $"🐍 Вы удалены с задачи: \n{task.Task.Name}\n");
+                await repository.Delete(task.Id);
+            } break;
+            case (int)BackgroundTaskType.StatusUpdate:
+            {
+                await botClient.SendMessage(user.ChatId!, 
+                    $"🐍 Задача \n{task.Task.Name}\n {task.Message}\n");
+                await repository.Delete(task.Id);
+            } break;
+            case (int)BackgroundTaskType.Added:
+            {
+                await botClient.SendMessage(user.ChatId!, 
+                    $"🐍 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n");
+                await repository.Delete(task.Id);
+            } break;
+        }
     }
     
     private async Task OnMessage(Message msg, UpdateType type)
