@@ -3,6 +3,7 @@ using ManagerData.Constants;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Background;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ManagerLogic.Management;
 
@@ -11,7 +12,8 @@ public class TaskLogic(
     IPartLogic partLogic,
     IMemberLogic memberLogic,
     IHistoryRepository historyRepository,
-    IBackgroundTaskRepository backgroundTaskRepository
+    IBackgroundTaskRepository backgroundTaskRepository,
+    IHubContext<UpdateHub> hubContext
     ) : ITaskLogic
 {
     public async Task<TaskModel> GetEntityById(Guid id)
@@ -256,6 +258,14 @@ public class TaskLogic(
             }
         }
 
+        if (isEntityUpdated)
+        {
+            var partMembers = await memberLogic.GetEntitiesById(partId);
+            foreach (var member in partMembers)
+            {
+                await hubContext.Clients.User(member.Id!).SendAsync("ReceiveUpdate");
+            }
+        }
         return isEntityUpdated;
     }
 
@@ -618,7 +628,7 @@ public class TaskLogic(
         }
         return memberCollection;
     }
-
+    
     private TaskModel ConvertToLogicModel(TaskDataModel model)
     {
         return new TaskModel

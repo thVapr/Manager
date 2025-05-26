@@ -190,7 +190,8 @@ public class TaskRepository : ITaskRepository
                 task.Level = model.Level;
             if (model.Status >= 0)
                 task.Status = model.Status;
-
+            if (!string.IsNullOrEmpty(model.Path))
+                task.Path = model.Path;
             await database.SaveChangesAsync();
 
             return true;

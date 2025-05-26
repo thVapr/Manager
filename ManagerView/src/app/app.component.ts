@@ -3,6 +3,7 @@ import { AuthService } from './services/auth/auth.service';
 import { MemberService } from './services/member/member.service';
 import { PartService } from './services/part/part.service';
 import { Router } from '@angular/router';
+import { UpdateService } from './services/update.service';
 
 @Component({
     selector: 'app-root',
@@ -40,9 +41,11 @@ export class AppComponent implements OnInit {
   constructor (public authService: AuthService,
                public partService : PartService,
                public memberService : MemberService,
-               public router : Router) {}
+               public router : Router,
+               private updateService: UpdateService) {}
 
   ngOnInit(): void {
+    this.updateService.startConnection();
     this.updateMenuItems();
     const id = this.authService.getId();
     if (id !== null ) {

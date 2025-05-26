@@ -6,7 +6,7 @@ using PartType = ManagerLogic.Models.PartType;
 
 namespace ManagerLogic.Management;
 
-public class PartLogic(IPartRepository repository, IRoleRepository roleRepository) : IPartLogic
+public class PartLogic(IPartRepository repository, IRoleRepository roleRepository, IPathHelper pathHelper) : IPartLogic
 {
     public async Task<PartModel> GetEntityById(Guid id)
     {
@@ -265,7 +265,16 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
         var statuses = await repository.GetPartTaskStatuses(partId);
         if (statuses.Any(status => status.Id == partTaskStatusId && status.IsFixed))
             return false;
-        return await repository.RemovePartTaskStatus(partId, partTaskStatusId);
+        
+        var isStatusRemoved = await repository.RemovePartTaskStatus(partId, partTaskStatusId);
+
+        if (isStatusRemoved)
+        {
+            var order = statuses.FirstOrDefault(status => status.Id == partTaskStatusId)!.Order;
+            await pathHelper.CleanTaskPaths(partId, order);
+        }
+        
+        return isStatusRemoved;
     }
     
     public async Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId)

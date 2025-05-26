@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
 import { finalize } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { UpdateService } from 'src/app/services/update.service';
 
 @Component({
     selector: 'app-project-tasks',
@@ -84,7 +85,8 @@ export class PartTasksComponent implements OnInit {
     public authService: AuthService,
     public partService: PartService,
     private router: Router,
-    private messageService : MessageService) {}
+    private messageService : MessageService,
+    private updateService: UpdateService) {}
 
   showAddTaskDialog() : void
   {
@@ -283,6 +285,9 @@ export class PartTasksComponent implements OnInit {
 
   ngOnInit(): void {
     this.update();
+    this.updateService.onReceiveUpdate(() => {
+      this.update();
+    });
 
     const id = this.authService.getId();
     const partId = this.partService.getPartId();

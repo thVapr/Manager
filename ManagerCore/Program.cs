@@ -9,6 +9,7 @@ using ManagerLogic.Management;
 using ManagerData.Authentication;
 using ManagerLogic.Authentication;
 using ManagerLogic.Background;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddCors(options => options.AddPolicy("CorsPolicy",
         policy.WithOrigins(builder.Configuration.GetSection("Cors:Urls").Get<string[]>()!);
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
+        policy.AllowCredentials();
     }
 ));
 
@@ -44,6 +46,21 @@ builder.Services.AddAuthentication(options =>
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecureKey"]!)), 
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    (path.StartsWithSegments("/hubs/update")))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -75,6 +92,9 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+
+builder.Services.AddSingleton<IUserIdProvider,HubUserIdProvider>();
+builder.Services.AddSignalR();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
@@ -84,6 +104,7 @@ builder.Services.AddSingleton<IEncrypt,Encrypt>();
 
 builder.Services.AddSingleton<IPartRepository, PartRepository>();
 builder.Services.AddSingleton<IPartLogic, PartLogic>();
+builder.Services.AddSingleton<IPathHelper, PathHelper>();
 
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 builder.Services.AddSingleton<IMemberLogic, MemberLogic>();
@@ -110,6 +131,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication(); 
 app.UseAuthorization();
 
+app.MapHub<UpdateHub>("/hubs/update");
 app.MapControllers();
 
 app.Run();
