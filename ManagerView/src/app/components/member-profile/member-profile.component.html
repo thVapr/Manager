@@ -17,16 +17,16 @@
       <input type="text" class="form-control form-control-lg"
         placeholder="Отчество" formControlName="patronymic" />
     </div>
-
-    <label class="form-label" for="levelOfAccess">Уровень доступа</label>
-    <p-inputNumber
-      class="w-100"
-      formControlName="privilege"
-      [max]="5" [min]="0"
-      inputId="integeronly"
-      id="levelOfAccess"
-      showButtons="true">
-    </p-inputNumber>
+    <div class="mb-3">
+      <label class="form-label" for="levelOfAccess">Уровень доступа</label>
+      <p-dropdown
+        id="levelOfAccess"
+        class="w-100"
+        [options]="privilegeOptions"
+        formControlName="privilege"
+        placeholder="Выберите уровень доступа">
+      </p-dropdown>
+    </div>
 
     <div class="mb-3">
       <label class="form-label">Роли</label>

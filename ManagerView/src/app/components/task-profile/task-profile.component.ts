@@ -1,16 +1,17 @@
 import { Task } from '../models/task';
-import { Component, ViewChild } from '@angular/core';
 import { Member } from '../models/member';
-import { MessageService } from 'primeng/api';
-import { ActivatedRoute } from '@angular/router';
+import { TaskStatus } from '../models/task-status';
 import { AuthService } from '../../services/auth/auth.service';
 import { TaskService } from '../../services/task/task.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Location } from '@angular/common';
+import { PartService } from 'src/app/services/part/part.service';
 import { MemberService } from '../../services/member/member.service';
 import { TaskActionType, TaskHistory } from '../models/task-history';
-import { TaskStatus } from '../models/task-status';
-import { PartService } from 'src/app/services/part/part.service';
+
+import { Location } from '@angular/common';
+import { MessageService } from 'primeng/api';
+import { ActivatedRoute } from '@angular/router';
+import { Component, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 
 @Component({
@@ -61,7 +62,7 @@ export class TaskProfileComponent {
               private memberService : MemberService,
               private authService : AuthService,
               private partService : PartService,
-              private messageService: MessageService) {}
+              private messageService : MessageService) {}
 
   ngOnInit(): void {
     const id : string = this.route.snapshot.params['id'];

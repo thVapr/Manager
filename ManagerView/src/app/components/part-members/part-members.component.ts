@@ -7,6 +7,7 @@ import { PartService } from '../../services/part/part.service';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { PartRole } from '../models/part-role';
+import { PRIVILEGE_LABELS } from '../privilege-labels';
 
 @Component({
     selector: 'app-part-members',
@@ -18,6 +19,7 @@ export class PartMembersComponent {
   members : Member[] = [];
   partMembers: Member[] = [];
   part : Part = new Part("","","",0,[]);
+  privelegeOptions = PRIVILEGE_LABELS;
 
   addRoleForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
@@ -159,5 +161,9 @@ export class PartMembersComponent {
           ...member,
           searchedParameter: `${member.firstName} ${member.lastName} ${member.patronymic}`
       }));
+  }
+
+  getPrivilageLabelByValue(value : number) {
+    return this.privelegeOptions.find(privelege => privelege.value === value)?.label;
   }
 }

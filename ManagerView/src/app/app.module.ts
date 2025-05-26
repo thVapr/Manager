@@ -33,6 +33,7 @@ import { TabsModule } from 'primeng/tabs';
 import { ChipsModule } from 'primeng/chips';
 import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
+import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { EditorModule } from 'primeng/editor';
 import { RippleModule } from 'primeng/ripple';
@@ -49,6 +50,7 @@ import { DatePickerModule  } from 'primeng/datepicker'
 import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber'
 import { ProgressBarModule } from 'primeng/progressbar';
+
 
 const MyPreset = definePreset(Lara, {
   primitive: {
@@ -108,6 +110,7 @@ const MyPreset = definePreset(Lara, {
         MenubarModule,
         DragDropModule,
         PickListModule,
+        DropdownModule,
         AppRoutingModule,
         DatePickerModule,
         FileUploadModule,

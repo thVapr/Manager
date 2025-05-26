@@ -20,7 +20,7 @@
                 [subheader]="option.firstName + ' ' + option.lastName" class="flex-fill"> 
                 <ng-template *ngIf="option.privilege != undefined" pTemplate="footer">
                     <span>Уровень доступа: </span>
-                    <p-tag [value]="option.privilege"></p-tag>
+                    <p-tag [value]="getPrivilageLabelByValue(option.privilege)"></p-tag>
                 </ng-template>
             </p-card>
         </ng-template>

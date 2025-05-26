@@ -6,6 +6,7 @@ import { Member } from '../models/member';
 import { PartService } from 'src/app/services/part/part.service';
 import { MemberService } from '../../services/member/member.service';
 import { PartRole } from '../models/part-role';
+import { PRIVILEGE_LABELS } from '../privilege-labels';
 
 @Component({
   selector: 'app-employee-profile',
@@ -14,7 +15,7 @@ import { PartRole } from '../models/part-role';
   standalone: false
 })
 export class MemberProfileComponent implements OnInit {
-
+  privilegeOptions = PRIVILEGE_LABELS;
   isMemberHasPermissionsToEdit: boolean = false;
 
   changeEmployeeForm = new FormGroup({
