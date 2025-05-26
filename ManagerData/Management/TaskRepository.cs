@@ -181,11 +181,11 @@ public class TaskRepository : ITaskRepository
             if (!string.IsNullOrEmpty(model.Description))
                 task.Description = model.Description;
             if (model.StartTime.HasValue)
-                model.Deadline = model.Deadline;
+                task.StartTime = model.StartTime;
             if (model.Deadline.HasValue)
-                model.Deadline = model.Deadline;
+                task.Deadline = model.Deadline;
             if (model.ClosedAt.HasValue)
-                model.ClosedAt = model.ClosedAt;
+                task.ClosedAt = model.ClosedAt;
             if (model.Level >= 0)
                 task.Level = model.Level;
             if (model.Status >= 0)

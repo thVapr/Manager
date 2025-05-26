@@ -26,6 +26,30 @@
         placeholder="Название" formControlName="name"/>
     </div>
     <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
+        <label class="form-label mt-2" for="endDate">Крайний срок</label>
+    <p-datepicker id="endDate" [showIcon]="true" [showTime]="true"
+      hourFormat="24" dateFormat="dd-mm-yy" formControlName="deadline"
+      class="d-flex flex-fill flex-column mb-2" appendTo="body"/>
+    <div class="form-outline mb-2 flex-row">
+      <label class="form-label mt-2">Приоритет</label>
+      <select name="select" class="form-control form-control-lg" 
+          type="select" formControlName="priority">
+        <option value="0" class="text-primary"> Обычный </option>
+        <option value="1" class="text-warning"> Средний </option>
+        <option value="2" class="text-danger"> Высокий </option>
+        <option value="3" class="text-danger bg-dark"> Экстремальный </option>
+      </select>
+    </div>
+    <label class="form-label mt-2">Путь задачи</label>
+    <p-listbox 
+      [options]="statuses" 
+      formControlName="selectedStatusColumns"
+      optionLabel="name" 
+      optionDisabled="isFixed"
+      [multiple]="true" 
+      [metaKeySelection]="false"
+      class="w-full md:w-56">
+    </p-listbox>
 </form>
 
 <p-tabs [value]="value">

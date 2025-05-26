@@ -11,7 +11,7 @@ import { MemberService } from '../../services/member/member.service';
 import { TaskActionType, TaskHistory } from '../models/task-history';
 import { TaskStatus } from '../models/task-status';
 import { PartService } from 'src/app/services/part/part.service';
-import { FileUpload, FileUploadEvent, FileUploadHandlerEvent } from 'primeng/fileupload';
+import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 
 @Component({
     selector: 'app-task-profile',
@@ -25,9 +25,12 @@ export class TaskProfileComponent {
   TaskActionType = TaskActionType;
 
   updateTaskForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.minLength(4)]),
-    description: new FormControl('', [Validators.required, Validators.minLength(4)])
-  });
+    name: new FormControl('', [Validators.minLength(4)]),
+    description: new FormControl('', [Validators.minLength(4)]),
+    priority: new FormControl(0, []),
+    deadline: new FormControl(new Date(), []),
+    selectedStatusColumns: new FormControl<TaskStatus[]>([],[])
+  })
 
   addMemberForm = new FormGroup({
     member: new FormControl<Member|null>(null, [Validators.required]),
@@ -37,12 +40,13 @@ export class TaskProfileComponent {
   taskId : string = "";
   taskName : string | undefined = "";
   taskDescription : string | undefined = "";
+  task : Task = {};
   status : string | undefined = "";
   taskStatus : number | undefined = 0;
   uploadedFiles: any[] = [];
   taskHistory: TaskHistory[] = [];
   statuses : TaskStatus[] = [];
-
+  
   availableMembers : Member[] = [];
   isAddMemberFormVisible : boolean = false;
 
@@ -78,6 +82,7 @@ export class TaskProfileComponent {
       this.taskName = task.name;
       this.taskDescription = task.description;
       this.taskStatus = task.status;
+      this.task = task;
  
       if (task.creatorId !== undefined)
         this.memberService.getMemberById(task.creatorId).subscribe((employee) => {
@@ -88,9 +93,19 @@ export class TaskProfileComponent {
           this.hasAcceesForEdit = id === this.creator.id || this.authService.isAdmin();
           if (this.hasAcceesForEdit) {
             if (this.taskName !== undefined && this.taskDescription !== undefined)
-              this.updateTaskForm.setValue({
-                name: this.taskName,
-                description: this.taskDescription
+              this.partService.getPartTaskStatuses().subscribe({
+                next: (statuses) => {
+                  this.statuses = statuses.sort((a,b)=>a.order! - b.order!);
+                  let nodes = task.path?.split('-');
+                  console.log(task);
+                  this.updateTaskForm.setValue({
+                    name: this.taskName!,
+                    description: this.taskDescription!,
+                    priority: this.task.level!,
+                    deadline: new Date(this.task.deadline!),
+                    selectedStatusColumns: statuses.filter(col => nodes?.includes(col.order?.toString()!))
+                  });
+                }
               });
           }
           this.taskService.getMembersFromTask(task.id!).subscribe((members) => {
@@ -109,11 +124,7 @@ export class TaskProfileComponent {
               }
             });
           });
-          this.partService.getPartTaskStatuses().subscribe({
-            next: (statuses) => {
-              this.statuses = statuses;
-            }
-          });
+    
         });
     });
   }
@@ -125,9 +136,17 @@ export class TaskProfileComponent {
     task.name = this.updateTaskForm.value.name!;
     task.description = this.updateTaskForm.value.description!;
     task.status = this.taskStatus;
+    task.path = this.updateTaskForm.value.selectedStatusColumns!
+      .map(value => value.order?.toString())
+      .join('-');
+    task.level = this.updateTaskForm.value.priority!;
+    task.deadline = new Date(this.updateTaskForm.value.deadline!);
 
     this.taskService.updateTask("", "", task).subscribe(() => {
       this.update();
+      this.messageService.add(
+        { severity: 'success', summary: 'Успешное обновление', detail: 'Задача была обновлена', life: 3000 }
+      );
     });
   }
 

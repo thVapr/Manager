@@ -132,6 +132,7 @@ public class TaskLogic(
             StartTime = model.StartTime,
             Deadline = model.Deadline,
             ClosedAt = model.ClosedAt,
+            Path = model.Path!,
             
             Priority = model.Priority,
             Level = model.Level,
