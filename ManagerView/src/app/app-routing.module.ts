@@ -9,7 +9,6 @@ import { HomeComponent } from './components/home/home.component';
 import { PartComponent } from './components/part/part.component';
 import { TaskComponent } from './components/task/task.component';
 import { LoginComponent } from './components/login/login.component';
-import { MemberComponent } from './components/member/member.component';
 import { RegisterComponent } from './components/register/register.component';
 import { PartTasksComponent } from './components/part-tasks/part-tasks.component';
 import { PartProfileComponent } from './components/part-profile/part-profile.component';
@@ -21,10 +20,9 @@ const routes: Routes = [
   {path: 'home', component: HomeComponent, canActivate: [AuthGuard, PartGuard]},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
-  {path: 'member', component: MemberComponent, canActivate: [AuthGuard]},
+  {path: 'parts', component: PartComponent, canActivate: [AuthGuard]},
   {path: 'member/tasks', component: TaskComponent, canActivate: [AuthGuard]},
   {path: 'part/tasks', component: PartTasksComponent, canActivate: [AuthGuard]},
-  {path: 'parts', component: PartComponent, canActivate: [AuthGuard]},
   {path: 'part/about/:id', component: PartProfileComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]},
   {path: 'member/about/:id', component: MemberProfileComponent, canActivate: [AuthGuard]},

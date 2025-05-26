@@ -128,7 +128,7 @@ export class AppComponent implements OnInit {
           {        
             label: 'Профиль',
             icon: 'bi bi-file-person',
-            routerLink: 'member'
+            routerLink: 'member/about/' + this.authService.getId()
           },
           {        
             label: 'Выйти',

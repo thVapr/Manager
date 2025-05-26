@@ -7,6 +7,7 @@ import { PartService } from 'src/app/services/part/part.service';
 import { MemberService } from '../../services/member/member.service';
 import { PartRole } from '../models/part-role';
 import { PRIVILEGE_LABELS } from '../privilege-labels';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-employee-profile',
@@ -17,13 +18,21 @@ import { PRIVILEGE_LABELS } from '../privilege-labels';
 export class MemberProfileComponent implements OnInit {
   privilegeOptions = PRIVILEGE_LABELS;
   isMemberHasPermissionsToEdit: boolean = false;
+  isCurrentMember : boolean = false;
 
   changeEmployeeForm = new FormGroup({
     firstName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
     lastName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
     patronymic: new FormControl('', [Validators.required, Validators.maxLength(20)]),
     privilege: new FormControl<number>(0, [Validators.required]),
-    roles: new FormControl<PartRole[]>([], [])
+    roles: new FormControl<PartRole[]>([], []),
+    messengerId: new FormControl('', [])
+  });
+
+  addEmployeeForm = new FormGroup({
+    firstName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
+    lastName: new FormControl('', [Validators.required, Validators.maxLength(20)]),
+    patronymic: new FormControl('', [Validators.required, Validators.maxLength(20)])
   });
 
   member: Member = new Member("", "", "", "");
@@ -36,11 +45,11 @@ export class MemberProfileComponent implements OnInit {
   constructor(
     private memberService: MemberService,
     private route: ActivatedRoute,
-    public partService: PartService
+    public partService: PartService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.checkMemberPermissions();
     this.update();
   }
 
@@ -51,8 +60,9 @@ export class MemberProfileComponent implements OnInit {
     const patronymic = this.changeEmployeeForm.value.patronymic;
     const privilege = this.changeEmployeeForm.value.privilege;
     const filtered = this.removeIntersectionFromBoth(this.rolesToAdd, this.rolesToRemove);
+    const messengerId = this.changeEmployeeForm.value.messengerId;
 
-    this.memberService.updateMember(id!, firstName!, lastName!, patronymic!)
+    this.memberService.updateMember(id!, firstName!, lastName!, patronymic!, messengerId!)
       .subscribe({
         next: () => {
           this.partService.setMemberPrivilege(id!, privilege!).subscribe({
@@ -72,14 +82,6 @@ export class MemberProfileComponent implements OnInit {
       });
   }
 
-  private checkMemberPermissions(): void {
-    this.partService.isMemberHasPrivileges(5).subscribe({
-      next: (response) => {
-        this.isMemberHasPermissionsToEdit = response;
-      }
-    });
-  }
-
   private update(): void {
     const id: string = this.route.snapshot.params['id'];
     this.rolesToAdd = [];
@@ -87,21 +89,35 @@ export class MemberProfileComponent implements OnInit {
 
     this.memberService.getMemberById(id).subscribe({
       next: (member) => {
+        console.log(member);
         if (!member.firstName) {
           this.isEmployeeProfileExist = false;
           return;
         }
+        this.isEmployeeProfileExist = true;
+        this.isCurrentMember = this.member.id === this.authService.getId();
+        this.changeEmployeeForm.patchValue({
+          firstName: member.firstName,
+          lastName: member.lastName,
+          patronymic: member.patronymic,
+          privilege: member.privilege,
+          messengerId: member.messengerId!
+        });
         this.partService.getMemberPrivilege(member.id!).subscribe({
           next: (privilege) => {
-            this.isEmployeeProfileExist = true;
             this.member = member;
+            this.partService.isMemberHasPrivileges(5).subscribe({
+              next: (response) => {
+                this.isMemberHasPermissionsToEdit = response;
+                if (!response) {
+                  this.changeEmployeeForm.get('roles')?.disable();
+                  this.changeEmployeeForm.get('privilege')?.disable();
+                }
+              }
+            });
             member.privilege = privilege;
-
             this.changeEmployeeForm.patchValue({
-              firstName: member.firstName,
-              lastName: member.lastName,
-              patronymic: member.patronymic,
-              privilege: member.privilege
+              privilege: member.privilege,
             });
 
             this.partService.getRolesById(this.partService.getPartId()!)
@@ -128,6 +144,21 @@ export class MemberProfileComponent implements OnInit {
         console.error('Ошибка загрузки профиля:', error);
       }
     });
+  }
+
+  onAddSubmit() : void {
+    const id = this.authService.getId();
+    const firstName = this.addEmployeeForm.value.firstName;
+    const lastName = this.addEmployeeForm.value.lastName;
+    const patronymic = this.addEmployeeForm.value.patronymic;
+
+    this.memberService.addMember(id, firstName!, lastName!, patronymic!)
+    .subscribe({
+      next: () => {
+        this.update();
+      },
+      error: (error) => console.error('failed', error)
+      });
   }
 
   onRoleChange(event: any): void {

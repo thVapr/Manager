@@ -296,16 +296,16 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
                 user.PasswordHash = model.PasswordHash;
                 user.Salt = model.Salt;
             }
-            if (!string.IsNullOrEmpty(model.MessengerId))
-            {
-                user.MessengerId = model.MessengerId;
-            }
-
             if (!string.IsNullOrEmpty(model.ChatId))
             {
                 user.ChatId = model.ChatId;
             }
-
+            if (!string.IsNullOrEmpty(model.MessengerId) && user.MessengerId != model.MessengerId)
+            {
+                user.ChatId = "";
+                user.MessengerId = model.MessengerId;
+            }
+            
             await database.SaveChangesAsync();
             return true;
         }

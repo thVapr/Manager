@@ -24,7 +24,7 @@ export class LoginComponent {
       .subscribe({
        next: () => {
         console.log('Login successful');
-        this.router.navigate(['/member']).then(() => {
+        this.router.navigate(['member/about/' + this.authService.getId()]).then(() => {
           window.location.reload();
         });
        },

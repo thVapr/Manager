@@ -12,7 +12,6 @@ import { PartComponent } from './components/part/part.component';
 import { HomeComponent } from './components/home/home.component';
 import { TokenInterceptor } from './services/auth/token.intercept';
 import { LoginComponent } from './components/login/login.component';
-import { MemberComponent } from './components/member/member.component';
 import { RegisterComponent } from './components/register/register.component';
 import { PartTasksComponent } from './components/part-tasks/part-tasks.component';
 import { PartMembersComponent } from './components/part-members/part-members.component';
@@ -72,7 +71,6 @@ const MyPreset = definePreset(Lara, {
         PartComponent,
         TaskComponent,
         LoginComponent,
-        MemberComponent,
         RegisterComponent,
         PartTasksComponent,
         PartMembersComponent,

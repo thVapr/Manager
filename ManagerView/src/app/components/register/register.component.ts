@@ -24,9 +24,9 @@ export class RegisterComponent {
     .subscribe({
       next: () => {
        console.log('Register successful');
-       this.router.navigate(['/member']).then(() => {
+       this.router.navigate(['member/about/' + this.authService.getId()]).then(() => {
         window.location.reload();
-      });
+      }); 
       },
       error: (error) => console.error('Register failed', error)
      });
