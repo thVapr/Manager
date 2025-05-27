@@ -4,12 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class BackgroundTaskRepository() : IBackgroundTaskRepository
+public class BackgroundTaskRepository(MainDbContext database) : IBackgroundTaskRepository
 {
     public async Task<bool> Create(BackgroundTask task)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             await database.BackgroundTasks.AddAsync(task);
@@ -25,8 +23,6 @@ public class BackgroundTaskRepository() : IBackgroundTaskRepository
 
     public async Task<bool> Delete(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var targetTask = await database.BackgroundTasks.FindAsync(id);
@@ -47,8 +43,6 @@ public class BackgroundTaskRepository() : IBackgroundTaskRepository
 
     public async Task<ICollection<BackgroundTask>> GetAllNearest()
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var currentTime = DateTime.UtcNow;

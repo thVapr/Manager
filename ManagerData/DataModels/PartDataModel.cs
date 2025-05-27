@@ -17,5 +17,6 @@ public class PartDataModel: BaseDataModel
     public IEnumerable<MemberDataModel> Members { get; set; }
     public IEnumerable<PartMemberDataModel> PartMembers { get; set; }
     public IEnumerable<PartTaskStatus> TaskStatuses { get; set; }
+    public IEnumerable<PartTaskType> PartTaskTypes { get; set; }
     public IEnumerable<PartRole>? PartRoles { get; set; }
 }

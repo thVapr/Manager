@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class MemberRepository : IMemberRepository
+public class MemberRepository(MainDbContext database) : IMemberRepository
 {
     public async Task<bool> CreateEntity(MemberDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             await database.Members.AddAsync(model);
@@ -45,8 +43,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var part = await database.Parts.Where(e => e.Id == masterId).FirstOrDefaultAsync();
@@ -79,8 +75,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<MemberDataModel> GetEntityById(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.Members.Where(m => m.Id == id)
@@ -100,8 +94,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var memberIds = await database.PartMembers
@@ -124,8 +116,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<bool> UpdateEntity(MemberDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var employee = await database.Members.FindAsync(model.Id);
@@ -152,8 +142,6 @@ public class MemberRepository : IMemberRepository
     
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var existingEmployee = await database.Members.FindAsync(id);
@@ -178,8 +166,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetEmployeesWithoutProjectsByDepartmentId(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var links = await database.PartMembers.Select(pe => pe.MemberId).ToListAsync();
@@ -203,8 +189,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetMembersWithoutPart()
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var employeeIds = await database.PartMembers.Select(de => de.MemberId).ToListAsync();
@@ -221,8 +205,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetMembersFromPart(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var links = await database.PartMembers.Where(pe => pe.PartId == id).ToListAsync();
@@ -240,8 +222,6 @@ public class MemberRepository : IMemberRepository
 
     public async Task<IEnumerable<MemberDataModel>> GetAvailableMembersFromPart(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var ids = await GetAvailableMemberIds(database, id);

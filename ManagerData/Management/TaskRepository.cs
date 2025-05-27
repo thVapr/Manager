@@ -5,12 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class TaskRepository : ITaskRepository
+public class TaskRepository(MainDbContext database) : ITaskRepository
 {
     public async Task<bool> CreateEntity(TaskDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             await database.Tasks.AddAsync(model);
@@ -28,8 +26,6 @@ public class TaskRepository : ITaskRepository
     public async Task<bool> CreateEntity(Guid id, TaskDataModel model)
     {
         if (!await CreateEntity(model)) return false;
-        await using var database = new MainDbContext();
-
         try
         {
             var part = database.Parts.FirstOrDefault(p => p.Id == id);
@@ -53,8 +49,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             await database.TaskMembers.AddAsync(new TaskMember()
@@ -77,8 +71,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var link = await database.TaskMembers
@@ -111,8 +103,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<TaskDataModel> GetEntityById(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.Tasks
@@ -128,8 +118,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<TaskDataModel>?> GetEntities()
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.Tasks.ToListAsync();
@@ -143,8 +131,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var tasksId = await database.Tasks
@@ -165,8 +151,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<bool> UpdateEntity(TaskDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var task = await database.Tasks
@@ -205,8 +189,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var existingTask = await database.Tasks.FindAsync(id);
@@ -227,8 +209,6 @@ public class TaskRepository : ITaskRepository
     
     public async Task<IEnumerable<TaskDataModel>> GetFreeTasks(Guid projectId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var entities = await GetEntitiesById(projectId);
@@ -250,8 +230,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<TaskDataModel>> GetMemberTasks(Guid employeeId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var taskIds = await database.TaskMembers
@@ -272,8 +250,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<Guid>> GetTaskMembersIds(Guid taskId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var memberIds = await database.TaskMembers
@@ -292,8 +268,6 @@ public class TaskRepository : ITaskRepository
 
     public async Task<IEnumerable<TaskMember>> GetTaskMembers(Guid taskId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var members = await database.TaskMembers

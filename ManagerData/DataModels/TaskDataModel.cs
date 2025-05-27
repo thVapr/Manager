@@ -13,6 +13,7 @@ public class TaskDataModel : BaseDataModel
     public int Status { get; set; } = -1;
     public int Priority { get; set; } = -1;
     public Guid? PartRoleId { get; set; }
+    public Guid? TaskTypeId { get; set; }
     public DateTime? StartTime { get; set; }
     public DateTime? Deadline { get; set; }
     public DateTime? ClosedAt { get; set; }
@@ -20,6 +21,7 @@ public class TaskDataModel : BaseDataModel
 
     public PartDataModel? CurrentPart { get; set; }
     public PartRole? PartRole { get; set; }
+    public PartTaskType? TaskType { get; set; }
     public ICollection<TaskMember> TaskMembers { get; set; } = null!;
     public ICollection<MemberDataModel> Members { get; set; } = null!;
 }

@@ -4,11 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class RoleRepository() : IRoleRepository
+public class RoleRepository(MainDbContext database) : IRoleRepository
 {
     public async Task<bool> Create(PartRole role)
     {
-        await using var database = new MainDbContext();
         try
         {
             database.PartRoles.Add(role);
@@ -24,7 +23,6 @@ public class RoleRepository() : IRoleRepository
 
     public async Task<bool> Change(PartRole role)
     {
-        await using var database = new MainDbContext();
         try
         {
             var existingRole = await database.PartRoles
@@ -45,7 +43,6 @@ public class RoleRepository() : IRoleRepository
 
     public async Task<bool> Delete(Guid partId, Guid roleId)
     {
-        await using var database = new MainDbContext();
         try
         {
             var existingRole = await database.PartRoles
@@ -67,7 +64,6 @@ public class RoleRepository() : IRoleRepository
 
     public async Task<bool> SetRole(Guid partId, Guid roleId, Guid memberId)
     {
-        await using var database = new MainDbContext();
         try
         {
             var member = await database.Members
@@ -100,7 +96,6 @@ public class RoleRepository() : IRoleRepository
 
     public async Task<bool> RemoveRole(Guid partId,Guid roleId, Guid memberId)
     {
-        await using var database = new MainDbContext();
         try
         {
             var existingAssociation = await database.PartMemberRoles
@@ -122,7 +117,6 @@ public class RoleRepository() : IRoleRepository
 
     public async Task<ICollection<PartRole>> GetByMemberId(Guid partId, Guid memberId)
     {
-        await using var database = new MainDbContext();
         try
         {
             var associations = await database.PartMemberRoles
@@ -139,7 +133,6 @@ public class RoleRepository() : IRoleRepository
 
     public async Task<ICollection<PartRole>> GetByPartId(Guid partId)
     {
-        await using var database = new MainDbContext();
         try
         {
             return await database.PartRoles.Where(x => x.PartId == partId).ToListAsync();

@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class HistoryRepository : IHistoryRepository
+public class HistoryRepository(MainDbContext database) : IHistoryRepository
 {
     public async Task<bool> Create(TaskHistory model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var task = await database.Tasks
@@ -47,8 +45,6 @@ public class HistoryRepository : IHistoryRepository
     
     private async Task<ICollection<TaskHistory>> GetByPredicate(Expression<Func<TaskHistory, bool>> predicate)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.TaskHistories

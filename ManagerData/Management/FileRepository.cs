@@ -3,6 +3,7 @@ using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Minio;
 using Minio.DataModel.Args;
 
@@ -12,11 +13,14 @@ public class FileRepository : IFileRepository
 {
     private readonly MinioClient _minio;
     private readonly string _bucket;
-
-    public FileRepository(IConfiguration config)
+    private readonly MainDbContext _database;
+    
+    public FileRepository(MainDbContext database,IConfiguration config)
     {
         var secretProvider = new SecretProvider();
         var settings = config.GetSection("Minio");
+        _database = database;
+        
         _bucket = settings["Bucket"];
         _minio = (MinioClient?)new MinioClient()
             .WithEndpoint(settings["Endpoint"])
@@ -27,7 +31,6 @@ public class FileRepository : IFileRepository
 
     public async Task<List<string>> ListFilesAsync(Guid taskId)
     {
-        await using var database = new MainDbContext();
         var objects = new List<string>();
 
         var args = new ListObjectsArgs()
@@ -40,7 +43,7 @@ public class FileRepository : IFileRepository
             objects.Add(item.Key);
         }
 
-        var fileNames = await database.TaskFiles
+        var fileNames = await _database.TaskFiles
             .Where(file => objects.Any(obj => obj == file.Path) && file.TaskId == taskId)
             .Select(file => file.FileName)
             .ToListAsync();

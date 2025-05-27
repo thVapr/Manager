@@ -6,21 +6,24 @@ using ManagerData.DataModels;
 using ManagerData.DataModels.Authentication;
 using ManagerData.Management;
 using ManagerLogic.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace ManagerLogic.Background;
 
-public class MessengerHostService(
-    IBackgroundTaskRepository repository, 
-    IAuthentication authenticationRepository) : BackgroundService
+public class MessengerHostService(IServiceProvider serviceProvider) : BackgroundService
 {
     private int _executionCount;
     private TelegramBotClient botClient;
-    
+    private IAuthentication authentication;
+    private IBackgroundTaskRepository repository;
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Console.WriteLine
             ("Timed Hosted Service running.");
+        using var scope = serviceProvider.CreateScope();
+        authentication = scope.ServiceProvider.GetRequiredService<IAuthentication>();
+        repository = scope.ServiceProvider.GetRequiredService<IBackgroundTaskRepository>();
         
         using PeriodicTimer timer = new(TimeSpan.FromSeconds(5));
         using var cts = new CancellationTokenSource();
@@ -50,11 +53,11 @@ public class MessengerHostService(
         try
         {
             int count = Interlocked.Increment(ref _executionCount);
-
             var nearest = await repository.GetAllNearest();
+            
             foreach (var task in nearest)
             {
-                var user = await authenticationRepository.GetUserById(task.MemberId);
+                var user = await authentication.GetUserById(task.MemberId);
                 if (user.Id != task.MemberId || string.IsNullOrEmpty(user.ChatId))
                     continue;
                 await HandleMessage(task, user);
@@ -106,11 +109,11 @@ public class MessengerHostService(
         Console.WriteLine($"Полученное сообщение {type} '{msg.Text}' in {msg.Chat}");
         if (msg.Text.StartsWith('/') && msg.Text.Contains($"/register"))
         {
-            var user = await authenticationRepository.GetUserByMessengerId(msg.From!.Username);
+            var user = await authentication.GetUserByMessengerId(msg.From!.Username!);
             if (user.MessengerId == msg.From.Username)
             {
                 user.ChatId = msg.Chat.Id.ToString();
-                await authenticationRepository.UpdateUser(user);
+                await authentication.UpdateUser(user);
             }
             await botClient.SendMessage(msg.Chat, $"{msg.From!.Username} зарегистрирован");
         }

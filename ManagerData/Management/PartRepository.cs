@@ -6,14 +6,12 @@ using Microsoft.OpenApi.Extensions;
 
 namespace ManagerData.Management;
 
-public class PartRepository : IPartRepository
+public class PartRepository(MainDbContext database) : IPartRepository
 {
     private static readonly int[] SourceTypeArray = [1,2,3];
 
     public async Task<bool> CreateEntity(PartDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var partType = await database.PartTypes.FindAsync(model.PartTypeId);
@@ -90,8 +88,6 @@ public class PartRepository : IPartRepository
     
     public async Task<bool> CreateEntity(Guid masterPartId, PartDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var existingPart = await database.Parts
@@ -118,8 +114,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             await database.PartMembers.AddAsync(
@@ -144,8 +138,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var link = await database.PartMembers
@@ -169,8 +161,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var master = await database.Parts
@@ -195,8 +185,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var link = await database.Parts.FindAsync(slaveId);
@@ -217,8 +205,6 @@ public class PartRepository : IPartRepository
 
     public async Task<PartDataModel> GetEntityById(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.Parts
@@ -232,8 +218,6 @@ public class PartRepository : IPartRepository
 
     public async Task<IEnumerable<PartDataModel>?> GetEntities()
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.Parts.ToListAsync();
@@ -246,8 +230,6 @@ public class PartRepository : IPartRepository
 
     public async Task<IEnumerable<PartDataModel>?> GetEntitiesById(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var parts = await database.Parts
@@ -265,8 +247,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> UpdateEntity(PartDataModel model)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var department = await database.Parts.Where(c => c.Id == model.Id).FirstOrDefaultAsync();
@@ -296,8 +276,6 @@ public class PartRepository : IPartRepository
     
     public async Task<bool> DeleteEntity(Guid id)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var existingPart = await database.Parts.FindAsync(id);
@@ -318,8 +296,6 @@ public class PartRepository : IPartRepository
 
     public async Task<List<PartDataModel>> GetLinks(Guid partId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.Parts
@@ -335,8 +311,6 @@ public class PartRepository : IPartRepository
 
     public async Task<IEnumerable<PartMemberDataModel>> GetPartMembers(Guid partId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             return await database.PartMembers.Where(pm => pm.PartId == partId).ToListAsync();
@@ -350,8 +324,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> SetPrivileges(Guid userId, Guid partId, int privilege)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var partMember = await database.PartMembers
@@ -391,8 +363,6 @@ public class PartRepository : IPartRepository
 
     private async Task<bool> AddPartType(string name)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var partType = await database.PartTypes.FirstOrDefaultAsync(r => r.Name == name);
@@ -418,7 +388,6 @@ public class PartRepository : IPartRepository
 
     public async Task<ICollection<PartType>> GetPartTypes()
     {
-        await using var database = new MainDbContext();
         try
         {
             var parts = await database.PartTypes.ToListAsync();
@@ -437,7 +406,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> AddPartTaskStatus(PartTaskStatus status)
     {
-        await using var database = new MainDbContext();
         try
         {
             var part = await database.Parts.FindAsync(status.PartId);
@@ -456,7 +424,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> ChangePartTaskStatus(PartTaskStatus status)
     {
-        await using var database = new MainDbContext();
         try
         {
             var existingStatus = await database.PartTaskStatuses
@@ -485,7 +452,6 @@ public class PartRepository : IPartRepository
 
     public async Task<bool> RemovePartTaskStatus(Guid partId, Guid partTaskStatusId)
     {
-        await using var database = new MainDbContext();
         try
         {
             var existingStatus = await database.PartTaskStatuses
@@ -507,7 +473,6 @@ public class PartRepository : IPartRepository
 
     public async Task<ICollection<PartTaskStatus>> GetPartTaskStatuses(Guid partId)
     {
-        await using var database = new MainDbContext();
         try
         {
             return await database.PartTaskStatuses

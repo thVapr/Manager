@@ -28,7 +28,7 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AuthenticationDbContext>();
 builder.Services.AddDbContext<MainDbContext>();
 
-builder.Services.AddSingleton<IFileRepository, FileRepository>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -97,25 +97,25 @@ builder.Services.AddSingleton<IUserIdProvider,HubUserIdProvider>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-builder.Services.AddSingleton<IJwtCreator,JwtCreator>();
-builder.Services.AddSingleton<IAuthenticationRepository,AuthenticationRepository>();
-builder.Services.AddSingleton<IAuthentication,Authentication>();
-builder.Services.AddSingleton<IEncrypt,Encrypt>();
+builder.Services.AddScoped<IJwtCreator,JwtCreator>();
+builder.Services.AddScoped<IAuthenticationRepository,AuthenticationRepository>();
+builder.Services.AddScoped<IAuthentication,Authentication>();
+builder.Services.AddScoped<IEncrypt,Encrypt>();
 
-builder.Services.AddSingleton<IPartRepository, PartRepository>();
-builder.Services.AddSingleton<IPartLogic, PartLogic>();
-builder.Services.AddSingleton<IPathHelper, PathHelper>();
+builder.Services.AddScoped<IPartRepository, PartRepository>();
+builder.Services.AddScoped<IPartLogic, PartLogic>();
+builder.Services.AddScoped<IPathHelper, PathHelper>();
 
-builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
-builder.Services.AddSingleton<IMemberLogic, MemberLogic>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<IMemberLogic, MemberLogic>();
 
-builder.Services.AddSingleton<ITaskRepository, TaskRepository>();
-builder.Services.AddSingleton<ITaskLogic, TaskLogic>();
-builder.Services.AddSingleton<IHistoryRepository, HistoryRepository>();
-builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
-builder.Services.AddSingleton<IFileLogic, FileLogic>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITaskLogic, TaskLogic>();
+builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IFileLogic, FileLogic>();
 
-builder.Services.AddSingleton<IBackgroundTaskRepository, BackgroundTaskRepository>();
+builder.Services.AddScoped<IBackgroundTaskRepository, BackgroundTaskRepository>();
 builder.Services.AddHostedService<MessengerHostService>();
 
 var app = builder.Build();
