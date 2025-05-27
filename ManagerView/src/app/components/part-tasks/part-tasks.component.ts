@@ -10,6 +10,7 @@ import { PartService } from '../../services/part/part.service';
 import { finalize } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { UpdateService } from 'src/app/services/update.service';
+import { PartTaskType } from '../models/part-task-type';
 
 @Component({
     selector: 'app-project-tasks',
@@ -30,7 +31,8 @@ export class PartTasksComponent implements OnInit {
     startDate: new FormControl(null, [Validators.required]),
     deadlineDate: new FormControl(null, [Validators.required]),
     selectedStatusColumns: new FormControl<TaskStatus[]>([],[]),
-    priority: new FormControl(0,[])
+    priority: new FormControl(0,[]),
+    taskType: new FormControl('',[]),
   });
 
   changeTaskStatusForm = new FormGroup({
@@ -64,6 +66,7 @@ export class PartTasksComponent implements OnInit {
   targetStatus : TaskStatus = {};
   partRoles : PartRole[] = [];
   listStatusColumns : TaskStatus[] = [];
+  types : PartTaskType[] = [];
 
   //TODO: Есть повторение из task.component
   //TODO: Также можно объеденить логику для drag and drop
@@ -317,16 +320,23 @@ export class PartTasksComponent implements OnInit {
                   task.memberName = members[0].firstName;
                   task.memberLastName = members[0].lastName;
                 }
-  
                 this.partService.getRolesById(this.partService.getPartId()!).subscribe({
                   next: (roles) => {
                     this.partRoles = roles;
                 }});
             }})
           });
-          
         }});
       }
+    });
+    this.partService.getTypesById(this.partService.getPartId()!)
+      .subscribe({
+        next: (types) => {
+          this.types = types;
+        },
+        error: () => {
+          this.types = [];
+        }
     });
   }
 
@@ -340,7 +350,9 @@ export class PartTasksComponent implements OnInit {
     task.path = this.addTaskForm.value.selectedStatusColumns!
       .map(value => value.order?.toString())
       .join('-');
+    task.taskTypeId = this.addTaskForm.value.taskType!;
     task.level = this.addTaskForm.value.priority!;
+    console.log(task.taskTypeId);
     this.taskService.addTask(task).subscribe({
       next: () => {
         this.update();
@@ -430,5 +442,9 @@ export class PartTasksComponent implements OnInit {
 
   isValidTimestamp(timestamp : Date) : boolean {
     return (new Date(timestamp)).getTime() > (new Date(0)).getTime();
+  }
+
+  getTypeNameById(id : string) : string {
+    return this.types.find(type => type.id)?.name!;
   }
 }

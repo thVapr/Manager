@@ -40,6 +40,13 @@
         <option value="3" class="text-danger bg-dark"> Экстремальный </option>
       </select>
     </div>
+    <div class="form-outline mb-2 flex-row">
+      <label class="form-label mt-2">Тип задачи</label>
+      <select name="select" class="form-control form-control-lg" 
+          type="select" formControlName="taskType">
+        <option *ngFor="let type of this.types" [value]="type.id">{{type.name}}</option>
+      </select>
+    </div>
     <label class="form-label mt-2">Путь задачи</label>
     <p-listbox 
       [options]="statuses" 

@@ -176,6 +176,8 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
                 task.Status = model.Status;
             if (!string.IsNullOrEmpty(model.Path))
                 task.Path = model.Path;
+            if (model.TaskTypeId != Guid.Empty)
+                task.TaskTypeId = model.TaskTypeId;
             await database.SaveChangesAsync();
 
             return true;

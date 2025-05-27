@@ -15,9 +15,9 @@ public class PartRoleController(IPartLogic partLogic) : ControllerBase
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [HttpPost]
     [Route("add_role")]
-    public async Task<IActionResult> AddRoleToPart([FromBody] PartRoleModel model)
+    public async Task<IActionResult> AddRoleToPart([FromBody] AddToPartModel model)
     {
-        if (await partLogic.AddRoleToPart(Guid.Parse(model.PartId!), model.Name, model.Description))
+        if (await partLogic.AddRoleToPart(Guid.Parse(model.PartId!), model.Name, model.Description ?? string.Empty))
             return Ok(true);
         return BadRequest();
     }
@@ -69,9 +69,9 @@ public class PartRoleController(IPartLogic partLogic) : ControllerBase
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [HttpPost]
     [Route("remove_role")]
-    public async Task<IActionResult> RemoveRoleFromPart([FromBody] PartRoleModel model)
+    public async Task<IActionResult> RemoveRoleFromPart([FromBody] AddToPartModel model)
     {
-        if (await partLogic.RemoveRoleFromPart(Guid.Parse(model.PartId), Guid.Parse(model.RoleId!)))
+        if (await partLogic.RemoveRoleFromPart(Guid.Parse(model.PartId), Guid.Parse(model.EntityId!)))
             return Ok();
         return BadRequest();
     }

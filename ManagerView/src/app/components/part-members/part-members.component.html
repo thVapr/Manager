@@ -27,7 +27,6 @@
     </p-picklist>
 </p-panel>
 
-
 <p-panel [toggleable]="true" [collapsed]="true">
     <ng-template #header>
         <div class="flex items-center gap-2">
@@ -59,5 +58,36 @@
             </li>
         </ul>
         <p-card *ngIf="roles.length <= 0" header="У данной сущности нет доступных ролей"></p-card>
+    </div>
+</p-panel>
+
+<p-panel [toggleable]="true" [collapsed]="true">
+    <ng-template #header>
+        <div class="flex items-center gap-2">
+            <h1 class="font-bold">Типы задач</h1>
+        </div>
+    </ng-template>
+        <form [formGroup]="addTypeForm" (ngSubmit)="onTypeSubmit()" class="row mb-5" 
+          *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || authService.isSpaceOwner())">
+        <div class="form-outline mb-2">
+          <input type="text" class="form-control form-control-lg"
+            placeholder="Название" formControlName="name"/>
+        </div>
+        <div class="text-center text-lg-start mt-2">
+          <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+        </div>
+    </form>
+    <div class="mb-3">
+        <label class="form-label">Типы</label>
+        <ul class="list-group" *ngIf="types.length > 0">
+            <li *ngFor="let type of types" class="list-group-item d-flex justify-content-between align-items-center">
+            {{ type.name }}
+            <button class="btn btn-danger text-white btn-outline-danger"
+                (click)="removeType(type.id!)">
+                &times;
+            </button>
+            </li>
+        </ul>
+        <p-card *ngIf="types.length <= 0" header="У данной сущности нет доступных типов"></p-card>
     </div>
 </p-panel>

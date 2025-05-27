@@ -7,6 +7,7 @@ import { PartType } from 'src/app/components/models/part-type';
 import { Constants } from 'src/app/constants';
 import { TaskStatus } from 'src/app/components/models/task-status';
 import { PartRole } from 'src/app/components/models/part-role';
+import { PartTaskType } from 'src/app/components/models/part-task-type';
 
 @Injectable({
   providedIn: 'root'
@@ -111,14 +112,28 @@ export class PartService {
     return this.http.get<PartRole[]>(`${this.apiUrl}/roles/get_roles?partId=${id}`);
   }
 
+  addType(name : string) : Observable<boolean> {
+    const partId = this.getPartId();
+    return this.http.post<boolean>(`${this.apiUrl}/types/add`, { partId, name });
+  }
+
+  removeType(entityId : string) : Observable<boolean> {
+    const partId = this.getPartId();
+    return this.http.post<boolean>(`${this.apiUrl}/types/remove`, { partId, entityId });
+  }
+
+  getTypesById(id : string): Observable<PartTaskType[]> {
+    return this.http.get<PartTaskType[]>(`${this.apiUrl}/types/get_all?partId=${id}`);
+  }
+
   getMemberRolesById(partId : string, memberId : string): Observable<PartRole[]> {
     return this.http.get<PartRole[]>(`${this.apiUrl}/roles/get_member_roles?partId=${partId}&memberId=${memberId}`);
   }
 
-  removeRoleFromPart(roleId : string) : Observable<any> {
+  removeRoleFromPart(entityId : string) : Observable<any> {
     const partId = this.getPartId();
 
-    return this.http.post<any>(`${this.apiUrl}/roles/remove_role`,{ partId, roleId });
+    return this.http.post<any>(`${this.apiUrl}/roles/remove_role`,{ partId, entityId });
   }
   
   getPartTaskStatuses(): Observable<TaskStatus[]> {

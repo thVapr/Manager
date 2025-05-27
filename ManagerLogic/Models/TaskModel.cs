@@ -10,6 +10,7 @@ public class TaskModel : BaseModel
     public int Status { get; set; }
     public int Priority { get; set; }
     public Guid? PartRoleId { get; set; }
+    public Guid? TaskTypeId { get; set; }
     public string? Path { get; set; }
     
     public DateTime? StartTime { get; set; }

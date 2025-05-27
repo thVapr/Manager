@@ -154,7 +154,7 @@ export class AppComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       if ((this.authService.isAdmin() || this.isPartLeader) && this.partService.isPartSelected()) {
         this.items.push({
-          label: 'Управление доступом',
+          label: 'Управление',
           icon: 'bi bi-file-person',
           routerLink: 'part/members'
         });

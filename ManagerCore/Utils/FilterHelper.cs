@@ -44,7 +44,7 @@ public static class FilterHelper
             ?? context.ActionArguments.Values.OfType<TaskModel>().FirstOrDefault()?.PartId)
             ?? context.ActionArguments.Values.OfType<PrivilegeChangeRequest>().FirstOrDefault()?.PartId)
             ?? context.ActionArguments.Values.OfType<MemberTasks>().FirstOrDefault()?.PartId)
-            ?? context.ActionArguments.Values.OfType<PartRoleModel>().FirstOrDefault()?.PartId) 
+            ?? context.ActionArguments.Values.OfType<AddToPartModel>().FirstOrDefault()?.PartId) 
             ?? context.ActionArguments.Values.OfType<PartMemberRoleRequest>().FirstOrDefault()?.PartId)
             ?? context.ActionArguments.Values.OfType<ChangeTaskStatusModel>().FirstOrDefault()?.PartId)
             ?? context.ActionArguments.Values.OfType<UpdateTaskRequest>().FirstOrDefault()?.Task.PartId;

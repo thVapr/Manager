@@ -25,6 +25,7 @@ public sealed class MainDbContext : DbContext
     public DbSet<TagDataModel> Tags { get; set; } = null!;
     public DbSet<MemberTag> MemberTags { get; set; } = null!;
     public DbSet<TaskFile> TaskFiles { get; set; } = null!;
+    public DbSet<PartTaskType> PartTaskTypes { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,6 +60,12 @@ public sealed class MainDbContext : DbContext
             .WithMany(fk => fk.Tasks)
             .HasForeignKey(t => t.PartId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<TaskDataModel>()
+            .HasOne(fk => fk.TaskType)
+            .WithMany(fk => fk.Tasks)
+            .HasForeignKey(t => t.TaskTypeId)
+            .OnDelete(DeleteBehavior.SetNull);
         
         modelBuilder.Entity<TaskDataModel>()
             .HasMany(fk => fk.Members)

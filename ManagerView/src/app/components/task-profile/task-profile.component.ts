@@ -13,6 +13,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
+import { PartTaskType } from '../models/part-task-type';
 
 @Component({
     selector: 'app-task-profile',
@@ -30,7 +31,8 @@ export class TaskProfileComponent {
     description: new FormControl('', [Validators.minLength(4)]),
     priority: new FormControl(0, []),
     deadline: new FormControl(new Date(), []),
-    selectedStatusColumns: new FormControl<TaskStatus[]>([],[])
+    selectedStatusColumns: new FormControl<TaskStatus[]>([],[]),
+    taskType: new FormControl('',[])
   })
 
   addMemberForm = new FormGroup({
@@ -47,7 +49,7 @@ export class TaskProfileComponent {
   uploadedFiles: any[] = [];
   taskHistory: TaskHistory[] = [];
   statuses : TaskStatus[] = [];
-  
+  types : PartTaskType[] = [];
   availableMembers : Member[] = [];
   isAddMemberFormVisible : boolean = false;
 
@@ -104,7 +106,8 @@ export class TaskProfileComponent {
                     description: this.taskDescription!,
                     priority: this.task.level!,
                     deadline: new Date(this.task.deadline!),
-                    selectedStatusColumns: statuses.filter(col => nodes?.includes(col.order?.toString()!))
+                    selectedStatusColumns: statuses.filter(col => nodes?.includes(col.order?.toString()!)),
+                    taskType: this.task.taskTypeId! 
                   });
                 }
               });
@@ -125,8 +128,16 @@ export class TaskProfileComponent {
               }
             });
           });
-    
+        this.partService.getTypesById(this.partService.getPartId()!)
+          .subscribe({
+            next: (types) => {
+              this.types = types;
+            },
+            error: () => {
+              this.types = [];
+            }
         });
+      });
     });
   }
 
@@ -142,7 +153,8 @@ export class TaskProfileComponent {
       .join('-');
     task.level = this.updateTaskForm.value.priority!;
     task.deadline = new Date(this.updateTaskForm.value.deadline!);
-
+    task.taskTypeId = this.updateTaskForm.value.taskType!;
+    
     this.taskService.updateTask("", "", task).subscribe(() => {
       this.update();
       this.messageService.add(

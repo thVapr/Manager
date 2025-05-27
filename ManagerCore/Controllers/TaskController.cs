@@ -72,21 +72,7 @@ public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic) : Contro
     [Route("all")]
     public async Task<IActionResult> GetModels(string partId)
     {
-        return Ok((await taskLogic.GetEntitiesById(Guid.Parse(partId)))
-            .Select(task => new TaskModel()
-            {
-                Id = task.Id,
-                Name = task.Name,
-                Description = task.Description,
-                CreatorId = task.CreatorId,
-                Deadline = task.Deadline,
-                StartTime = task.StartTime,
-                ClosedAt = task.ClosedAt,
-                Path = task.Path,
-                Level = task.Level,
-                Status = task.Status,
-                Priority = task.Priority,
-            }));
+        return Ok((await taskLogic.GetEntitiesById(Guid.Parse(partId))));
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]

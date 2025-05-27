@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ManagerCore.Utils;
 
-public class TaskAccessFilter(IPartLogic partLogic, ITaskLogic taskLogic) : IAsyncActionFilter
+public class TaskAccessFilter(
+    IPartLogic partLogic, ITaskLogic taskLogic) : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {

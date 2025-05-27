@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
-import { MemberService } from '../../services/member/member.service';
-import { Member } from '../models/member';
-import { AuthService } from '../../services/auth/auth.service';
-import { Part } from '../models/part';
-import { PartService } from '../../services/part/part.service';
 import { Router } from '@angular/router';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+
+import { Part } from '../models/part';
+import { Member } from '../models/member';
 import { PartRole } from '../models/part-role';
 import { PRIVILEGE_LABELS } from '../privilege-labels';
+import { PartTaskType } from '../models/part-task-type';
+import { MemberService } from '../../services/member/member.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { PartService } from '../../services/part/part.service';
 
 @Component({
     selector: 'app-part-members',
@@ -26,7 +28,11 @@ export class PartMembersComponent {
     description: new FormControl('', [Validators.maxLength(20)]),
   });
   roles : PartRole[] = [];
- 
+  addTypeForm = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
+  });
+  types : PartTaskType[] = [];
+
   constructor(public partService: PartService,
               public memberService: MemberService,
               public authService: AuthService,
@@ -40,6 +46,19 @@ export class PartMembersComponent {
     if (this.addRoleForm === null)
       return;
     this.partService.addRoleToPart(this.addRoleForm.value.name!, this.addRoleForm.value.description!)
+      .subscribe({
+        next: () => {
+          this.update();
+        }
+      }
+    );
+  }
+
+  onTypeSubmit() : void {
+    if (this.addTypeForm === null)
+      return;
+    console.log(this.addTypeForm.value.name!);
+    this.partService.addType(this.addTypeForm.value.name!)
       .subscribe({
         next: () => {
           this.update();
@@ -65,24 +84,14 @@ export class PartMembersComponent {
     });
   }
 
-  addManager(memberId: string | undefined) {
-    this.partService.addLeader(memberId).subscribe(() => {
-      this.update();
-    });
-  }  
-
-  removeManager() {
-    this.partService.removeLeader().subscribe(() => {
-      this.update();
-    });
-  }
-
   doubleClick(member : Member)
   {
     this.router.navigate(["/member/about/", member.id]);
   }
 
-  update() : void {
+  private update() : void {
+    this.addRoleForm.reset();
+    this.addTypeForm.reset();
     this.getAll();
     this.getAllFree();
 
@@ -94,7 +103,16 @@ export class PartMembersComponent {
         error: () => {
           this.roles = [];
         }
-      });
+    });
+    this.partService.getTypesById(this.partService.getPartId()!)
+      .subscribe({
+        next: (types) => {
+          this.types = types; 
+        },
+        error: () => {
+          this.types = [];
+        }
+    });
   }
 
   removeRole(id : string) : void {
@@ -103,20 +121,18 @@ export class PartMembersComponent {
     });
   }
 
-  addEmployeeToDepartment(id : any) {
-    this.partService.addMemberToPart(id).subscribe(() => this.update());
-  }
-
-  removeEmployeeFromDepartment(id : any) {
-    this.partService.removeMemberFromPart(id).subscribe(() => this.update());
+  removeType(id : string) : void {
+    this.partService.removeType(id).subscribe({
+      next: () => this.update()
+    });
   }
 
   getAllFree() : void {
     this.memberService.getAvailableMembers().subscribe({
       next: (members) => {
         this.members = members.map(member => ({
-                    ...member,
-                    searchedParameter: member.firstName + ' ' + member.lastName! + ' ' + member.patronymic!
+          ...member,
+          searchedParameter: member.firstName + ' ' + member.lastName! + ' ' + member.patronymic!
         }));
       },
       error: () => {

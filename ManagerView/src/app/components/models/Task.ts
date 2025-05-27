@@ -11,6 +11,7 @@ export class Task {
 
     creatorId?: string;
     partId?: string;
+    taskTypeId?: string;
 
     startTime?: Date;
     deadline?: Date;

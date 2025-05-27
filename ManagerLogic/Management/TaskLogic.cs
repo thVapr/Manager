@@ -56,6 +56,7 @@ public class TaskLogic(
             Deadline = model.Deadline,
             ClosedAt = model.ClosedAt,
             Path = model.Path!,
+            TaskTypeId = model.TaskTypeId,
             
             Status = model.Status,
             Level = model.Level,
@@ -133,6 +134,7 @@ public class TaskLogic(
             Deadline = model.Deadline,
             ClosedAt = model.ClosedAt,
             Path = model.Path!,
+            TaskTypeId = model.TaskTypeId ?? Guid.Empty,
             
             Priority = model.Priority,
             Level = model.Level,
@@ -646,6 +648,7 @@ public class TaskLogic(
             Deadline = model.Deadline,
             ClosedAt = model.ClosedAt,
             Path = model.Path,
+            TaskTypeId = model.TaskTypeId,
             
             Level = model.Level,
             Status = model.Status,

@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace ManagerCore.Utils;
 
-public class PartAccessFilter(IPartLogic partLogic, int requiredLevel, bool isNotZeroLevelCreationAccess = false) : IAsyncActionFilter
+public class PartAccessFilter(
+    IPartLogic partLogic, int requiredLevel, bool isNotZeroLevelCreationAccess = false) : IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {

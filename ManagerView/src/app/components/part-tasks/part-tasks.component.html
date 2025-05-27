@@ -65,6 +65,9 @@
               <i class="bi bi-calendar-week-fill"></i>
               {{ task.deadline | date:'dd.MM.yy HH:mm' }}
             </small>
+            <small class="text-muted text-truncate d-block" *ngIf="task.taskTypeId!">
+              {{getTypeNameById(task.taskTypeId!)}}
+            </small>
             <small class="text-muted text-truncate d-block">
               <i class="bi bi-person"></i>
               {{ task.memberName }} {{ task.memberLastName }}
@@ -102,6 +105,13 @@
         <option value="1" class="text-warning"> Средний </option>
         <option value="2" class="text-danger"> Высокий </option>
         <option value="3" class="text-danger bg-dark"> Экстремальный </option>
+      </select>
+    </div>
+    <div class="form-outline mb-2 flex-row">
+      <label class="form-label mt-2">Тип задачи</label>
+      <select name="select" class="form-control form-control-lg" 
+          type="select" formControlName="taskType">
+        <option *ngFor="let type of this.types" [value]="type.id">{{type.name}}</option>
       </select>
     </div>
     <label class="form-label mt-2">Путь задачи</label>

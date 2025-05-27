@@ -110,6 +110,8 @@ builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IMemberLogic, MemberLogic>();
 
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
+builder.Services.AddScoped<ITaskTypeLogic, TaskTypeLogic>();
 builder.Services.AddScoped<ITaskLogic, TaskLogic>();
 builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();

@@ -3,6 +3,7 @@ using System;
 using ManagerData.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ManagerData.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250527073340_AddTaskType")]
+    partial class AddTaskType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -594,9 +597,8 @@ namespace ManagerData.Migrations
                         .HasForeignKey("PartRoleId");
 
                     b.HasOne("ManagerData.DataModels.PartTaskType", "TaskType")
-                        .WithMany("Tasks")
-                        .HasForeignKey("TaskTypeId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .WithMany()
+                        .HasForeignKey("TaskTypeId");
 
                     b.Navigation("CurrentPart");
 
@@ -681,11 +683,6 @@ namespace ManagerData.Migrations
 
                     b.Navigation("TaskStatuses");
 
-                    b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("ManagerData.DataModels.PartTaskType", b =>
-                {
                     b.Navigation("Tasks");
                 });
 

@@ -23,10 +23,10 @@ const routes: Routes = [
   {path: 'parts', component: PartComponent, canActivate: [AuthGuard]},
   {path: 'member/tasks', component: TaskComponent, canActivate: [AuthGuard]},
   {path: 'part/tasks', component: PartTasksComponent, canActivate: [AuthGuard]},
-  {path: 'part/about/:id', component: PartProfileComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]},
   {path: 'member/about/:id', component: MemberProfileComponent, canActivate: [AuthGuard]},
   {path: 'part/members', component: PartMembersComponent, canActivate: [AuthGuard, PartGuard]},
+  {path: 'part/about/:id', component: PartProfileComponent, canActivate: [AuthGuard, PartGuard]},
 ];
 
 @NgModule({
