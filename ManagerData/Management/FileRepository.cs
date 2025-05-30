@@ -1,11 +1,10 @@
-﻿using ManagerData.Constants;
+﻿using Minio;
+using Minio.DataModel.Args;
+using ManagerData.Constants;
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Minio;
-using Minio.DataModel.Args;
 
 namespace ManagerData.Management;
 

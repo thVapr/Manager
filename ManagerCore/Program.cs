@@ -116,6 +116,8 @@ builder.Services.AddScoped<ITaskLogic, TaskLogic>();
 builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IFileLogic, FileLogic>();
+builder.Services.AddScoped<ITaskMessageRepository, TaskMessageRepository>();
+builder.Services.AddScoped<ITaskMessageLogic, TaskMessageLogic>();
 
 builder.Services.AddScoped<IBackgroundTaskRepository, BackgroundTaskRepository>();
 builder.Services.AddHostedService<MessengerHostService>();

@@ -1,6 +1,6 @@
 ﻿using ManagerData.Constants;
-using ManagerData.DataModels.Authentication;
 using Microsoft.EntityFrameworkCore;
+using ManagerData.DataModels.Authentication;
 
 namespace ManagerData.Contexts;
 
@@ -14,7 +14,6 @@ public sealed class AuthenticationDbContext : DbContext
     public DbSet<UserDataModel> Users { get; set; } = null!;
     public DbSet<RoleDataModel> Roles { get; set; } = null!;
     public DbSet<UserRoleDataModel> UserRoles { get; set; } = null!;
-
     public DbSet<RefreshTokenDataModel> Tokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

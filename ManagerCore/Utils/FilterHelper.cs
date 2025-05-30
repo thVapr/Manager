@@ -27,9 +27,10 @@ public static class FilterHelper
 
     public static Guid? GetTaskId(ActionExecutingContext context)
     {
-        var taskId = ((context.ActionArguments.TryGetValue("taskId", out var id) 
+        var taskId = (((context.ActionArguments.TryGetValue("taskId", out var id) 
             ? id : null) ?? context.ActionArguments.Values.OfType<MemberTasks>().FirstOrDefault()?.TaskId)
-                         ?? context.ActionArguments.Values.OfType<ChangeTaskStatusModel>().FirstOrDefault()?.TaskId;
+                         ?? context.ActionArguments.Values.OfType<ChangeTaskStatusModel>().FirstOrDefault()?.TaskId)
+                         ?? context.ActionArguments.Values.OfType<TaskMessageModel>().FirstOrDefault()?.TaskId;
         return Guid.TryParse((string?)taskId, out var parsedId) ? parsedId : null;
     }
     

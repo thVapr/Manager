@@ -7,6 +7,7 @@ import { AuthService } from '../auth/auth.service';
 import { Constants } from 'src/app/constants';
 import { Member } from 'src/app/components/models/member';
 import { TaskHistory } from 'src/app/components/models/task-history';
+import { TaskMessage } from 'src/app/components/models/task-message';
 
 @Injectable({
   providedIn: 'root'
@@ -73,6 +74,21 @@ export class TaskService {
 
   getFileList(taskId : string) : Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/get_files?taskId=${taskId}`);
+  }
+
+  getMessages(taskId : string) : Observable<TaskMessage[]> {
+    const partId = this.partService.getPartId();
+    return this.http.get<TaskMessage[]>(`${this.apiUrl}/messages/get/?partId=${partId}&taskId=${taskId}`);
+  }
+
+  addMessage(message : TaskMessage) : Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/messages/add/`, message);
+  }
+
+  removeMessage(taskId : string, messageId : string) : Observable<any> {
+    const partId = this.partService.getPartId();
+    
+    return this.http.delete<any>(`${this.apiUrl}/messages/remove?partId=${partId}&taskId=${taskId}&messageId=${messageId}`);
   }
 
   getFile(fileName : string,taskId : string) : Observable<Blob> {

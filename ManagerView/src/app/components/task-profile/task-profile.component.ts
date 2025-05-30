@@ -14,6 +14,7 @@ import { Component, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { PartTaskType } from '../models/part-task-type';
+import { TaskMessage } from '../models/task-message';
 
 @Component({
     selector: 'app-task-profile',
@@ -38,6 +39,10 @@ export class TaskProfileComponent {
   addMemberForm = new FormGroup({
     member: new FormControl<Member|null>(null, [Validators.required]),
   });
+
+  addMessageForm = new FormGroup({
+    message: new FormControl('', [Validators.required, Validators.minLength(1)])
+  });
   @ViewChild('fileUploader') fileUploader!: FileUpload;
   value: number = 1;
   taskId : string = "";
@@ -52,6 +57,7 @@ export class TaskProfileComponent {
   types : PartTaskType[] = [];
   availableMembers : Member[] = [];
   isAddMemberFormVisible : boolean = false;
+  messages : TaskMessage[] = [];
 
   hasAcceesForEdit : boolean = false;
 
@@ -86,7 +92,16 @@ export class TaskProfileComponent {
       this.taskDescription = task.description;
       this.taskStatus = task.status;
       this.task = task;
- 
+      this.taskService.getMessages(task.id!).subscribe({
+        next: (messages) => {
+          this.messages = messages;
+          this.messages.forEach(message => {
+            message.createdAt = new Date(message.createdAt!);
+          })
+          
+        }
+      })
+
       if (task.creatorId !== undefined)
         this.memberService.getMemberById(task.creatorId).subscribe((employee) => {
           this.creator = employee;
@@ -100,7 +115,6 @@ export class TaskProfileComponent {
                 next: (statuses) => {
                   this.statuses = statuses.sort((a,b)=>a.order! - b.order!);
                   let nodes = task.path?.split('-');
-                  console.log(task);
                   this.updateTaskForm.setValue({
                     name: this.taskName!,
                     description: this.taskDescription!,
@@ -121,7 +135,6 @@ export class TaskProfileComponent {
                 });
                 this.taskService.getFileList(this.taskId).subscribe({
                   next: (files) => {
-                    console.log(files);
                     this.uploadedFiles = [...files];
                   }
                 });
@@ -188,6 +201,29 @@ export class TaskProfileComponent {
         }
       });
     }
+  }
+
+  onMessageSend() {
+    const message : TaskMessage =  {
+      creatorId: this.authService.getId(),
+      taskId: this.task.id!,
+      message: this.addMessageForm.value.message!
+    };
+    console.log(message);
+    this.taskService.addMessage(message).subscribe(
+      () => {
+        this.addMessageForm.reset();
+        this.update();
+      }
+    );
+  }
+
+  onMessageRemove(messageId : string) {
+    this.taskService.removeMessage(this.task.id!,messageId).subscribe(
+      () => {
+        this.update();
+      }
+    );
   }
 
   showAddMemberToTaskForm() : void {

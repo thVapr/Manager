@@ -12,7 +12,7 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/tasks")]
 [Authorize]
-public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic) : ControllerBase
+public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic, ITaskMessageLogic taskMessageLogic) : ControllerBase
 {
     [HttpGet]
     [Route("get")]
@@ -113,7 +113,7 @@ public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic) : Contro
     [TypeFilter(typeof(TaskAccessFilter))]
     [HttpPost]
     [Route("remove_member")]
-    public async Task<IActionResult> RemoveMemberToTask([FromBody] MemberTasks model)
+    public async Task<IActionResult> RemoveMemberFromTask([FromBody] MemberTasks model)
     {
         var isMemberRemoved = await taskLogic.RemoveMemberFromTask(
             Guid.Parse(User.FindFirst("id")?.Value!),
@@ -202,12 +202,43 @@ public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic) : Contro
     [TypeFilter(typeof(TaskAccessFilter))]
     [HttpDelete]
     [Route("delete")]
-    public async Task<IActionResult> DeletePart(string partId, string taskId)
+    public async Task<IActionResult> DeleteTask(string partId, string taskId)
     {
         var task = await taskLogic.GetEntityById(Guid.Parse(taskId));
         if (task.PartId != null && task.PartId != Guid.Parse(partId))
             Forbid($"У вас нет прав для доступа к задаче с id: {taskId}");
         if (await taskLogic.DeleteEntity(Guid.Parse(taskId)))
+            return Ok();
+        return BadRequest();
+    }
+    
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpGet]
+    [Route("messages/get")]
+    public async Task<IActionResult> GetMessagesFromTask(string partId, string taskId)
+    {
+        return Ok(await taskMessageLogic.GetTaskMessages(Guid.Parse(taskId)));
+    }
+    
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpPost]
+    [Route("messages/add")]
+    public async Task<IActionResult> AddMessageToTask([FromBody] TaskMessageModel model)
+    {
+        var isMessageAdded = await taskMessageLogic.CreateAsync(model);
+        if (isMessageAdded)
+            return Ok();
+        return BadRequest();
+    }
+    
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpDelete]
+    [Route("messages/remove")]
+    public async Task<IActionResult> RemoveMessageFromTask(string partId, string taskId, string messageId)
+    {
+        var isMessageRemoved = await taskMessageLogic.DeleteAsync(Guid.Parse(messageId));
+        if (isMessageRemoved)
             return Ok();
         return BadRequest();
     }
