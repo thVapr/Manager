@@ -257,7 +257,8 @@ public class TaskLogic(
                     ActionType = TaskActionType.StatusChanged
                 });
                 await NotifyAboutStatusUpdate(taskId, partId, task, rawStatuses, savedTask.Status, taskModel.Status);
-                await NotifyAvailableMembers(Guid.Parse(task.Id!), partId, task, rawStatuses, savedAvailableMembers);
+                if (taskModel.Status < 110)
+                    await NotifyAvailableMembers(Guid.Parse(task.Id!), partId, task, rawStatuses, savedAvailableMembers);
             }
         }
 
