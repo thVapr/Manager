@@ -28,7 +28,10 @@ public class PartAccessFilter(
                 if (await partLogic.IsUserHasPrivileges(userId, partId, requiredLevel))
                     continue;
                 context.Result = 
-                    new ForbidResult("Недостаточно привилегий для доступа к данной сущности");
+                    new ObjectResult("Недостаточно привилегий для доступа к данной сущности")
+                    {
+                        StatusCode = StatusCodes.Status403Forbidden
+                    };
                 return;
             }
         }

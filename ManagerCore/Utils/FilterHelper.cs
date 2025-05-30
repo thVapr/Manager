@@ -27,16 +27,15 @@ public static class FilterHelper
 
     public static Guid? GetTaskId(ActionExecutingContext context)
     {
-        var taskId = (((context.ActionArguments.TryGetValue("taskId", out var id) 
+        var taskId = ((context.ActionArguments.TryGetValue("taskId", out var id) 
             ? id : null) ?? context.ActionArguments.Values.OfType<MemberTasks>().FirstOrDefault()?.TaskId)
-                         ?? context.ActionArguments.Values.OfType<ChangeTaskStatusModel>().FirstOrDefault()?.TaskId)
                          ?? context.ActionArguments.Values.OfType<TaskMessageModel>().FirstOrDefault()?.TaskId;
         return Guid.TryParse((string?)taskId, out var parsedId) ? parsedId : null;
     }
     
     public static List<Guid> GetPartIds(ActionExecutingContext context)
     {
-        var partId = (((((((((context.ActionArguments.TryGetValue("partId", out var id) 
+        var partId = ((((((((context.ActionArguments.TryGetValue("partId", out var id) 
                ? id : null)
            ?? (context.ActionArguments.TryGetValue("masterId", out id)
                ? id : null)
@@ -47,7 +46,6 @@ public static class FilterHelper
             ?? context.ActionArguments.Values.OfType<MemberTasks>().FirstOrDefault()?.PartId)
             ?? context.ActionArguments.Values.OfType<AddToPartModel>().FirstOrDefault()?.PartId) 
             ?? context.ActionArguments.Values.OfType<PartMemberRoleRequest>().FirstOrDefault()?.PartId)
-            ?? context.ActionArguments.Values.OfType<ChangeTaskStatusModel>().FirstOrDefault()?.PartId)
             ?? context.ActionArguments.Values.OfType<UpdateTaskRequest>().FirstOrDefault()?.Task.PartId;
         
         var list = new List<string>();

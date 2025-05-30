@@ -171,9 +171,13 @@
                 <div class="mb-3" *ngFor="let msg of messages">
                     <div class="d-flex justify-content-between">
                         <div class="fw-bold">
-                            {{ msg.creator?.firstName }} {{ msg.creator?.lastName }} [{{msg.createdAt | date:'dd.MM.yyyy HH:mm'}}]
+                            {{ msg.creator?.firstName }} {{ msg.creator?.lastName }} 
+                            [{{msg.createdAt | date:'dd.MM.yyyy HH:mm'}}]
                         </div>
-                        <button class="btn btn-danger" (click)="onMessageRemove(msg.id!)">&times;</button>
+                        @if (this.hasAcceesForEdit)
+                        {
+                            <button class="btn btn-danger" (click)="onMessageRemove(msg.id!)">&times;</button>
+                        }
                     </div>
 
                     <div [innerHTML]="msg.message"></div>
