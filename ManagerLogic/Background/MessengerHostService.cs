@@ -78,26 +78,38 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
         {
             case (int)BackgroundTaskType.Available:
             {
+                var message = $"📋 Задача: {task.Task.Name}\n➡️ Доступна для вас!\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
+                if (task.Task.Deadline != null && task.Task.Deadline.Value > DateTime.UnixEpoch)
+                    message += $"☎️ Срок сдачи: {task.Task.Deadline}";
                 await botClient.SendMessage(user.ChatId!, 
-                    $"🐍 Задача \n{task.Task.Name}\n доступна для вас\n");
+                    message
+                    );
                 await repository.Delete(task.Id);
             } break;
             case (int)BackgroundTaskType.Removed:
-            { 
+            {
+                var message = $"❌ Вы удалены с задачи: \n{task.Task.Name}\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
                 await botClient.SendMessage(user.ChatId!, 
-                    $"🐍 Вы удалены с задачи: \n{task.Task.Name}\n");
+                    message);
                 await repository.Delete(task.Id);
             } break;
             case (int)BackgroundTaskType.StatusUpdate:
             {
                 await botClient.SendMessage(user.ChatId!, 
-                    $"🐍 Задача \n{task.Task.Name}\n {task.Message}\n");
+                    $"📋 Задача: {task.Task.Name}\n🔄 {task.Message}\n");
                 await repository.Delete(task.Id);
             } break;
             case (int)BackgroundTaskType.Added:
             {
+                var message = $"👤 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
                 await botClient.SendMessage(user.ChatId!, 
-                    $"🐍 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n");
+                    message);
                 await repository.Delete(task.Id);
             } break;
         }
