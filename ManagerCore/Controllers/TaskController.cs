@@ -186,9 +186,9 @@ public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic, ITaskMes
     [TypeFilter(typeof(TaskAccessFilter))]
     [HttpPost]
     [Route("{taskId}/files")]
-    public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromRoute] string taskId, [FromRoute] string partId)
+    public async Task<IActionResult> UploadFile([FromForm] UploadFileRequest request, [FromRoute] string taskId, [FromRoute] string partId)
     {
-        await fileLogic.Upload(file, taskId);
+        await fileLogic.Upload(request.File, taskId);
         return Ok();
     }
     
