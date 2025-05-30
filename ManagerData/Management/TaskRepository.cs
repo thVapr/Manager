@@ -1,11 +1,11 @@
-﻿
-using ManagerData.Contexts;
+﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
+using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Management;
 
-public class TaskRepository(MainDbContext database) : ITaskRepository
+public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> logger) : ITaskRepository
 {
     public async Task<bool> CreateEntity(TaskDataModel model)
     {
@@ -18,7 +18,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -42,7 +42,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -64,7 +64,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -86,7 +86,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -111,7 +111,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new TaskDataModel();
         }
     }
@@ -124,7 +124,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -144,7 +144,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -184,7 +184,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -204,7 +204,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -225,8 +225,8 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
-            return Enumerable.Empty<TaskDataModel>();
+            logger.LogError(ex, $"[{DateTime.Now}]");
+            return [];
         }
     }
 
@@ -245,7 +245,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -263,7 +263,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -280,7 +280,7 @@ public class TaskRepository(MainDbContext database) : ITaskRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }

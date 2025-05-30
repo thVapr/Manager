@@ -14,7 +14,7 @@ public class FileRepository : IFileRepository
     private readonly string _bucket;
     private readonly MainDbContext _database;
     
-    public FileRepository(MainDbContext database,IConfiguration config)
+    public FileRepository(MainDbContext database, IConfiguration config)
     {
         var secretProvider = new SecretProvider();
         var settings = config.GetSection("Minio");

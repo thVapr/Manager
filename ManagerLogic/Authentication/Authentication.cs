@@ -163,9 +163,9 @@ public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenti
             Salt = salt
         };
 
-        await authenticationData.AddUser(newUser);
+        var isUserCreated = await authenticationData.AddUser(newUser);
 
-        return true;
+        return isUserCreated;
     }
 
     public async Task<bool> UpdateUser(UserDataModel user)

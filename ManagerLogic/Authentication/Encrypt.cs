@@ -12,7 +12,7 @@ namespace ManagerLogic.Authentication
                 password,
                 Encoding.ASCII.GetBytes(salt),
                 KeyDerivationPrf.HMACSHA512,
-                500,
+                240000,
                 64)
             );
         }
