@@ -99,8 +99,9 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
             } break;
             case (int)BackgroundTaskType.StatusUpdate:
             {
+                var message = $"📋 Задача: {task.Task.Name}\n🔄 {task.Message}\n";
                 await botClient.SendMessage(user.ChatId!, 
-                    $"📋 Задача: {task.Task.Name}\n🔄 {task.Message}\n");
+                    message);
                 await repository.Delete(task.Id);
             } break;
             case (int)BackgroundTaskType.Added:

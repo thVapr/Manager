@@ -143,6 +143,14 @@
                             обновил статус задачи
                         </span>
                     </div>
+                    <div class="row text-truncate">
+                        <label *ngIf="history.name" class="text-muted">Заголовок: </label>
+                        <span *ngIf="history.name" class="mb-2">{{history.name}}</span>
+                    </div>
+                    <div class="row text-truncate">
+                        <label *ngIf="history.description" class="text-muted">Описание: </label>
+                        <span *ngIf="history.description" class="mb-2" [innerHTML]="history.description"></span>
+                    </div>
                     <div class="d-flex flex-nowrap mb-2" 
                         *ngIf="history.destinationStatusId != undefined && history.sourceStatusId != undefined">
                         <span class="text-muted small rounded-1 p-2" 
@@ -154,9 +162,6 @@
                             [style.background]="getStatusColor(history.destinationStatusId)">
                             {{getStatusNameByOrder(history.destinationStatusId)}}
                         </span>
-                    </div>
-                    <div *ngIf="history.description" class="mb-2">
-                        {{ history.description }}
                     </div>
                     <div *ngIf="history.targetMember" class="mb-2">
                         <span class="text-muted">

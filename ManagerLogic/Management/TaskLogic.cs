@@ -286,7 +286,7 @@ public class TaskLogic(
         {
             var index = nodes.IndexOf(task.Status);
             if (index + 1 == nodes.Last())
-                task.ClosedAt = DateTime.Now;
+                task.ClosedAt = DateTime.UtcNow;
             var updatedStatus = nodes[index+1];
             var nextStatusOrder = statuses
                 .FirstOrDefault(status => status == updatedStatus);
@@ -414,7 +414,7 @@ public class TaskLogic(
             return false;
         var targetIndex = forward ? index + 1 : index - 1;
         if (targetIndex == nodes.Count - 1)
-            task.ClosedAt = DateTime.Now;
+            task.ClosedAt = DateTime.UtcNow;
         
         var sourceStatus = task.Status;
         task.Status = nodes[targetIndex];
