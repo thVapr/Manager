@@ -12,7 +12,8 @@ namespace ManagerCore.Controllers;
 [ApiController]
 [Route("/api/parts/{partId}/tasks")]
 [Authorize]
-public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic, ITaskMessageLogic taskMessageLogic) : ControllerBase
+public class TaskController(
+    ITaskLogic taskLogic, IFileLogic fileLogic, ITaskMessageLogic taskMessageLogic) : ControllerBase
 {
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
@@ -107,7 +108,7 @@ public class TaskController(ITaskLogic taskLogic, IFileLogic fileLogic, ITaskMes
         return BadRequest();
     }
     
-    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Create])]
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [TypeFilter(typeof(TaskAccessFilter))]
     [HttpDelete]
     [Route("{taskId}")]

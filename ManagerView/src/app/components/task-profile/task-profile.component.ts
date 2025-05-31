@@ -29,6 +29,7 @@ export class TaskProfileComponent {
 
   updateTaskForm = new FormGroup({
     name: new FormControl('', [Validators.minLength(4)]),
+    status : new FormControl(0, []),
     description: new FormControl('', [Validators.minLength(4)]),
     priority: new FormControl(0, []),
     deadline: new FormControl(new Date(), []),
@@ -115,11 +116,14 @@ export class TaskProfileComponent {
                 next: (statuses) => {
                   this.statuses = statuses.sort((a,b)=>a.order! - b.order!);
                   let nodes = task.path?.split('-');
+                  let timestamp = new Date(this.task.deadline!);
+
                   this.updateTaskForm.setValue({
                     name: this.taskName!,
                     description: this.taskDescription!,
+                    status: this.task.status!,
                     priority: this.task.level!,
-                    deadline: new Date(this.task.deadline!),
+                    deadline: this.isValidTimestamp(timestamp) ? timestamp : null,
                     selectedStatusColumns: statuses.filter(col => nodes?.includes(col.order?.toString()!)),
                     taskType: this.task.taskTypeId! 
                   });
@@ -160,7 +164,7 @@ export class TaskProfileComponent {
     task.id = this.taskId;
     task.name = this.updateTaskForm.value.name!;
     task.description = this.updateTaskForm.value.description!;
-    task.status = this.taskStatus;
+    task.status = this.updateTaskForm.value.status!;
     task.path = this.updateTaskForm.value.selectedStatusColumns!
       .map(value => value.order?.toString())
       .join('-');
@@ -274,5 +278,9 @@ export class TaskProfileComponent {
 
   getStatusNameByOrder(order : number) {
     return this.statuses.find(status => status.order === order)?.name;
+  }
+ 
+  isValidTimestamp(timestamp : Date) : boolean {
+    return (new Date(timestamp)).getTime() > (new Date(0)).getTime();
   }
 }

@@ -26,7 +26,16 @@
         placeholder="Название" formControlName="name"/>
     </div>
     <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
-        <label class="form-label mt-2" for="endDate">Крайний срок</label>
+    <div class="form-outline mb-2 flex-row">
+      <label class="form-label mt-2">Статус</label>
+      <select name="select" class="form-control form-control-lg" 
+          type="select" formControlName="status">
+        <option *ngFor="let status of this.statuses" [value]="status.order" class="text-primary">
+             {{status.name}} 
+        </option>
+      </select>
+    </div>
+    <label class="form-label mt-2" for="endDate">Крайний срок</label>
     <p-datepicker id="endDate" [showIcon]="true" [showTime]="true"
       hourFormat="24" dateFormat="dd-mm-yy" formControlName="deadline"
       class="d-flex flex-fill flex-column mb-2" appendTo="body"/>
