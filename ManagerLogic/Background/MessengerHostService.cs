@@ -17,6 +17,7 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
     private TelegramBotClient botClient;
     private IAuthentication authentication;
     private IBackgroundTaskRepository repository;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Console.WriteLine
@@ -35,7 +36,6 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
         
         try
         {
-            await QueueProcessing();
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 await QueueProcessing();

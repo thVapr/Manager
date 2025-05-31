@@ -3,13 +3,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-using ManagerData.Contexts;
-using ManagerData.Management;
-using ManagerLogic.Management;
-using ManagerData.Authentication;
-using ManagerLogic.Authentication;
+using ManagerLogic;
 using ManagerLogic.Background;
-using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,11 +19,6 @@ builder.Services.AddCors(options => options.AddPolicy("CorsPolicy",
 ));
 
 builder.Services.AddControllers();
-
-builder.Services.AddDbContext<AuthenticationDbContext>();
-builder.Services.AddDbContext<MainDbContext>();
-
-builder.Services.AddScoped<IFileRepository, FileRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -93,34 +83,8 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-builder.Services.AddSingleton<IUserIdProvider,HubUserIdProvider>();
-builder.Services.AddSignalR();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-builder.Services.AddScoped<IJwtCreator,JwtCreator>();
-builder.Services.AddScoped<IAuthenticationRepository,AuthenticationRepository>();
-builder.Services.AddScoped<IAuthentication,Authentication>();
-builder.Services.AddScoped<IEncrypt,Encrypt>();
-
-builder.Services.AddScoped<IPartRepository, PartRepository>();
-builder.Services.AddScoped<IPartLogic, PartLogic>();
-builder.Services.AddScoped<IPathHelper, PathHelper>();
-
-builder.Services.AddScoped<IMemberRepository, MemberRepository>();
-builder.Services.AddScoped<IMemberLogic, MemberLogic>();
-
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-builder.Services.AddScoped<ITaskTypeRepository, TaskTypeRepository>();
-builder.Services.AddScoped<ITaskTypeLogic, TaskTypeLogic>();
-builder.Services.AddScoped<ITaskLogic, TaskLogic>();
-builder.Services.AddScoped<IHistoryRepository, HistoryRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IFileLogic, FileLogic>();
-builder.Services.AddScoped<ITaskMessageRepository, TaskMessageRepository>();
-builder.Services.AddScoped<ITaskMessageLogic, TaskMessageLogic>();
-
-builder.Services.AddScoped<IBackgroundTaskRepository, BackgroundTaskRepository>();
-builder.Services.AddHostedService<MessengerHostService>();
+builder.Services.AddManagerLogic();
 
 var app = builder.Build();
 
