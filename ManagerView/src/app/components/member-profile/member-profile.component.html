@@ -1,6 +1,6 @@
 <h2 class="mt-3 mb-5">Профиль</h2>
 
-<form [formGroup]="addEmployeeForm" (ngSubmit)="onAddSubmit()" *ngIf="!isEmployeeProfileExist&&isCurrentMember">
+<form [formGroup]="addEmployeeForm" (ngSubmit)="onAddSubmit()" *ngIf="!isEmployeeProfileExist">
     <div class="form-outline mb-3">
       <input type="text" class="form-control form-control-lg"
         placeholder="Фамилия" formControlName="lastName"/>

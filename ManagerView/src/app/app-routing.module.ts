@@ -17,7 +17,7 @@ import { PartMembersComponent } from './components/part-members/part-members.com
 import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
 const routes: Routes = [
-  {path: 'home', component: HomeComponent, canActivate: [AuthGuard, PartGuard]},
+  {path: 'home', component: HomeComponent, canActivate: [AuthGuard]},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
   {path: 'parts', component: PartComponent, canActivate: [AuthGuard]},

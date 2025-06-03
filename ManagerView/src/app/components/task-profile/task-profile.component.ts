@@ -55,6 +55,7 @@ export class TaskProfileComponent {
   uploadedFiles: any[] = [];
   taskHistory: TaskHistory[] = [];
   statuses : TaskStatus[] = [];
+  selectedStatuses : TaskStatus[] = [];
   types : PartTaskType[] = [];
   availableMembers : Member[] = [];
   isAddMemberFormVisible : boolean = false;
@@ -117,14 +118,17 @@ export class TaskProfileComponent {
                   this.statuses = statuses.sort((a,b)=>a.order! - b.order!);
                   let nodes = task.path?.split('-');
                   let timestamp = new Date(this.task.deadline!);
-
+                  this.selectedStatuses = statuses.filter(col => 
+                    nodes?.includes(col.order?.toString()!)
+                  );
+                  
                   this.updateTaskForm.setValue({
                     name: this.taskName!,
                     description: this.taskDescription!,
                     status: this.task.status!,
                     priority: this.task.level!,
                     deadline: this.isValidTimestamp(timestamp) ? timestamp : null,
-                    selectedStatusColumns: statuses.filter(col => nodes?.includes(col.order?.toString()!)),
+                    selectedStatusColumns: this.selectedStatuses,
                     taskType: this.task.taskTypeId! 
                   });
                 }

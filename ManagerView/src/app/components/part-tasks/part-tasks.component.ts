@@ -310,6 +310,10 @@ export class PartTasksComponent implements OnInit {
           this.statusColumns = statuses.sort((statusA, statusB) => {
             return statusA.order! - statusB.order!;
           });
+          this.partService.getRolesById(this.partService.getPartId()!).subscribe({
+            next: (roles) => {
+              this.partRoles = roles;
+          }});
           this.tasks = tasks.sort((a,b) => (b.level!-a.level!));
           this.tasks.forEach(task => {
             this.taskService.getMembersFromTask(task.id!).subscribe({
@@ -320,10 +324,6 @@ export class PartTasksComponent implements OnInit {
                   task.memberName = members[0].firstName;
                   task.memberLastName = members[0].lastName;
                 }
-                this.partService.getRolesById(this.partService.getPartId()!).subscribe({
-                  next: (roles) => {
-                    this.partRoles = roles;
-                }});
             }})
           });
         }});
@@ -445,6 +445,6 @@ export class PartTasksComponent implements OnInit {
   }
 
   getTypeNameById(id : string) : string {
-    return this.types.find(type => type.id)?.name!;
+    return this.types.find(type => type.id === id)?.name!;
   }
 }

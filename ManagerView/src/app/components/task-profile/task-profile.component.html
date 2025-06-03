@@ -30,7 +30,7 @@
       <label class="form-label mt-2">Статус</label>
       <select name="select" class="form-control form-control-lg" 
           type="select" formControlName="status">
-        <option *ngFor="let status of this.statuses" [value]="status.order" class="text-primary">
+        <option *ngFor="let status of this.selectedStatuses" [value]="status.order" class="text-primary">
              {{status.name}} 
         </option>
       </select>
@@ -68,7 +68,7 @@
     </p-listbox>
 </form>
 
-<p-tabs [value]="value">
+<p-tabs [value]="value" class="overflow-auto">
     <p-tablist>
         <p-tab [value]="0">Участники</p-tab>
         <p-tab [value]="1">История</p-tab>
