@@ -12,16 +12,18 @@ import { AuthService } from '../../services/auth/auth.service';
 import { PartService } from '../../services/part/part.service';
 
 @Component({
-    selector: 'app-part-members',
-    templateUrl: './part-members.component.html',
-    styleUrls: ['./part-members.component.scss'],
+    selector: 'app-part-control',
+    templateUrl: './part-control.component.html',
+    styleUrls: ['./part-control.component.scss'],
     standalone: false
 })
-export class PartMembersComponent {
+export class PartControlComponent {
   members : Member[] = [];
   partMembers: Member[] = [];
+  value : number = 0;
   part : Part = new Part("","","",0,[]);
   privelegeOptions = PRIVILEGE_LABELS;
+  draggedMember : Member = {};
 
   addRoleForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
@@ -66,22 +68,26 @@ export class PartMembersComponent {
       });
   }
   
+  dragStart(member : Member) {
+    this.draggedMember = member;
+  }
+
+  dragEnd() {
+    this.draggedMember = {};
+  }
+
   onMoveToTarget(event : any)
   {
-    event.items.forEach((element: Member) => {
-      this.partService.removeMemberFromPart(element.id!).subscribe({next: () => {
-        this.update();
-      }});
-    });
+    this.partService.removeMemberFromPart(this.draggedMember.id!).subscribe({next: () => {
+      this.update();
+    }});
   }
 
   onMoveToSource(event : any)
   {
-    event.items.forEach((element: Member) => {
-      this.partService.addMemberToPart(element.id!).subscribe({next: () => {
-        this.update();
-      }});
-    });
+    this.partService.addMemberToPart(this.draggedMember.id!).subscribe({next: () => {
+      this.update();
+    }});
   }
 
   doubleClick(member : Member)

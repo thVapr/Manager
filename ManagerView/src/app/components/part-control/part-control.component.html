@@ -1,0 +1,114 @@
+<p-tabs [value]="value" scrollable>
+    <p-tablist>
+        <p-tab [value]="0">Персонал</p-tab>
+        <p-tab [value]="1">Роли</p-tab>
+        <p-tab [value]="2">Типы задач</p-tab>
+    </p-tablist>
+    <p-tabpanels>
+        <p-tabpanel [value]="0">
+            <div class="d-flex flex-wrap gap-2">
+                <p-listbox [options]="partMembers" 
+                        [filter]="true" 
+                        filterBy="firstName,lastName,patronymic"
+                        class="flex-grow-1 flex-shrink-1"
+                        [style]="{ 'min-width': '350px', 'height': '60vh'}"
+                        [listStyle]="{ 'min-height': '80%', 'overflow-y': 'auto' }"
+                        pDroppable
+                        (onDrop)="onMoveToSource($event)">
+                    <ng-template #header>
+                        <label>Участники</label>
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                        <p-card (dblclick)="doubleClick(option)"
+                            pDraggable
+                            (onDragStart)="dragStart(option)"
+                            (onDragEnd)="dragEnd()"
+                            [subheader]="option.firstName + ' ' + option.lastName" class="flex-fill"> 
+                            <ng-template *ngIf="option.privilege != undefined" pTemplate="footer">
+                                <span>Уровень доступа: </span>
+                                <p-tag [value]="getPrivilageLabelByValue(option.privilege)"></p-tag>
+                            </ng-template>
+                        </p-card>
+                    </ng-template>
+                </p-listbox>
+                <p-listbox [options]="members" 
+                        [filter]="true"
+                        filterBy="firstName,lastName,patronymic"
+                        class="flex-grow-1 flex-shrink-1"
+                        [style]="{ 'min-width': '350px', 'height': '60vh'}"
+                        [listStyle]="{ 'min-height': '80%', 'overflow-y': 'auto' }"
+                        pDroppable
+                        (onDrop)="onMoveToTarget($event)">
+                    <ng-template #header>
+                        <label>Свободные</label>
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                        <p-card (dblclick)="doubleClick(option)"
+                            pDraggable
+                            (onDragStart)="dragStart(option)"
+                            (onDragEnd)="dragEnd()"
+                            [subheader]="option.firstName + ' ' + option.lastName" class="flex-fill"> 
+                            <ng-template *ngIf="option.privilege != undefined" pTemplate="footer">
+                                <span>Уровень доступа: </span>
+                                <p-tag [value]="getPrivilageLabelByValue(option.privilege)"></p-tag>
+                            </ng-template>
+                        </p-card>
+                    </ng-template>
+                </p-listbox>
+            </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
+            <form [formGroup]="addRoleForm" (ngSubmit)="onSubmit()" class="row mb-5" 
+                *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || authService.isSpaceOwner())">
+                <div class="form-outline mb-2">
+                <input type="text" class="form-control form-control-lg"
+                    placeholder="Название" formControlName="name"/>
+                </div>
+
+                <p-editor class="form-outline"
+                    placeholder="Описание" formControlName="description"></p-editor>
+                <div class="text-center text-lg-start mt-2">
+                <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+                </div>
+            </form>
+            <div class="mb-3">
+                <label class="form-label">Роли</label>
+                <ul class="list-group" *ngIf="roles.length > 0">
+                    <li *ngFor="let role of roles" class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ role.name }}
+                    <button class="btn btn-danger text-white btn-outline-danger"
+                        (click)="removeRole(role.id!)">
+                        &times;
+                    </button>
+                    </li>
+                </ul>
+                <p-card *ngIf="roles.length <= 0" header="У данной сущности нет доступных ролей"></p-card>
+            </div>
+        </p-tabpanel>
+        <p-tabpanel [value]="2">
+            <form [formGroup]="addTypeForm" (ngSubmit)="onTypeSubmit()" class="row mb-5" 
+                *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || authService.isSpaceOwner())">
+                <div class="form-outline mb-2">
+                <input type="text" class="form-control form-control-lg"
+                    placeholder="Название" formControlName="name"/>
+                </div>
+                <div class="text-center text-lg-start mt-2">
+                <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
+                </div>
+            </form>
+            <div class="mb-3">
+                <label class="form-label">Типы</label>
+                <ul class="list-group" *ngIf="types.length > 0">
+                    <li *ngFor="let type of types" class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ type.name }}
+                    <button class="btn btn-danger text-white btn-outline-danger"
+                        (click)="removeType(type.id!)">
+                        &times;
+                    </button>
+                    </li>
+                </ul>
+                <p-card *ngIf="types.length <= 0" header="У данной сущности нет доступных типов"></p-card>
+            </div>
+        </p-tabpanel>
+    </p-tabpanels>
+</p-tabs>

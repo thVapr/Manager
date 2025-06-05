@@ -13,7 +13,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { PartTasksComponent } from './components/part-tasks/part-tasks.component';
 import { PartProfileComponent } from './components/part-profile/part-profile.component';
 import { TaskProfileComponent } from './components/task-profile/task-profile.component';
-import { PartMembersComponent } from './components/part-members/part-members.component';
+import { PartControlComponent } from './components/part-control/part-control.component';
 import { MemberProfileComponent } from './components/member-profile/member-profile.component';
 
 const routes: Routes = [
@@ -25,7 +25,7 @@ const routes: Routes = [
   {path: 'part/tasks', component: PartTasksComponent, canActivate: [AuthGuard]},
   {path: 'task/about/:id', component: TaskProfileComponent, canActivate: [AuthGuard]},
   {path: 'member/about/:id', component: MemberProfileComponent, canActivate: [AuthGuard]},
-  {path: 'part/members', component: PartMembersComponent, canActivate: [AuthGuard, PartGuard]},
+  {path: 'part/members', component: PartControlComponent, canActivate: [AuthGuard, PartGuard]},
   {path: 'part/about/:id', component: PartProfileComponent, canActivate: [AuthGuard, PartGuard]},
 ];
 
