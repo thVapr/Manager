@@ -15,6 +15,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FileUpload, FileUploadHandlerEvent } from 'primeng/fileupload';
 import { PartTaskType } from '../models/part-task-type';
 import { TaskMessage } from '../models/task-message';
+import { TaskFile } from '../models/task-file';
 
 @Component({
     selector: 'app-task-profile',
@@ -52,7 +53,7 @@ export class TaskProfileComponent {
   task : Task = {};
   status : string | undefined = "";
   taskStatus : number | undefined = 0;
-  uploadedFiles: any[] = [];
+  uploadedFiles: TaskFile[] = [];
   taskHistory: TaskHistory[] = [];
   statuses : TaskStatus[] = [];
   selectedStatuses : TaskStatus[] = [];

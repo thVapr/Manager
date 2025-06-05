@@ -1,13 +1,19 @@
 ﻿using ManagerData.Management;
+using ManagerLogic.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace ManagerLogic.Management;
 
 public class FileLogic(IFileRepository fileRepository) : IFileLogic
 {
-    public async Task<List<string>> GetFileList(string taskId)
+    public async Task<List<TaskFileModel>> GetFileList(string taskId)
     {
-        return await fileRepository.ListFilesAsync(Guid.Parse(taskId));
+        return (await fileRepository.ListFilesAsync(Guid.Parse(taskId)))
+            .Select(file => new TaskFileModel
+            {
+                FileName = file.FileName,
+                CreatedAt = file.CreatedAt
+            }).ToList();
     }
 
     public async Task Upload(IFormFile file, string taskId)

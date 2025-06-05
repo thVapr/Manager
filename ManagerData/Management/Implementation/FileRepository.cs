@@ -31,7 +31,7 @@ public class FileRepository : IFileRepository
             .Build();
     }
 
-    public async Task<List<string>> ListFilesAsync(Guid taskId)
+    public async Task<List<TaskFile>> ListFilesAsync(Guid taskId)
     {
         var objects = new List<string>();
 
@@ -47,7 +47,6 @@ public class FileRepository : IFileRepository
 
         var fileNames = await _database.TaskFiles
             .Where(file => objects.Any(obj => obj == file.Path) && file.TaskId == taskId)
-            .Select(file => file.FileName)
             .ToListAsync();
         return fileNames;
     }

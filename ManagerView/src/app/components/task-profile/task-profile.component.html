@@ -213,11 +213,11 @@
                 <ng-template #content>
                     <ul *ngIf="uploadedFiles.length > 0" class="file-list">
                         <li class="d-flex justify-content-between" *ngFor="let file of uploadedFiles">
-                            <a href="#" (click)="download(file); $event.preventDefault()">
-                            {{ file }}
+                            <a href="#" (click)="download(file.fileName); $event.preventDefault()">
+                            [{{ file.createdAt | date:'dd.MM.yyyy HH:mm' }}] {{ file.fileName }}
                             </a>
                             <button *ngIf="hasAcceesForEdit" class="btn btn-danger text-white btn-outline-danger"
-                                (click)="removeFileFromTask(file)">
+                                (click)="removeFileFromTask(file.fileName)">
                                 &times;
                             </button>
                         </li>

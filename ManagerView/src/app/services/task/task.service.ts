@@ -8,6 +8,7 @@ import { Constants } from 'src/app/constants';
 import { Member } from 'src/app/components/models/member';
 import { TaskHistory } from 'src/app/components/models/task-history';
 import { TaskMessage } from 'src/app/components/models/task-message';
+import { TaskFile } from 'src/app/components/models/task-file';
 
 @Injectable({
   providedIn: 'root'
@@ -76,8 +77,8 @@ export class TaskService {
     return this.http.delete<any>(`${this.getApiUrl()}/${taskId}/messages/?messageId=${messageId}`);
   }
 
-  getFileList(taskId : string) : Observable<string[]> {
-    return this.http.get<string[]>(`${this.getApiUrl()}/${taskId}/files`);
+  getFileList(taskId : string) : Observable<TaskFile[]> {
+    return this.http.get<TaskFile[]>(`${this.getApiUrl()}/${taskId}/files`);
   }
 
   getFile(fileName : string, taskId : string) : Observable<Blob> {

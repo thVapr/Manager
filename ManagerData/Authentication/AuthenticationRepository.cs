@@ -2,17 +2,15 @@
 using ManagerData.Constants;
 using ManagerData.DataModels.Authentication;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace ManagerData.Authentication;
 
-public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) : IAuthenticationRepository
+public class AuthenticationRepository(AuthenticationDbContext database, ILogger<AuthenticationRepository> logger) : IAuthenticationRepository
 {
     public async Task<UserDataModel> GetUser(Guid id)
     {
-        await using var database = new AuthenticationDbContext();
-        
         try
         {
             return await database.Users
@@ -28,8 +26,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<UserDataModel> GetUser(string email)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             return await database.Users
@@ -45,8 +41,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<UserDataModel> GetUserById(Guid userId)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             return await database.Users
@@ -61,8 +55,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<ICollection<UserDataModel>> GetUsers()
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             return await database.Users
@@ -77,8 +69,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<string> GetUserRole(string email)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var user = await GetUser(email);
@@ -102,8 +92,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<RefreshTokenDataModel?> GetToken(Guid userId)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             return await database.Tokens.FirstOrDefaultAsync(u => u.UserId == userId) ?? new RefreshTokenDataModel();
@@ -117,8 +105,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<RefreshTokenDataModel?> GetToken(string token)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             return await database.Tokens.FirstOrDefaultAsync(u => u.Token == token) ?? new RefreshTokenDataModel();
@@ -132,8 +118,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> AddToken(RefreshTokenDataModel token)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.UserId == token.UserId);
@@ -157,8 +141,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> UpdateToken(RefreshTokenDataModel tokenModel, string token)
     {
-        await using var database = new AuthenticationDbContext();
-
         var existingToken = database.Tokens.FirstOrDefault(t => t.Token == token);
 
         if (existingToken is null) return false;
@@ -171,8 +153,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> DeleteToken(string token)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var existingToken = await database.Tokens.FirstOrDefaultAsync(t => t.Token == token);
@@ -193,8 +173,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<IEnumerable<Guid>> GetAdminIds()
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var roleId = await database.Roles
@@ -216,8 +194,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> AddUser(UserDataModel user)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var existingUser = await database.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
@@ -253,8 +229,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> AddRole(string name)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var role = new RoleDataModel
@@ -281,8 +255,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> UpdateUser(UserDataModel model)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var user = await database.Users.FindAsync(model.Id);
@@ -318,8 +290,6 @@ public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) 
 
     public async Task<bool> DeleteUser(Guid id)
     {
-        await using var database = new AuthenticationDbContext();
-
         try
         {
             var user = await database.Users.FindAsync(id);
