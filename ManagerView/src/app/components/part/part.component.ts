@@ -66,8 +66,10 @@ export class PartComponent {
     if (partId !== null && id !== null) {
       this.partService.getPartById(partId).subscribe({
         next: (part) => {
-          if (part.leaderIds?.includes(id))
-            this.isPartLeader = true;
+          this.partService.hasPrivileges(
+            this.authService.getId(),
+            part.id!,
+            5).subscribe((response) => this.isPartLeader = response);
         },
         error: () => this.isPartLeader = false
       });
@@ -172,6 +174,7 @@ export class PartComponent {
     this.partService.removePartData();
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate(['parts']);
+      this.main.updateMenuItems();
     });
   }
 }

@@ -287,11 +287,6 @@ export class PartTasksComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.update();
-    this.updateService.onReceiveUpdate(() => {
-      this.update();
-    });
-
     const id = this.authService.getId();
     const partId = this.partService.getPartId();
 
@@ -301,6 +296,11 @@ export class PartTasksComponent implements OnInit {
         error: () => this.isLeader = false
       });
     }
+    
+    this.update();
+    this.updateService.onReceiveUpdate(() => {
+      this.update();
+    });
   }
 
   private update() : void {

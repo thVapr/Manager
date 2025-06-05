@@ -13,8 +13,9 @@ import { TaskMessage } from 'src/app/components/models/task-message';
   providedIn: 'root'
 })
 export class TaskService {
-  private partId = this.partService.getPartId();
-  private apiUrl = Constants.SERVER_ADDRESS + `/api/parts/${this.partId}/tasks`;
+
+  private getApiUrl = () : string =>
+     Constants.SERVER_ADDRESS + `/api/parts/${this.partService.getPartId()}/tasks`;
 
   constructor(private http: HttpClient,
               private partService : PartService,
@@ -22,65 +23,65 @@ export class TaskService {
 
 
   getAll(): Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.apiUrl}/all`);
+    return this.http.get<Task[]>(`${this.getApiUrl()}/all`);
   }
 
   getTasksByMemberId() : Observable<Task[]> {
     const memberId = this.authService.getId();
 
-    return this.http.get<Task[]>(`${this.apiUrl}/members/assigned?memberId=${memberId}`);
+    return this.http.get<Task[]>(`${this.getApiUrl()}/members/assigned?memberId=${memberId}`);
   }
 
   getMembersFromTask(taskId : string)
   {    
-    return this.http.get<Member[]>(`${this.apiUrl}/${taskId}/members`);
+    return this.http.get<Member[]>(`${this.getApiUrl()}/${taskId}/members`);
   }
 
   getFreeTasks() : Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.apiUrl}/free`);
+    return this.http.get<Task[]>(`${this.getApiUrl()}/free`);
   }
 
   getAvailableTasks() : Observable<Task[]> {
     const memberId = this.authService.getId();
 
-    return this.http.get<Task[]>(`${this.apiUrl}/available?memberId=${memberId}`);
+    return this.http.get<Task[]>(`${this.getApiUrl()}/available?memberId=${memberId}`);
   }
 
   getTaskById(taskId : string) : Observable<Task> {
-    return this.http.get<Task>(`${this.apiUrl}?taskId=${taskId}`);
+    return this.http.get<Task>(`${this.getApiUrl()}?taskId=${taskId}`);
   }
 
   getTaskByQuery(query : string) : Observable<Task[]> {
-    return this.http.get<Task[]>(`${this.apiUrl}/search?query=${query}`);
+    return this.http.get<Task[]>(`${this.getApiUrl()}/search?query=${query}`);
   }
 
   getAvailableMembersForTask(taskId : string) : Observable<Member[]> {
-    return this.http.get<Member[]>(`${this.apiUrl}/${taskId}/members/available`);
+    return this.http.get<Member[]>(`${this.getApiUrl()}/${taskId}/members/available`);
   }
 
   getTaskHistory(taskId : string) : Observable<TaskHistory[]> {
-    return this.http.get<TaskHistory[]>(`${this.apiUrl}/history` +
+    return this.http.get<TaskHistory[]>(`${this.getApiUrl()}/history` +
       `?taskId=${taskId}`);
   }
 
   getMessages(taskId : string) : Observable<TaskMessage[]> {
-    return this.http.get<TaskMessage[]>(`${this.apiUrl}/${taskId}/messages`);
+    return this.http.get<TaskMessage[]>(`${this.getApiUrl()}/${taskId}/messages`);
   }
 
   addMessage(message : TaskMessage) : Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${message.taskId}/messages/`, message);
+    return this.http.post<any>(`${this.getApiUrl()}/${message.taskId}/messages/`, message);
   }
 
   removeMessage(taskId : string, messageId : string) : Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${taskId}/messages/?messageId=${messageId}`);
+    return this.http.delete<any>(`${this.getApiUrl()}/${taskId}/messages/?messageId=${messageId}`);
   }
 
   getFileList(taskId : string) : Observable<string[]> {
-    return this.http.get<string[]>(`${this.apiUrl}/${taskId}/files`);
+    return this.http.get<string[]>(`${this.getApiUrl()}/${taskId}/files`);
   }
 
   getFile(fileName : string,taskId : string) : Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${taskId}/files/${fileName}`,
+    return this.http.get(`${this.getApiUrl()}/${taskId}/files/${fileName}`,
     {
       responseType: 'blob'
     });
@@ -90,19 +91,19 @@ export class TaskService {
     const formData = new FormData();
     formData.append('file', file);
     
-    return this.http.post<any>(`${this.apiUrl}/${taskId}/files`, formData);
+    return this.http.post<any>(`${this.getApiUrl()}/${taskId}/files`, formData);
   }
 
   updateTask(name : string, description : string, task : Task) : Observable<any> {
     const partId =  this.partService.getPartId();
     task.partId = partId!;
     
-    return this.http.put<any>(`${this.apiUrl}/${task.id!}`, { name, description, task });
+    return this.http.put<any>(`${this.getApiUrl()}/${task.id!}`, { name, description, task });
   }
 
   changeTaskStatus(name : string, description : string, taskId : string, forward : boolean) : Observable<boolean> {
     return this.http.patch<boolean>(
-      `${this.apiUrl}/${taskId}`,
+      `${this.getApiUrl()}/${taskId}`,
       { name, description, forward }
     );
   }
@@ -113,7 +114,7 @@ export class TaskService {
     if (task.taskTypeId === undefined || task.taskTypeId === "")
       task.taskTypeId = null!;
 
-    return this.http.post<any>(`${this.apiUrl}`, task);
+    return this.http.post<any>(`${this.getApiUrl()}`, task);
   }
 
   addTaskToCurrentMember(taskId : string) : Observable<any> {
@@ -124,14 +125,14 @@ export class TaskService {
   }
 
   addTaskToMember(memberId : string, taskId : string, groupId : number) : Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/${taskId}/members`,{ memberId, groupId});
+    return this.http.post<any>(`${this.getApiUrl()}/${taskId}/members`,{ memberId, groupId});
   }
 
   removeMemberFromTask(memberId : string, taskId : string) : Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${taskId}/members`, { params: { memberId} });
+    return this.http.delete<any>(`${this.getApiUrl()}/${taskId}/members`, { params: { memberId} });
   }
 
   removeTask(taskId : string) : Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${taskId}`);
+    return this.http.delete<any>(`${this.getApiUrl()}/${taskId}`);
   }
 }

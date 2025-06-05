@@ -15,8 +15,9 @@
   <p-button severity="secondary" (click)="showAddStatusDialog()" label="Добавить статус"/>
 </div>
 
-<div class="kanban d-flex overflow-auto flex-nowrap gap-3 mb-3 mt-3">
-  <div *ngFor="let col of statusColumns" 
+<div class="d-flex overflow-auto flex-nowrap gap-3 mb-3 mt-3">
+  <div *ngFor="let col of statusColumns"
+       class="d-flex flex-column"
        style="min-width: 16rem;"
        pDroppable
        [pDroppableDisabled]="isStatusesDraggable"
@@ -28,7 +29,7 @@
              (onDragStart)="statusDragStart(col)"
              (onDragEnd)="statusDragEnd()"
              (onDrop)="drop(col.order!)"
-             [style.opacity]="0.85">
+             [style]="{ opacity: 0.85, height: '100%' }">
       <ng-template #header>
         <div class="panel-header-wrapper d-flex flex-column" 
           [style.background]="getHeaderColor(col.globalStatus!)"
@@ -46,34 +47,36 @@
           </div>
         </div>
       </ng-template>
-      <div class="d-flex flex-column w-100 gap-2">
-        <p-card *ngFor="let task of getTaskByStatus(tasks, col.order!)"
+      <div class="d-flex flex-column gap-3">
+        <ng-container #content *ngFor="let task of getTaskByStatus(tasks, col.order!)">
+          <p-card
                 pDraggable
                 (onDragStart)="dragStart(task)"
                 (onDragEnd)="dragEnd()"
                 (dblclick)="doubleClick(task)"
                 class="shadow-sm" styleClass="min-width: 100%;">
-          <h5 class="text-truncate text-wrap p-2">{{ task.name }}</h5>
-          <hr class="m-0 opacity-25" />
-          <div class="p-2">
-            <h6 class="" *ngIf="task.level !== 0" 
-                class="text-center text-truncate rounded-2" 
-                [class]="textMapColor.get(task.level!)![0]">
-              {{textMapColor.get(task.level!)![1]}}
-            </h6>
-            <h6 class="text-muted text-truncate d-block" *ngIf="isValidTimestamp(task.deadline!)">
-              <i class="bi bi-calendar-week-fill"></i>
-              {{ task.deadline | date:'dd.MM.yy HH:mm' }}
-            </h6>
-            <h6 class="text-muted text-truncate d-block" *ngIf="task.taskTypeId!">
-              {{getTypeNameById(task.taskTypeId!)}}
-            </h6>
-            <h6 class="text-muted text-truncate d-block">
-              <i class="bi bi-person"></i>
-              {{ task.memberName }} {{ task.memberLastName }}
-            </h6>
-          </div>
-        </p-card>
+            <h5 class="text-truncate text-wrap p-2">{{ task.name }}</h5>
+            <hr class="m-0 opacity-25" />
+            <div class="p-2">
+              <h6 class="" *ngIf="task.level !== 0" 
+                  class="text-center text-truncate rounded-2" 
+                  [class]="textMapColor.get(task.level!)![0]">
+                {{textMapColor.get(task.level!)![1]}}
+              </h6>
+              <h6 class="text-muted text-truncate d-block" *ngIf="isValidTimestamp(task.deadline!)">
+                <i class="bi bi-calendar-week-fill"></i>
+                {{ task.deadline | date:'dd.MM.yy HH:mm' }}
+              </h6>
+              <h6 class="text-muted text-truncate d-block" *ngIf="task.taskTypeId!">
+                {{getTypeNameById(task.taskTypeId!)}}
+              </h6>
+              <h6 class="text-muted text-truncate d-block">
+                <i class="bi bi-person"></i>
+                {{ task.memberName }} {{ task.memberLastName }}
+              </h6>
+            </div>
+          </p-card>
+        </ng-container>
       </div>
     </p-panel>
   </div>
