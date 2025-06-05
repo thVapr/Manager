@@ -54,38 +54,44 @@ public class FileRepository : IFileRepository
     
     public async Task UploadFileAsync(Guid taskId, string objectName, Stream data, string contentType)
     {
-        await using var database = new MainDbContext();
-        var pathToFile = Guid.NewGuid() + "." + Path.GetExtension(objectName).TrimStart('.').ToLowerInvariant();
-        await database.TaskFiles.AddAsync(new TaskFile
+        try
         {
-            TaskId = taskId,
-            FileName = objectName,
-            Path = pathToFile,
-        });
-        await database.SaveChangesAsync();
-        var bucketExists = await _minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(_bucket));
-        if (!bucketExists)
+            var pathToFile = Guid.NewGuid() + "." + Path.GetExtension(objectName).TrimStart('.').ToLowerInvariant();
+            await _database.TaskFiles.AddAsync(new TaskFile
+            {
+                TaskId = taskId,
+                FileName = objectName,
+                Path = pathToFile,
+            });
+            await _database.SaveChangesAsync();
+            var bucketExists = await _minio.BucketExistsAsync(new BucketExistsArgs().WithBucket(_bucket));
+            if (!bucketExists)
+            {
+                await _minio.MakeBucketAsync(new MakeBucketArgs().WithBucket(_bucket));
+            }
+
+            await _minio.PutObjectAsync(new PutObjectArgs()
+                .WithBucket(_bucket)
+                .WithObject(pathToFile)
+                .WithStreamData(data)
+                .WithObjectSize(data.Length)
+                .WithContentType(contentType));
+        }
+        catch (Exception ex)
         {
-            await _minio.MakeBucketAsync(new MakeBucketArgs().WithBucket(_bucket));
+            _logger.LogError(ex, $"[{DateTime.Now}]");
+            return;
         }
 
-        await _minio.PutObjectAsync(new PutObjectArgs()
-            .WithBucket(_bucket)
-            .WithObject(pathToFile)
-            .WithStreamData(data)
-            .WithObjectSize(data.Length)
-            .WithContentType(contentType));
     }
 
     public async Task<Stream> GetFileAsync(string objectName, Guid taskId)
     {
-        await using var database = new MainDbContext();
-
         try
         {
             var ms = new MemoryStream();
 
-            var file = (await database.TaskFiles
+            var file = (await _database.TaskFiles
                 .FirstOrDefaultAsync(file => file.TaskId == taskId && file.FileName == objectName));
 
             if (file == null)
@@ -111,6 +117,27 @@ public class FileRepository : IFileRepository
             _logger.LogError(ex, $"[{DateTime.Now}]");
             return new MemoryStream();
         }
+    }
 
+    public async Task RemoveFileAsync(string objectName, Guid taskId)
+    {
+        try
+        {
+            var file = (await _database.TaskFiles
+                .FirstOrDefaultAsync(file => file.TaskId == taskId && file.FileName == objectName));
+            if (file == null)
+                return;
+            await _minio.RemoveObjectAsync(new  RemoveObjectArgs()
+                .WithBucket(_bucket)
+                .WithObject(file.Path)
+            );
+            _database.TaskFiles.Remove(file);
+            await _database.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"[{DateTime.Now}]");
+            return;
+        }
     }
 }

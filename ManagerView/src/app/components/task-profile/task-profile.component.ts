@@ -88,6 +88,14 @@ export class TaskProfileComponent {
     )
   }
 
+  removeFileFromTask(fileName : string) : void {
+    this.taskService.removeFile(fileName, this.taskId).subscribe(
+      () => {
+        this.update();
+      }
+    )
+  }
+
   update() : void {
     this.taskService.getTaskById(this.taskId).subscribe((task) => {
       this.taskName = task.name;

@@ -80,7 +80,7 @@ export class TaskService {
     return this.http.get<string[]>(`${this.getApiUrl()}/${taskId}/files`);
   }
 
-  getFile(fileName : string,taskId : string) : Observable<Blob> {
+  getFile(fileName : string, taskId : string) : Observable<Blob> {
     return this.http.get(`${this.getApiUrl()}/${taskId}/files/${fileName}`,
     {
       responseType: 'blob'
@@ -92,6 +92,10 @@ export class TaskService {
     formData.append('file', file);
     
     return this.http.post<any>(`${this.getApiUrl()}/${taskId}/files`, formData);
+  }
+
+  removeFile(fileName : string, taskId : string) : Observable<any> {
+    return this.http.delete<any>(`${this.getApiUrl()}/${taskId}/files/${fileName}`);
   }
 
   updateTask(name : string, description : string, task : Task) : Observable<any> {

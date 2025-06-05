@@ -21,4 +21,9 @@ public class FileLogic(IFileRepository fileRepository) : IFileLogic
         var fileStream = await fileRepository.GetFileAsync(filename, Guid.Parse(taskId));
         return fileStream;
     }
+
+    public async Task Remove(string filename, string taskId)
+    {
+        await fileRepository.RemoveFileAsync(filename, Guid.Parse(taskId));
+    }
 }

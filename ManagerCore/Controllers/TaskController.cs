@@ -214,6 +214,15 @@ public class TaskController(
         return File(stream, contentType, fileName);
     }
     
+    [TypeFilter(typeof(TaskAccessFilter))]
+    [HttpDelete]
+    [Route("{taskId}/files/{fileName}")]
+    public async Task<IActionResult> DeleteFile(string fileName, string taskId, string partId)
+    {
+        await fileLogic.Remove(fileName, taskId);
+        return Ok();
+    }
+    
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
     [TypeFilter(typeof(TaskAccessFilter))]
     [HttpGet]
