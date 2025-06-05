@@ -198,7 +198,10 @@
   </form>
 </p-dialog>
 
-<p-dialog header="Обновление статуса" [modal]="true" [(visible)]="isTaskChangeStatusFormVisible">
+<p-dialog header="Обновление статуса" 
+    [modal]="true" 
+    [(visible)]="isTaskChangeStatusFormVisible"
+    (onHide)="canceledStatusChange()">
   <div class="d-flex flex-nowrap mb-2" *ngIf="statusFrom&&statusTo">
     <span class="text-muted small rounded-1 p-2" [style.background]="getStatusColor(statusFrom!.order!)">
       {{getStatusNameByOrder(statusFrom!.order!)}}
