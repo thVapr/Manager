@@ -1,17 +1,19 @@
-﻿using Telegram.Bot;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using ManagerData.Constants;
+﻿using ManagerData.Constants;
 using ManagerData.DataModels;
-using ManagerData.DataModels.Authentication;
 using ManagerData.Management;
 using ManagerLogic.Authentication;
-using Microsoft.Extensions.DependencyInjection;
+using ManagerData.DataModels.Authentication;
+
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ManagerLogic.Background;
 
-public class MessengerHostService(IServiceProvider serviceProvider) : BackgroundService
+public class MessengerHostService(IServiceProvider serviceProvider, ILogger<MessengerHostService> logger) : BackgroundService
 {
     private int _executionCount;
     private TelegramBotClient botClient;
@@ -20,8 +22,7 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Console.WriteLine
-            ("Timed Hosted Service running.");
+        logger.LogInformation($"[{DateTime.Now}] Сервис организации уведомлений запущен!");
         using var scope = serviceProvider.CreateScope();
         authentication = scope.ServiceProvider.GetRequiredService<IAuthentication>();
         repository = scope.ServiceProvider.GetRequiredService<IBackgroundTaskRepository>();
@@ -41,10 +42,9 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
                 await QueueProcessing();
             }
         }
-        catch (OperationCanceledException)
+        catch (Exception ex)
         {
-            Console.WriteLine
-                ("Timed Hosted Service is stopping.");
+            logger.LogError($"[{DateTime.Now}] Сервис организации уведомлений остановлен,\n {ex}");
         }
     }
 
@@ -62,13 +62,13 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
                     continue;
                 await HandleMessage(task, user);
             }
-            Console.WriteLine
-                ($"Timed Hosted Service is working. Count: {count}\n" +
-                 $"{nearest.Count()} nearest");
+
+            logger.LogInformation($"Сервис успешно обработал текущую очередь. Счёт: {count}\n" +
+                                  $"\t{nearest.Count()} действий в очереди");
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError($"[{DateTime.Now}]\n", ex);
         }
     }
 
@@ -119,7 +119,7 @@ public class MessengerHostService(IServiceProvider serviceProvider) : Background
     private async Task OnMessage(Message msg, UpdateType type)
     {
         if (msg.Text is null) return;
-        Console.WriteLine($"Полученное сообщение {type} '{msg.Text}' in {msg.Chat}");
+        logger.LogInformation($"[{DateTime.Now}] Полученное сообщение {type} '{msg.Text}' in {msg.Chat}");
         if (msg.Text.StartsWith('/') && msg.Text.Contains($"/register"))
         {
             var user = await authentication.GetUserByMessengerId(msg.From!.Username!);

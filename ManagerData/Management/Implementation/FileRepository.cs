@@ -1,25 +1,28 @@
-﻿using Minio;
-using Minio.DataModel.Args;
-using ManagerData.Constants;
+﻿using ManagerData.Constants;
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Minio;
+using Minio.DataModel.Args;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
 public class FileRepository : IFileRepository
 {
     private readonly MinioClient _minio;
     private readonly string _bucket;
     private readonly MainDbContext _database;
+    private readonly ILogger<FileRepository> _logger;
     
-    public FileRepository(MainDbContext database, IConfiguration config)
+    public FileRepository(MainDbContext database, IConfiguration config, ILogger<FileRepository> logger)
     {
         var secretProvider = new SecretProvider();
         var settings = config.GetSection("Minio");
         _database = database;
-        
+        _logger = logger;
+
         _bucket = settings["Bucket"];
         _minio = (MinioClient?)new MinioClient()
             .WithEndpoint(settings["Endpoint"])
@@ -103,9 +106,9 @@ public class FileRepository : IFileRepository
             await tcs.Task;
             return ms;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            _logger.LogError(ex, $"[{DateTime.Now}]");
             return new MemoryStream();
         }
 

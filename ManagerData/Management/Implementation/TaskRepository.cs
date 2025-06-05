@@ -1,9 +1,9 @@
 ﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
 public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> logger) : ITaskRepository
 {
@@ -283,9 +283,5 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
             logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
-    }
-    
-    public void Dispose()
-    {
     }
 }

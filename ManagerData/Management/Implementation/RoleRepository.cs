@@ -1,10 +1,11 @@
 ﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class RoleRepository(MainDbContext database) : IRoleRepository
+public class RoleRepository(MainDbContext database, ILogger<RoleRepository> logger) : IRoleRepository
 {
     public async Task<bool> Create(PartRole role)
     {
@@ -14,9 +15,9 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
             await database.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -34,9 +35,9 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
             await database.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -55,9 +56,9 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
             
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -87,9 +88,9 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
             
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -108,9 +109,9 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
             
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -124,9 +125,9 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
                 .Select(a => a.PartRoleId).ToListAsync();
             return await database.PartRoles.Where(x => associations.Contains(x.Id)).ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -137,15 +138,10 @@ public class RoleRepository(MainDbContext database) : IRoleRepository
         {
             return await database.PartRoles.Where(x => x.PartId == partId).ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
-    }
-
-    public void Dispose()
-    {
-        
     }
 }

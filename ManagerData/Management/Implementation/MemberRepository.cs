@@ -1,12 +1,11 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using ManagerData.Contexts;
+﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class MemberRepository(MainDbContext database) : IMemberRepository
+public class MemberRepository(MainDbContext database, ILogger<MemberRepository> logger) : IMemberRepository
 {
     public async Task<bool> CreateEntity(MemberDataModel model)
     {
@@ -19,7 +18,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -63,7 +62,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -82,7 +81,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new MemberDataModel();
         }
     }
@@ -109,7 +108,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new List<MemberDataModel>();
         }
     }
@@ -135,7 +134,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -155,13 +154,9 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
-    }
-
-    public void Dispose()
-    {
     }
 
     public async Task<IEnumerable<MemberDataModel>> GetEmployeesWithoutProjectsByDepartmentId(Guid id)
@@ -182,7 +177,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new List<MemberDataModel>();
         }
     }
@@ -197,7 +192,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
 
         }
@@ -214,7 +209,7 @@ public class MemberRepository(MainDbContext database) : IMemberRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
 
         }

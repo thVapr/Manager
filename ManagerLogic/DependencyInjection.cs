@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using ManagerData;
 using ManagerData.Management;
+using ManagerData.Management.Implementation;
 using ManagerLogic.Authentication;
 using ManagerLogic.Background;
 using ManagerLogic.Management;

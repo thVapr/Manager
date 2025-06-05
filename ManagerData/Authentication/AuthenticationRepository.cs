@@ -1,13 +1,13 @@
-﻿
+﻿using ManagerData.Contexts;
 using ManagerData.Constants;
-using ManagerData.Contexts;
 using ManagerData.DataModels.Authentication;
-using Microsoft.AspNetCore.Mvc.Abstractions;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace ManagerData.Authentication;
 
-public class AuthenticationRepository : IAuthenticationRepository, IDisposable
+public class AuthenticationRepository(ILogger<AuthenticationRepository> logger) : IAuthenticationRepository
 {
     public async Task<UserDataModel> GetUser(Guid id)
     {
@@ -21,7 +21,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new UserDataModel();
         }
     }
@@ -38,7 +38,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new UserDataModel();
         }
     }
@@ -54,7 +54,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new UserDataModel();
         }
     }
@@ -70,7 +70,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -95,7 +95,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return string.Empty;
         }
     }
@@ -110,7 +110,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new RefreshTokenDataModel();
         }
     }
@@ -125,7 +125,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return new RefreshTokenDataModel();
         }
     }
@@ -150,7 +150,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -186,7 +186,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -209,7 +209,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -246,7 +246,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -274,7 +274,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -311,7 +311,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -332,7 +332,7 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -342,10 +342,5 @@ public class AuthenticationRepository : IAuthenticationRepository, IDisposable
         await AddRole(RoleConstants.SpaceOwner);
         await AddRole(RoleConstants.Default);
         await AddRole(RoleConstants.Admin);
-    }
-
-    public void Dispose()
-    {
-
     }
 }

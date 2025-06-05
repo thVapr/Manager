@@ -1,12 +1,12 @@
 ﻿using System.Linq.Expressions;
-
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class HistoryRepository(MainDbContext database) : IHistoryRepository
+public class HistoryRepository(MainDbContext database, ILogger<HistoryRepository> logger) : IHistoryRepository
 {
     public async Task<bool> Create(TaskHistory model)
     {
@@ -28,7 +28,7 @@ public class HistoryRepository(MainDbContext database) : IHistoryRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -53,7 +53,7 @@ public class HistoryRepository(MainDbContext database) : IHistoryRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }

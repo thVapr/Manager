@@ -1,6 +1,6 @@
 ﻿namespace ManagerData.Management;
 
-public interface IManagementRepository<T> : IDisposable
+public interface IManagementRepository<T>
 {
     Task<bool> CreateEntity(T model);
     Task<bool> CreateEntity(Guid id, T model);

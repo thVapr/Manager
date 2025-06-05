@@ -2,11 +2,11 @@
 using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Extensions;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class PartRepository(MainDbContext database) : IPartRepository
+public class PartRepository(MainDbContext database, ILogger<PartRepository> logger) : IPartRepository
 {
     private static readonly int[] SourceTypeArray = [1,2,3];
 
@@ -34,7 +34,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -107,7 +107,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch(Exception ex) 
         {
-            Console.WriteLine(ex.Message);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -131,7 +131,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -154,7 +154,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -178,7 +178,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -198,7 +198,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -240,7 +240,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -269,7 +269,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -289,7 +289,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -302,9 +302,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
                 .Where(pl => pl.MainPartId == partId ||
                     pl.Parts.Any(p => p.Id == partId)).ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -315,9 +315,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
         {
             return await database.PartMembers.Where(pm => pm.PartId == partId).ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -347,9 +347,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
             
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -381,7 +381,7 @@ public class PartRepository(MainDbContext database) : IPartRepository
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -397,9 +397,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
             parts = await database.PartTypes.ToListAsync();
             return parts;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -415,9 +415,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
             await database.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -443,9 +443,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
             await database.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -464,9 +464,9 @@ public class PartRepository(MainDbContext database) : IPartRepository
             
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -478,14 +478,10 @@ public class PartRepository(MainDbContext database) : IPartRepository
             return await database.PartTaskStatuses
                 .Where(status => status.PartId == partId).ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
-    }
-
-    public void Dispose()
-    {
     }
 };

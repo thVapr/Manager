@@ -1,6 +1,7 @@
 ﻿using ManagerData.Contexts;
 using ManagerData.Management;
 using ManagerData.Authentication;
+using ManagerData.Management.Implementation;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ManagerData;

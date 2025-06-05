@@ -2,7 +2,7 @@
 
 namespace ManagerData.Management;
 
-public interface IRoleRepository : IDisposable
+public interface IRoleRepository
 {
     Task<bool> Create(PartRole role);
     Task<bool> Change(PartRole role);

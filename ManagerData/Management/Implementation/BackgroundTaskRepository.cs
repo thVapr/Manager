@@ -1,10 +1,11 @@
 ﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class BackgroundTaskRepository(MainDbContext database) : IBackgroundTaskRepository
+public class BackgroundTaskRepository(MainDbContext database, ILogger<BackgroundTaskRepository> logger) : IBackgroundTaskRepository
 {
     public async Task<bool> Create(BackgroundTask task)
     {
@@ -16,7 +17,7 @@ public class BackgroundTaskRepository(MainDbContext database) : IBackgroundTaskR
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -36,7 +37,7 @@ public class BackgroundTaskRepository(MainDbContext database) : IBackgroundTaskR
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -55,7 +56,7 @@ public class BackgroundTaskRepository(MainDbContext database) : IBackgroundTaskR
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }

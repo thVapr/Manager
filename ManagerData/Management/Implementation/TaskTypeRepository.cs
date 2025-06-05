@@ -1,10 +1,12 @@
 ﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class TaskTypeRepository(MainDbContext database) : ITaskTypeRepository
+public class TaskTypeRepository(MainDbContext database, ILogger<TaskTypeRepository> logger) : ITaskTypeRepository
 {
     public async Task<bool> Create(PartTaskType type)
     {
@@ -14,9 +16,9 @@ public class TaskTypeRepository(MainDbContext database) : ITaskTypeRepository
             await database.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }    
     }
@@ -34,9 +36,9 @@ public class TaskTypeRepository(MainDbContext database) : ITaskTypeRepository
             await database.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -55,9 +57,9 @@ public class TaskTypeRepository(MainDbContext database) : ITaskTypeRepository
             
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -69,9 +71,9 @@ public class TaskTypeRepository(MainDbContext database) : ITaskTypeRepository
             return await database.PartTaskTypes
                 .Where(x => x.PartId == partId).ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }

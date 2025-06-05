@@ -1,10 +1,11 @@
 ﻿using ManagerData.Contexts;
 using ManagerData.DataModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
-namespace ManagerData.Management;
+namespace ManagerData.Management.Implementation;
 
-public class TaskMessageRepository(MainDbContext context) : ITaskMessageRepository
+public class TaskMessageRepository(MainDbContext context, ILogger<TaskMessageRepository> logger) : ITaskMessageRepository
 {
     public async Task<ICollection<TaskMessage>> GetTaskMessages(Guid taskId)
     {
@@ -15,9 +16,9 @@ public class TaskMessageRepository(MainDbContext context) : ITaskMessageReposito
                 .Include(x => x.Creator)
                 .ToListAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return [];
         }
     }
@@ -30,9 +31,9 @@ public class TaskMessageRepository(MainDbContext context) : ITaskMessageReposito
             await context.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
@@ -49,9 +50,9 @@ public class TaskMessageRepository(MainDbContext context) : ITaskMessageReposito
             await context.SaveChangesAsync();
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e);
+            logger.LogError(ex, $"[{DateTime.Now}]");
             return false;
         }
     }
