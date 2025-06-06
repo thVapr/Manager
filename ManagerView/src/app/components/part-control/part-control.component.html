@@ -1,11 +1,15 @@
 <p-tabs [value]="value" scrollable>
     <p-tablist>
-        <p-tab [value]="0">Персонал</p-tab>
-        <p-tab [value]="1">Роли</p-tab>
-        <p-tab [value]="2">Типы задач</p-tab>
+        <p-tab [value]="0">Профиль</p-tab>
+        <p-tab [value]="1">Персонал</p-tab>
+        <p-tab [value]="2">Роли</p-tab>
+        <p-tab [value]="3">Типы задач</p-tab>
     </p-tablist>
     <p-tabpanels>
         <p-tabpanel [value]="0">
+            <app-part-profile></app-part-profile>
+        </p-tabpanel>
+        <p-tabpanel [value]="1">
             <div class="d-flex flex-wrap gap-2">
                 <p-listbox [options]="partMembers" 
                         [filter]="true" 
@@ -57,7 +61,7 @@
                 </p-listbox>
             </div>
         </p-tabpanel>
-        <p-tabpanel [value]="1">
+        <p-tabpanel [value]="2">
             <form [formGroup]="addRoleForm" (ngSubmit)="onSubmit()" class="row mb-5" 
                 *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || authService.isSpaceOwner())">
                 <div class="form-outline mb-2">
@@ -85,7 +89,7 @@
                 <p-card *ngIf="roles.length <= 0" header="У данной сущности нет доступных ролей"></p-card>
             </div>
         </p-tabpanel>
-        <p-tabpanel [value]="2">
+        <p-tabpanel [value]="3">
             <form [formGroup]="addTypeForm" (ngSubmit)="onTypeSubmit()" class="row mb-5" 
                 *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || authService.isSpaceOwner())">
                 <div class="form-outline mb-2">

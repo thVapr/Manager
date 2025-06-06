@@ -1,30 +1,71 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { PartService } from '../../services/part/part.service';
+import { Part } from '../models/part';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { AuthService } from 'src/app/services/auth/auth.service';
+import { AppComponent } from 'src/app/app.component';
 
 @Component({
     selector: 'app-part-profile',
     templateUrl: './part-profile.component.html',
     styleUrls: ['./part-profile.component.scss'],
-    standalone: false
+    standalone: false,
+    providers: [MessageService],
 })
 export class PartProfileComponent implements OnInit {
-  departmentName : string | undefined = "";
-  departmentDescription : string | undefined = "";
+  part : Part = {};
+  hasAccessForEdit : boolean = false;
+  
+  updatePartForm = new FormGroup({
+    name: new FormControl('', [Validators.minLength(4)]),
+    description: new FormControl('', [Validators.minLength(4)]),
+  });
 
   constructor(private partService : PartService,
-              private route : ActivatedRoute) {}
+              private authService : AuthService,
+              private route : Router,
+              private app : AppComponent,
+              private messageService : MessageService) {}
 
   ngOnInit(): void {
-    const id : string = this.route.snapshot.params['id'];
-
-    this.getPartProfile(id);
+    this.update();
   }
 
-  getPartProfile(id : string) : void {
-    this.partService.getPartById(id).subscribe((part) => {
-      this.departmentName = part.name;
-      this.departmentDescription = part.description;
+  update() : void {
+    this.partService.getPartById(this.partService.getPartId()!).subscribe((part) => {
+      this.part = part;
+      this.updatePartForm.setValue({
+        name: part.name!,
+        description: part.description!
+      });
+      this.partService.hasPrivileges(this.authService.getId(), this.part.id!, 5).subscribe((response) => {
+        this.hasAccessForEdit = response;
+        console.log(this.hasAccessForEdit);
+      });
+    });
+  }
+
+  updatePart() {
+    let updatedPart : Part = {
+      id : this.part.id!,
+      name : this.updatePartForm.value.name!,
+      description : this.updatePartForm.value.description!
+    };
+    this.partService.updatePart(updatedPart).subscribe(() => {
+      this.update();
+        this.messageService.add(
+        { severity: 'success', summary: 'Успешное обновление', detail: 'Сущность была обновлена', life: 3000 }
+      );
+    });
+  }
+
+  removePart() {
+    this.partService.remove(this.part.id!).subscribe(() => {
+      this.partService.removePartData();
+      this.app.updateMenuItems();
+      this.route.navigate(['parts']);
     });
   }
 }

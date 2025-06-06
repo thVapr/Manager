@@ -8,6 +8,7 @@ import { Constants } from 'src/app/constants';
 import { TaskStatus } from 'src/app/components/models/task-status';
 import { PartRole } from 'src/app/components/models/part-role';
 import { PartTaskType } from 'src/app/components/models/part-task-type';
+import { AppComponent } from 'src/app/app.component';
 
 @Injectable({
   providedIn: 'root'
@@ -30,24 +31,11 @@ export class PartService {
     ));
   }
 
-  isLeaderExist(leadersId : string[] | undefined): boolean {
-    if (leadersId?.length != 0)
-      return true;
-    return false;
-  }
-  
   isMemberHasPrivileges(privilege : number) : Observable<boolean> {
     const userId = this.authService.getId();
     const partId = this.getPartId();
 
     return this.hasPrivileges(userId!, partId!, privilege);
-  }
-
-  isLeader(id : string | undefined, leadersId : string[] | undefined) : boolean {
-    if (this.isLeaderExist(leadersId) && leadersId?.includes(id!)) {
-      return true;
-    }
-    return false;    
   }
 
   hasPrivileges(userId : string, partId : string, privilege : number) : Observable<boolean>
@@ -59,17 +47,8 @@ export class PartService {
     return this.http.get<boolean>(`${this.apiUrl}/check_privileges`, { params });
   }
 
-  removeLeader() : Observable<any> {
-    const id = this.getPartId();
-    const emptyId = "00000000-0000-0000-0000-000000000000";
-
-    return this.updatePart(new Part(
-      id!,
-      "",
-      "",
-      0,
-      [emptyId],
-    ));
+  remove(partId : string) {
+    return this.http.delete<any>(`${this.apiUrl}/${partId}`)
   }
 
   updateHierarchy(parts: Part[]) : Observable<any> {
@@ -149,8 +128,8 @@ export class PartService {
       { mainPartId, name, description, typeId, level });
   }
 
-  updatePart(project: Part) : Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/update`, project);
+  updatePart(part: Part) : Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/update`, part);
   }
 
   addPartStatus(taskStatus : TaskStatus) : Observable<any> {

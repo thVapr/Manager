@@ -30,6 +30,7 @@ export class PartComponent {
   parts : Part[] = [];
   selectedNode : TreeNode | null = null;
   partTypes : PartType[] = [];
+  isPartDialogActive : boolean = false;
 
   constructor(public authService: AuthService,
               public partService: PartService,
@@ -131,7 +132,7 @@ export class PartComponent {
     const description = this.addPartForm.value.description;
     const type : number = Number(this.addPartForm.value.type);
     
-    this.partService.addPart(name!, description!, type!)
+    this.partService.addPart(name!, description ?? "", type!)
     .subscribe({
       next: () => {
         this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
@@ -175,6 +176,18 @@ export class PartComponent {
     this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate(['parts']);
       this.main.updateMenuItems();
+    });
+  }
+
+  showAddPartDialog() {
+    this.isPartDialogActive = true;
+  }
+  
+  cancelDialog() {
+    this.isPartDialogActive = false;
+    this.addPartForm.reset();
+    this.addPartForm.patchValue({
+      type : '1'
     });
   }
 }

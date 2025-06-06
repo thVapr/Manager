@@ -1,17 +1,28 @@
+<p-toast></p-toast>
 
-<h2 class="text-center mb-5">Отдел</h2>
-<form class="vh-100">
-    <fieldset disabled>
+<form *ngIf="!hasAccessForEdit">
+    <fieldset disabled>       
         <div class="form-outline mb-3">
-            <label class="form-label" for="form1">Название</label>
-            <input type="email" id="form1" class="form-control form-control-lg"
-                placeholder="" value="{{ departmentName }}"/>
+            <label class="form-label" for="form1">Заголовок</label>
+            <input type="text" id="form1" class="form-control form-control-lg"
+                placeholder="" value="{{ part.name }}"/>
         </div>
-
         <div class="form-outline mb-3">
             <label class="form-label" for="form2">Описание</label>
             <textarea id="form2" class="form-control form-control-lg"
-                placeholder="" value="{{ departmentDescription }}">  </textarea>
+                placeholder="" [innerHTML]="true" value="{{ part.description }}">  </textarea>
         </div>
     </fieldset>
+</form>
+
+<form [formGroup]="updatePartForm" (ngSubmit)="updatePart()" class="row mb-5" *ngIf="hasAccessForEdit">
+    <div class="d-flex justify-content-between mb-2">
+      <button type="submit" class="btn btn-primary btn-lg">Обновить</button>
+      <p-button severity="danger" label="Удалить" (click)="removePart()"/>
+    </div>
+    <div class="form-outline mb-2">
+      <input type="text" class="form-control form-control-lg"
+        placeholder="Название" formControlName="name"/>
+    </div>
+    <p-editor class="form-outline mb-2" placeholder="Описание" formControlName="description"/>
 </form>

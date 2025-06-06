@@ -170,7 +170,7 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
         {
             Id = id,
             Name = model.Name!,
-            Description = model.Description!,
+            Description = model.Description ?? string.Empty,
             Level = model.Level,
             PartTypeId = model.TypeId,
         };

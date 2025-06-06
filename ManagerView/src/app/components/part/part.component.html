@@ -1,7 +1,12 @@
-<p-panel [toggleable]="true" [collapsed]="true">
+<div class="d-flex justify-content-between mb-2" 
+  *ngIf="authService.isAuthenticated()&&(authService.isAdmin() || isPartLeader || authService.isSpaceOwner())">
+  <p-button severity="secondary" (click)="showAddPartDialog()" label="Добавить"/>
+</div>
+
+<p-dialog [modal]="true" [(visible)]="isPartDialogActive" (onHide)="cancelDialog()">
     <ng-template #header>
         <div class="flex items-center gap-2">
-            <h1 class="font-bold">Иерархия</h1>
+            <h1 class="font-bold">Добавление сущности</h1>
         </div>
     </ng-template>
         <form [formGroup]="addPartForm" (ngSubmit)="onSubmit()" class="row mb-5" 
@@ -18,11 +23,12 @@
         </div>
         <p-editor class="form-outline"
             placeholder="Описание" formControlName="description"></p-editor>
-        <div class="text-center text-lg-start mt-2">
+        <div class="d-flex justify-content-between mt-2 gap-2">
+          <p-button label="Отменить" severity="secondary" (click)="cancelDialog()" />
           <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
         </div>
     </form>
-</p-panel>
+</p-dialog>
 
 <p-card>
   <p-tree [value]="items" styleClass="w-full md:w-[30rem]" 

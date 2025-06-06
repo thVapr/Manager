@@ -184,7 +184,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
     [HttpDelete]
-    [Route("delete")]
+    [Route("{partId}")]
     public async Task<IActionResult> DeletePart(string partId)
     {
         if (await partLogic.DeleteEntity(Guid.Parse(partId)))
