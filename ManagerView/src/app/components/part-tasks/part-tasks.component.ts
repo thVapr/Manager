@@ -401,8 +401,8 @@ export class PartTasksComponent implements OnInit {
       this.addTaskStatusForm.value.globalStatus!
     );
 
-    status.partRoleId = this.changeTaskStatusForm.value.partRoleId!;
- 
+    status.partRoleId = this.addTaskStatusForm.value.partRoleId!;
+
     this.partService.addPartStatus(status).subscribe({next: () => {
       this.update();
       this.isAddStatusFormVisible = false;
