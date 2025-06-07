@@ -33,4 +33,4 @@ dotnet user-secrets set "ManagerData" "Host=localhost;Port=5432;Database=manager
 dotnet user-secrets set "StorageAccessKey" "user"
 dotnet user-secrets set "StorageSecretKey" "password"
 dotnet user-secrets set "TelegramBotToken" ""
-dotnet user-secrets set "TokenSecretKey" "nullreference"
+dotnet user-secrets set "TokenSecretKey" "nullreference0ee22bbnullreference"
