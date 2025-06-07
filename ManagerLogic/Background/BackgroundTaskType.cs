@@ -7,5 +7,8 @@ public enum BackgroundTaskType
     Deadline,
     Added,
     Create,
-    Removed
+    Removed,
+    FileAdded,
+    FileRemoved,
+    Commented
 }

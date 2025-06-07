@@ -10,5 +10,8 @@ public enum TaskActionType
     Commented,
     Renamed,
     DescriptionChanged,
-    DeadlineChanged
+    DeadlineChanged,
+    Deadline,
+    FileAdded,
+    FileRemoved,
 }

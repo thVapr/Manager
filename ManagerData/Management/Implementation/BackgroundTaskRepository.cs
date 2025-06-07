@@ -51,6 +51,8 @@ public class BackgroundTaskRepository(MainDbContext database, ILogger<Background
                 .Include(t => t.Part)
                 .Include(t => t.Task)
                 .Include(t => t.Member)
+                .Include(t => t.History)
+                    .ThenInclude(t => t!.Initiator)
                 .Where(task => (currentTime - task.Timeline) <= TimeSpan.FromMinutes(1))
                 .ToListAsync();
         }

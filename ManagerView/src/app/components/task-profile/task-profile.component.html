@@ -136,15 +136,23 @@
                         <span *ngSwitchCase="TaskActionType.MemberAdded" class="p-1">
                             добавил исполнителя к задаче
                         </span>
+                        <span *ngSwitchCase="TaskActionType.Commented" class="p-1">
+                            оставил комментарий к задаче
+                        </span>
                         <span *ngSwitchCase="TaskActionType.Reassigned" class="p-1">
                             удалил исполнителя с задачи
                         </span>
                         <span *ngSwitchCase="TaskActionType.StatusChanged" class="p-1">
                             обновил статус задачи
                         </span>
+                        <span *ngSwitchCase="TaskActionType.FileAdded" class="p-1">
+                            добавил файл
+                        </span>
+                        <span *ngSwitchCase="TaskActionType.FileRemoved" class="p-1">
+                            удалил файл
+                        </span>
                     </div>
                     <div class="row text-truncate">
-                        <label *ngIf="history.name" class="text-muted">Заголовок: </label>
                         <span *ngIf="history.name" class="mb-2">{{history.name}}</span>
                     </div>
                     <div class="row text-truncate">

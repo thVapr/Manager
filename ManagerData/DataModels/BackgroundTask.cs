@@ -8,6 +8,7 @@ public class BackgroundTask
     public Guid? PartId { get; set; }
     public Guid TaskId { get; set; }
     public Guid MemberId { get; set; }
+    public Guid? HistoryId { get; set; }
     public int Type { get; set; }
     public string? Message { get; set; }
     public DateTime Timeline { get; set; }
@@ -15,4 +16,5 @@ public class BackgroundTask
     public virtual PartDataModel? Part { get; set; }
     public virtual TaskDataModel Task { get; set; }
     public virtual MemberDataModel Member { get; set; }
+    public virtual TaskHistory? History { get; set; }
 }

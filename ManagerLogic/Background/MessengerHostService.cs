@@ -1,4 +1,6 @@
-﻿using ManagerData.Constants;
+﻿using System.Net;
+using System.Text.RegularExpressions;
+using ManagerData.Constants;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Authentication;
@@ -71,7 +73,7 @@ public class MessengerHostService(IServiceProvider serviceProvider, ILogger<Mess
             logger.LogError($"[{DateTime.Now}]\n", ex);
         }
     }
-
+    
     private async Task HandleMessage(BackgroundTask task, UserDataModel user)
     {
         switch (task.Type)
@@ -90,7 +92,9 @@ public class MessengerHostService(IServiceProvider serviceProvider, ILogger<Mess
             } break;
             case (int)BackgroundTaskType.Removed:
             {
-                var message = $"❌ Вы удалены с задачи: \n{task.Task.Name}\n";
+                var message = task.MemberId == task.History!.TargetMemberId
+                    ? $"❌ Вы удалены с задачи: \n{task.Task.Name}\n"
+                    : $"❌ Пользователь {task.Message} удален с задачи: \n{task.Task.Name}\n";
                 if (task.Part != null)
                     message += $"💼 {task.Part!.Name}\n";
                 await botClient.SendMessage(user.ChatId!, 
@@ -106,10 +110,48 @@ public class MessengerHostService(IServiceProvider serviceProvider, ILogger<Mess
             } break;
             case (int)BackgroundTaskType.Added:
             {
-                var message = $"👤 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n";
+                var message = task.MemberId == task.History!.TargetMemberId
+                    ? $"👤Вы добавлены к задаче: \n{task.Task.Name}\n"
+                    : $"👤 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n";
                 if (task.Part != null)
                     message += $"💼 {task.Part!.Name}\n";
                 await botClient.SendMessage(user.ChatId!, 
+                    message);
+                await repository.Delete(task.Id);
+            } break;
+            case (int)BackgroundTaskType.FileAdded:
+            {
+                var message = $"👤 {task.History!.Initiator.FirstName} {task.History.Initiator.LastName}\n"
+                              + $"добавил файл 📁 {task.History!.Name}\n"
+                              + $"📋 Задача: {task.Task.Name}\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
+                
+                await botClient.SendMessage(user.ChatId!,
+                    message);
+                await repository.Delete(task.Id);
+            } break;
+            case (int)BackgroundTaskType.FileRemoved:
+            {
+                var message = $"👤 {task.History!.Initiator.FirstName} {task.History.Initiator.LastName}\n"
+                              + $"удалил файл 📁 {task.History!.Name}\n"
+                              + $"📋 Задача: {task.Task.Name}\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
+                
+                await botClient.SendMessage(user.ChatId!,
+                    message);
+                await repository.Delete(task.Id);
+            } break;
+            case (int)BackgroundTaskType.Commented:
+            {
+                var message = $"👤 {task.History!.Initiator.FirstName} {task.History.Initiator.LastName}\n"
+                              + $"добавил комментарий: \n💬 {CleanHtml(task.Message!)}\n"
+                              + $"📋 Задача: {task.Task.Name}\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
+                
+                await botClient.SendMessage(user.ChatId!,
                     message);
                 await repository.Delete(task.Id);
             } break;
@@ -134,6 +176,12 @@ public class MessengerHostService(IServiceProvider serviceProvider, ILogger<Mess
         {
             await botClient.SendMessage(msg.Chat, $"Не получается распознать следующую команду: {msg.Text}");
         }
+    }
+    
+    private string CleanHtml(string input)
+    {
+        var withoutTags = Regex.Replace(input, "<.*?>", " ");
+        return WebUtility.HtmlDecode(withoutTags).Trim();
     }
     
 }

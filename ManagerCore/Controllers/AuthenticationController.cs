@@ -34,8 +34,9 @@ public class AuthenticationController(IAuthentication authentication) : Controll
         }
 
         var tokenPair = await authentication.Authenticate(user);
-        return !string.IsNullOrWhiteSpace(tokenPair.Item1) ? 
-            Ok(tokenPair) : StatusCode(401, "Неподходящая пара логина и пароля");
+        return !string.IsNullOrWhiteSpace(tokenPair.Item1) 
+            ? Ok(tokenPair) 
+            : StatusCode(401, "Неподходящая пара логина и пароля");
     }
 
     [HttpPost("logout")]
@@ -51,6 +52,5 @@ public class AuthenticationController(IAuthentication authentication) : Controll
             return BadRequest("Токен не валиден");
 
         return Ok(await authentication.UpdateToken(model));
-
     }
 }

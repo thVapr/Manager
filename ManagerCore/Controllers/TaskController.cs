@@ -189,7 +189,13 @@ public class TaskController(
     [Route("{taskId}/files")]
     public async Task<IActionResult> UploadFile([FromForm] UploadFileRequest request, [FromRoute] string taskId, [FromRoute] string partId)
     {
-        await fileLogic.Upload(request.File, taskId);
+        var history = new HistoryModel
+        {
+            InitiatorId = User.FindFirst("id")?.Value!,
+            PartId = partId
+        };
+        
+        await fileLogic.Upload(history, request.File, taskId);
         return Ok();
     }
     
@@ -219,7 +225,13 @@ public class TaskController(
     [Route("{taskId}/files/{fileName}")]
     public async Task<IActionResult> DeleteFile(string fileName, string taskId, string partId)
     {
-        await fileLogic.Remove(fileName, taskId);
+        var history = new HistoryModel
+        {
+            InitiatorId = User.FindFirst("id")?.Value!,
+            PartId = partId
+        };
+        
+        await fileLogic.Remove(history, fileName, taskId);
         return Ok();
     }
     

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using ManagerData.Constants;
+﻿using ManagerData.Constants;
 
 namespace ManagerData.DataModels;
 

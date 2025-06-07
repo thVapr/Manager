@@ -26,7 +26,8 @@ public class TaskLogic(
     {
         var entities = await repository.GetEntities();
 
-        if (entities == null) return [];
+        if (entities == null) 
+            return [];
 
         return entities.Select(task => ConvertToLogicModel(task!)).ToList();
     }
@@ -96,7 +97,7 @@ public class TaskLogic(
                     TaskId = entity.Id,
                     MemberId = Guid.Parse(member.Id!),
                     Type = (int)BackgroundTaskType.Available,
-                    Timeline = DateTime.UtcNow,
+                    Timeline = model.StartTime ?? DateTime.UtcNow,
                 });
             }
         }
@@ -246,8 +247,10 @@ public class TaskLogic(
             var task = await GetEntityById(Guid.Parse(taskModel.Id!));
             if (task.Status != savedTask.Status)
             {
+                var historyId = Guid.NewGuid();
                 await historyRepository.Create(new TaskHistory
                 {
+                    Id = historyId,
                     TaskId = Guid.Parse(task.Id!),
                     SourceStatusId = savedTask.Status,
                     DestinationStatusId = taskModel.Status,
@@ -256,9 +259,9 @@ public class TaskLogic(
                     Name = historyModel.Name!,
                     ActionType = TaskActionType.StatusChanged
                 });
-                await NotifyAboutStatusUpdate(taskId, partId, task, rawStatuses, savedTask.Status, taskModel.Status);
+                await NotifyAboutStatusUpdate(taskId, partId, task, rawStatuses, savedTask.Status, taskModel.Status, historyId);
                 if (taskModel.Status < 110)
-                    await NotifyAvailableMembers(Guid.Parse(task.Id!), partId, task, rawStatuses, savedAvailableMembers);
+                    await NotifyAvailableMembers(Guid.Parse(task.Id!), partId, task, rawStatuses, savedAvailableMembers, historyId);
             }
         }
 
@@ -308,8 +311,10 @@ public class TaskLogic(
 
         if (isMemberAddedToTask)
         {
+            var historyId = Guid.NewGuid();
             await historyRepository.Create(new TaskHistory
             {
+                Id = historyId,
                 TaskId = taskId,
                 SourceStatusId = task.Status,
                 DestinationStatusId = null,
@@ -332,6 +337,7 @@ public class TaskLogic(
                     TaskId = taskId,
                     PartId = task.PartId ?? Guid.Empty,
                     MemberId = Guid.Parse(member.Id!),
+                    HistoryId = historyId,
                     Timeline = DateTime.UtcNow,
                     Type = (int)BackgroundTaskType.Added,
                     Message = currentMember!.FirstName + " " + currentMember.LastName,
@@ -347,8 +353,10 @@ public class TaskLogic(
         var isMemberRemoved = await repository.RemoveFromEntity(memberId, taskId);
         if (isMemberRemoved && initiatorId != Guid.Empty)
         {
+            var historyId = Guid.NewGuid();
             await historyRepository.Create(new TaskHistory
             {
+                Id = historyId,
                 TaskId = taskId,
                 SourceStatusId = null,
                 DestinationStatusId = null,
@@ -358,14 +366,23 @@ public class TaskLogic(
                 ActionType = TaskActionType.Reassigned,
                 TargetMemberId = memberId,
             });
-
-            await backgroundTaskRepository.Create(new BackgroundTask
+            
+            var members = await GetTaskMembers(taskId);
+            members.Add(new MemberModel
             {
-                TaskId = taskId,
-                MemberId = memberId,
-                Type = (int)BackgroundTaskType.Removed,
-                Timeline = DateTime.UtcNow
+                Id = memberId.ToString(),
             });
+            foreach (var member in members)
+            {
+                await backgroundTaskRepository.Create(new BackgroundTask
+                {
+                    HistoryId = historyId,
+                    TaskId = taskId,
+                    MemberId = Guid.Parse(member.Id!),
+                    Type = (int)BackgroundTaskType.Removed,
+                    Timeline = DateTime.UtcNow
+                });
+            }
         }
         
         return isMemberRemoved;
@@ -423,8 +440,10 @@ public class TaskLogic(
         
         if (isEntityUpdated && !string.IsNullOrEmpty(historyModel.InitiatorId))
         {
+            var historyId = Guid.NewGuid();
             await historyRepository.Create(new TaskHistory
             {
+                Id = historyId,
                 TaskId = taskId,
                 SourceStatusId = sourceStatus,
                 DestinationStatusId = task.Status,
@@ -434,16 +453,16 @@ public class TaskLogic(
                 ActionType = TaskActionType.StatusChanged,
             });
             await NotifyAboutStatusUpdate(taskId, partId, 
-                ConvertToLogicModel(task), rawStatuses, sourceStatus, task.Status);
+                ConvertToLogicModel(task), rawStatuses, sourceStatus, task.Status, historyId);
             await NotifyAvailableMembers(taskId, partId, 
-                ConvertToLogicModel(task), rawStatuses, savedAvailableMembers);
+                ConvertToLogicModel(task), rawStatuses, savedAvailableMembers, historyId);
         }
         
         return isEntityUpdated;
     }
 
     private async Task NotifyAboutStatusUpdate(Guid taskId, Guid partId, TaskModel task, 
-        ICollection<PartTaskStatus> rawStatuses, int sourceStatusId, int destinationStatusId)
+        ICollection<PartTaskStatus> rawStatuses, int sourceStatusId, int destinationStatusId, Guid historyId)
     {
         var taskMembers = await repository.GetTaskMembers(taskId);
         var sourceStatus = rawStatuses
@@ -460,6 +479,7 @@ public class TaskLogic(
                 TaskId = taskId,
                 PartId = partId,
                 MemberId = member.MemberId,
+                HistoryId = historyId,
                 Message = !string.IsNullOrEmpty(sourceStatus) && !string.IsNullOrEmpty(destinatinoStatus)
                     ? $"переведена из {sourceStatus} в {destinatinoStatus}"
                     : "обновлена",
@@ -472,7 +492,7 @@ public class TaskLogic(
     
     private async Task NotifyAvailableMembers(
         Guid taskId, Guid partId, TaskModel task, 
-        ICollection<PartTaskStatus> rawStatuses, ICollection<MemberModel> savedAvailableMembers)
+        ICollection<PartTaskStatus> rawStatuses, ICollection<MemberModel> savedAvailableMembers, Guid historyId)
     {
         var taskMembers = await GetTaskMembers(taskId);
         int accessCounter = 0;
@@ -496,7 +516,7 @@ public class TaskLogic(
         else if (savedAvailableMembers.Count != availableMembers.Count)
         {
             filteredMembers.AddRange(availableMembers
-                    .Where(member => savedAvailableMembers.All(savedMember => savedMember.Id != member.Id)));
+                .Where(member => savedAvailableMembers.All(savedMember => savedMember.Id != member.Id)));
         }
         foreach (var member in filteredMembers)
         {
@@ -505,6 +525,7 @@ public class TaskLogic(
                 TaskId = taskId,
                 PartId = partId,
                 MemberId = Guid.Parse(member.Id!),
+                HistoryId = historyId,
                 Type = (int)BackgroundTaskType.Available,
                 Timeline = DateTime.UtcNow
             });

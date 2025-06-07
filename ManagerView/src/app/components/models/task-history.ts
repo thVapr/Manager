@@ -23,7 +23,10 @@ export enum TaskActionType {
     Commented,
     Renamed,
     DescriptionChanged,
-    DeadlineChanged
+    DeadlineChanged,
+    Deadline,
+    FileAdded,
+    FileRemoved
 }
 
 export enum TaskActionHeader {
@@ -35,5 +38,8 @@ export enum TaskActionHeader {
     Commented = "Комментарий добавлен",
     Renamed = "Переименование задачи",
     DescriptionChanged = "Обновление описания",
-    DeadlineChanged = "Смена крайнего срока"
+    DeadlineChanged = "Смена крайнего срока",
+    Deadline = "Наступил крайний срок",
+    FileAdded = "Добавлен файл",
+    FileRemoved = "Удалён файл",
 }
