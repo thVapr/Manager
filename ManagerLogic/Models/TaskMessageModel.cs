@@ -6,6 +6,7 @@ public class TaskMessageModel
     public string Message { get; set; }
     public string? CreatorId { get; set; }
     public string? TaskId { get; set; }
+    public string? PartId { get; set; }
     public DateTime? CreatedAt { get; set; } 
 
     public MemberModel? Creator { get; set; }

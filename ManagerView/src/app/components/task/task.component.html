@@ -39,12 +39,12 @@
                 <span class="text-muted small rounded-1" [style.background]="getStatusColor(task.status!)">
                   {{getStatusNameByOrder(task.status!)}}
                 </span>
+                <p *ngIf="task.level !== 0" 
+                    class="text-truncate rounded-2" 
+                    [class]="textMapColor.get(task.level!)![0]">
+                  {{textMapColor.get(task.level!)![1]}} приоритет
+                </p>
               </a>
-              <p *ngIf="task.level !== 0" 
-                  class="text-center text-truncate rounded-2" 
-                  [class]="textMapColor.get(task.level!)![0]">
-                {{textMapColor.get(task.level!)![1]}}
-              </p>
               <p-button
                 *ngIf="task.isAvailable"
                 label="Сменить статус" 

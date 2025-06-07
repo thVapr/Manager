@@ -481,7 +481,7 @@ public class TaskLogic(
                 MemberId = member.MemberId,
                 HistoryId = historyId,
                 Message = !string.IsNullOrEmpty(sourceStatus) && !string.IsNullOrEmpty(destinatinoStatus)
-                    ? $"переведена из {sourceStatus} в {destinatinoStatus}"
+                    ? $"Переведена из [{sourceStatus}] в [{destinatinoStatus}]"
                     : "обновлена",
                 Type = (int)BackgroundTaskType.StatusUpdate,
                 Timeline = DateTime.UtcNow

@@ -221,7 +221,7 @@
                 </ng-template>
                 <ng-template #content>
                     <ul *ngIf="uploadedFiles.length > 0" class="file-list">
-                        <li class="d-flex justify-content-between" *ngFor="let file of uploadedFiles">
+                        <li class="d-flex justify-content-between mt-1" *ngFor="let file of uploadedFiles">
                             @if (isTaskMember || hasAccessForEdit) {
                                 <a href="#" (click)="download(file.fileName); $event.preventDefault()">
                                     [{{ file.createdAt | date:'dd.MM.yyyy HH:mm' }}] {{ file.fileName }}

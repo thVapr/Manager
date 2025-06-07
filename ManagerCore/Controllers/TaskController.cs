@@ -249,6 +249,7 @@ public class TaskController(
     [Route("{taskId}/messages")]
     public async Task<IActionResult> AddMessageToTask([FromBody] TaskMessageModel model, string taskId, string partId)
     {
+        model.PartId = partId;
         var isMessageAdded = await taskMessageLogic.CreateAsync(model);
         if (isMessageAdded)
             return Ok();

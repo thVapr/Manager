@@ -104,6 +104,8 @@ public class MessengerHostService(IServiceProvider serviceProvider, ILogger<Mess
             case (int)BackgroundTaskType.StatusUpdate:
             {
                 var message = $"📋 Задача: {task.Task.Name}\n🔄 {task.Message}\n";
+                if (task.Part != null)
+                    message += $"💼 {task.Part!.Name}\n";
                 await botClient.SendMessage(user.ChatId!, 
                     message);
                 await repository.Delete(task.Id);
@@ -111,7 +113,7 @@ public class MessengerHostService(IServiceProvider serviceProvider, ILogger<Mess
             case (int)BackgroundTaskType.Added:
             {
                 var message = task.MemberId == task.History!.TargetMemberId
-                    ? $"👤Вы добавлены к задаче: \n{task.Task.Name}\n"
+                    ? $"👤Вы добавлены к задаче: \n📋 {task.Task.Name}\n"
                     : $"👤 Пользователь {task.Message} добавлен к задаче: \n{task.Task.Name}\n";
                 if (task.Part != null)
                     message += $"💼 {task.Part!.Name}\n";

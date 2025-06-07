@@ -18,7 +18,7 @@
 <div class="d-flex overflow-auto flex-nowrap gap-3 mb-3 mt-3">
   <div *ngFor="let col of statusColumns"
        class="d-flex flex-column"
-       style="min-width: 16rem;"
+       style="width: 17rem; flex: 0 0 auto"
        pDroppable
        [pDroppableDisabled]="isStatusesDraggable"
        (onDrop)="statusDrop(col.order!)">
@@ -127,7 +127,7 @@
       [metaKeySelection]="false"
       class="w-full md:w-56">
     </p-listbox>
-    <div class="text-center text-lg-start mt-2 gap-2">
+    <div class="d-flex justify-content-between mt-2 gap-2">
       <p-button label="Отменить" severity="secondary" (click)="isAddTaskFormVisible = false" />
       <button type="submit" class="btn btn-primary btn-lg">Добавить</button>
     </div>
