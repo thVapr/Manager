@@ -25,5 +25,12 @@ docker run `
 ## Secrets
 
 dotnet user-secrets init
+
 dotnet user-secrets set "ManagerAuth" "Host=localhost;Port=5432;Database=manager_auth;Username=postgres;Password=password"
+
 dotnet user-secrets set "ManagerData" "Host=localhost;Port=5432;Database=manager_data;Username=postgres;Password=password"
+
+dotnet user-secrets set "StorageAccessKey" "user"
+dotnet user-secrets set "StorageSecretKey" "password"
+dotnet user-secrets set "TelegramBotToken" ""
+dotnet user-secrets set "TokenSecretKey" "nullreference"

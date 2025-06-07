@@ -32,4 +32,8 @@ public class SecretProvider
         return Configuration["TelegramBotToken"];
     }
 
+    public string? GetTokenSecretKey()
+    {
+        return Configuration["TokenSecretKey"];
+    }
 }

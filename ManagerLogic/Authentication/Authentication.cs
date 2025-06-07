@@ -36,7 +36,7 @@ public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenti
             claims,
             Constants.Issuer,
             Constants.Audience,
-            Constants.SecureKey,
+            Constants.GetSecureKey(),
             Constants.ExpiryMinutes
         );
 
@@ -81,7 +81,7 @@ public class Authentication(IEncrypt encrypt, IAuthenticationRepository authenti
             claims,
             Constants.Issuer,
             Constants.Audience,
-            Constants.SecureKey,
+            Constants.GetSecureKey(),
             Constants.ExpiryMinutes
         );
 
