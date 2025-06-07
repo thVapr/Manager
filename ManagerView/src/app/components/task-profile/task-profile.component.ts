@@ -62,7 +62,8 @@ export class TaskProfileComponent {
   isAddMemberFormVisible : boolean = false;
   messages : TaskMessage[] = [];
 
-  hasAcceesForEdit : boolean = false;
+  hasAccessForEdit : boolean = false;
+  isTaskMember : boolean = false;
 
   creator : Member = {};
   members : Member[] = [];
@@ -98,6 +99,7 @@ export class TaskProfileComponent {
   }
 
   update() : void {
+    const memberId = this.authService.getId();
     this.taskService.getTaskById(this.taskId).subscribe((task) => {
       this.taskName = task.name;
       this.taskDescription = task.description;
@@ -117,47 +119,53 @@ export class TaskProfileComponent {
         this.memberService.getMemberById(task.creatorId).subscribe((employee) => {
           this.creator = employee;
 
-          const id = this.authService.getId();
+          this.partService.hasPrivileges(memberId, this.partService.getPartId()!, 4).subscribe(
+            (response) => {
+              this.hasAccessForEdit = response || memberId === this.creator.id;
+              this.taskService.getMembersFromTask(task.id!).subscribe((members) => {
+                this.members = members;
+                members.forEach(member => this.isTaskMember ||= (memberId! === member.id!));
+                
+                if (this.hasAccessForEdit || this.isTaskMember) {
+                  if (this.taskName !== undefined && this.taskDescription !== undefined)
+                    this.partService.getPartTaskStatuses().subscribe({
+                      next: (statuses) => {
+                        this.statuses = statuses.sort((a,b)=>a.order! - b.order!);
+                        let nodes = task.path?.split('-');
+                        let timestamp = new Date(this.task.deadline!);
+                        this.selectedStatuses = statuses.filter(col => 
+                          nodes?.includes(col.order?.toString()!)
+                        );
+                        if (this.hasAccessForEdit) {
+                          this.updateTaskForm.setValue({
+                            name: this.taskName!,
+                            description: this.taskDescription!,
+                            status: this.task.status!,
+                            priority: this.task.level!,
+                            deadline: this.isValidTimestamp(timestamp) ? timestamp : null,
+                            selectedStatusColumns: this.selectedStatuses,
+                            taskType: this.task.taskTypeId! 
+                          });
+                        }
+                      }
+                    });
+                }  
 
-          this.hasAcceesForEdit = id === this.creator.id || this.authService.isAdmin();
-          if (this.hasAcceesForEdit) {
-            if (this.taskName !== undefined && this.taskDescription !== undefined)
-              this.partService.getPartTaskStatuses().subscribe({
-                next: (statuses) => {
-                  this.statuses = statuses.sort((a,b)=>a.order! - b.order!);
-                  let nodes = task.path?.split('-');
-                  let timestamp = new Date(this.task.deadline!);
-                  this.selectedStatuses = statuses.filter(col => 
-                    nodes?.includes(col.order?.toString()!)
-                  );
-                  
-                  this.updateTaskForm.setValue({
-                    name: this.taskName!,
-                    description: this.taskDescription!,
-                    status: this.task.status!,
-                    priority: this.task.level!,
-                    deadline: this.isValidTimestamp(timestamp) ? timestamp : null,
-                    selectedStatusColumns: this.selectedStatuses,
-                    taskType: this.task.taskTypeId! 
-                  });
-                }
-              });
-          }
-          this.taskService.getMembersFromTask(task.id!).subscribe((members) => {
-            this.members = members;
-            this.taskService.getTaskHistory(this.taskId).subscribe({
-              next: (history) => {
-                this.taskHistory = history.sort((a,b) => {
-                  return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                });
-                this.taskService.getFileList(this.taskId).subscribe({
-                  next: (files) => {
-                    this.uploadedFiles = [...files];
+                this.taskService.getTaskHistory(this.taskId).subscribe({
+                  next: (history) => {
+                    this.taskHistory = history.sort((a,b) => {
+                      return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                    });
+                    this.taskService.getFileList(this.taskId).subscribe({
+                      next: (files) => {
+                        this.uploadedFiles = [...files];
+                      }
+                    });
                   }
                 });
-              }
-            });
-          });
+              });
+            } 
+          );
         this.partService.getTypesById(this.partService.getPartId()!)
           .subscribe({
             next: (types) => {

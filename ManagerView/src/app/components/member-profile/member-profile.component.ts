@@ -89,7 +89,7 @@ export class MemberProfileComponent implements OnInit {
 
     this.memberService.getMemberById(id).subscribe({
       next: (member) => {
-        console.log(member);
+        this.member = member;
         if (!member.firstName) {
           this.isEmployeeProfileExist = false;
           return;

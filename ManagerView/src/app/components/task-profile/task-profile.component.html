@@ -1,7 +1,7 @@
 <p-toast />
 <h2 class="text-center mb-5">Информация о задаче</h2>
 
-<form *ngIf="!hasAcceesForEdit">
+<form *ngIf="!hasAccessForEdit">
     <fieldset disabled>       
         <div class="form-outline mb-3">
             <label class="form-label" for="form1">Заголовок</label>
@@ -16,7 +16,7 @@
     </fieldset>
 </form>
 
-<form [formGroup]="updateTaskForm" (ngSubmit)="updateTask()" class="row mb-5" *ngIf="hasAcceesForEdit">
+<form [formGroup]="updateTaskForm" (ngSubmit)="updateTask()" class="row mb-5" *ngIf="hasAccessForEdit">
     <div class="d-flex justify-content-between mb-2">
       <button type="submit" class="btn btn-primary btn-lg">Обновить</button>
       <p-button severity="danger" label="Удалить" (click)="removeTask()"/>
@@ -104,13 +104,13 @@
                         <a [href]="'member/about/' + member.id" class="card-title h5">
                             {{member.lastName}} {{ member.firstName }}
                         </a>
-                        <button *ngIf="hasAcceesForEdit" class="btn btn-danger text-white btn-outline-danger"
+                        <button *ngIf="hasAccessForEdit" class="btn btn-danger text-white btn-outline-danger"
                             (click)="removeMemberFromTask(member)">
                             &times;
                         </button>
                     </div>
                     <p-button 
-                        *ngIf="hasAcceesForEdit" 
+                        *ngIf="hasAccessForEdit" 
                         (click)="showAddMemberToTaskForm()" 
                         label="Добавить исполнителя">
                     </p-button>
@@ -181,7 +181,7 @@
         </p-tabpanel>
         <p-tabpanel [value]="2">
             <form class="forg-group" [formGroup]="addMessageForm" (ngSubmit)="onMessageSend()" 
-                *ngIf="hasAcceesForEdit">
+                *ngIf="hasAccessForEdit || isTaskMember">
                 <div class="form-outline mb-2 flex-row">
                     <p-editor class="form-outline mb-2" placeholder="Сообщение" formControlName="message"/>
                 </div>
@@ -196,7 +196,7 @@
                             {{ msg.creator?.firstName }} {{ msg.creator?.lastName }} 
                             [{{msg.createdAt | date:'dd.MM.yyyy HH:mm'}}]
                         </div>
-                        @if (this.hasAcceesForEdit)
+                        @if (this.hasAccessForEdit)
                         {
                             <button class="btn btn-danger" (click)="onMessageRemove(msg.id!)">&times;</button>
                         }
@@ -212,7 +212,8 @@
                 name="demo[]"
                 [customUpload]="true"
                 (uploadHandler)="onUpload($event)"
-                [multiple]="false" 
+                [multiple]="false"
+                [disabled]="!hasAccessForEdit && !isTaskMember"
                 maxFileSize="1000000" 
                 mode="advanced">
                 <ng-template #empty>
@@ -221,10 +222,17 @@
                 <ng-template #content>
                     <ul *ngIf="uploadedFiles.length > 0" class="file-list">
                         <li class="d-flex justify-content-between" *ngFor="let file of uploadedFiles">
-                            <a href="#" (click)="download(file.fileName); $event.preventDefault()">
-                            [{{ file.createdAt | date:'dd.MM.yyyy HH:mm' }}] {{ file.fileName }}
-                            </a>
-                            <button *ngIf="hasAcceesForEdit" class="btn btn-danger text-white btn-outline-danger"
+                            @if (isTaskMember || hasAccessForEdit) {
+                                <a href="#" (click)="download(file.fileName); $event.preventDefault()">
+                                    [{{ file.createdAt | date:'dd.MM.yyyy HH:mm' }}] {{ file.fileName }}
+                                </a>
+                            }
+                            @else {
+                                <label>
+                                    [{{ file.createdAt | date:'dd.MM.yyyy HH:mm' }}] {{ file.fileName }}
+                                </label>
+                            }
+                            <button *ngIf="hasAccessForEdit" class="btn btn-danger text-white btn-outline-danger"
                                 (click)="removeFileFromTask(file.fileName)">
                                 &times;
                             </button>
@@ -238,7 +246,7 @@
 
 <p-dialog header="Добавление исполнителя" [modal]="true" [(visible)]="isAddMemberFormVisible">
   <form class="forg-group" [formGroup]="addMemberForm" (ngSubmit)="addTaskToMember()" 
-    *ngIf="hasAcceesForEdit">
+    *ngIf="hasAccessForEdit">
     <div class="form-outline mb-2 flex-row">
       <select name="select" class="form-control form-control-lg" 
             type="select" formControlName="member">

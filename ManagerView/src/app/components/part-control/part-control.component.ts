@@ -27,7 +27,6 @@ export class PartControlComponent {
 
   addRoleForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(20)]),
-    description: new FormControl('', [Validators.maxLength(20)]),
   });
   roles : PartRole[] = [];
   addTypeForm = new FormGroup({
@@ -47,7 +46,7 @@ export class PartControlComponent {
   onSubmit() : void {
     if (this.addRoleForm === null)
       return;
-    this.partService.addRoleToPart(this.addRoleForm.value.name!, this.addRoleForm.value.description!)
+    this.partService.addRoleToPart(this.addRoleForm.value.name!, "")
       .subscribe({
         next: () => {
           this.update();
@@ -59,7 +58,6 @@ export class PartControlComponent {
   onTypeSubmit() : void {
     if (this.addTypeForm === null)
       return;
-    console.log(this.addTypeForm.value.name!);
     this.partService.addType(this.addTypeForm.value.name!)
       .subscribe({
         next: () => {

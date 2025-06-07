@@ -4,6 +4,7 @@ import { MemberService } from './services/member/member.service';
 import { PartService } from './services/part/part.service';
 import { Router } from '@angular/router';
 import { UpdateService } from './services/update.service';
+import { finalize } from 'rxjs';
 
 @Component({
     selector: 'app-root',
@@ -77,9 +78,18 @@ export class AppComponent implements OnInit {
     }
   }
 
-  async logout() : Promise<void> {
-    await this.authService.logout();
-    this.updateMenuItems();
+  logout() : void {
+    this.authService.logout()
+    .pipe(
+      finalize( () => {
+        this.router.navigate(['/login']);
+        this.updateMenuItems();
+      }
+    ))
+    .subscribe({
+      next: () => {
+      }
+    });
   }
 
   executeCommand(event: Event, item: any) {
