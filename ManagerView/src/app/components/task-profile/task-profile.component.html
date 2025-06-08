@@ -214,6 +214,9 @@
                 (uploadHandler)="onUpload($event)"
                 [multiple]="false"
                 [disabled]="!hasAccessForEdit && !isTaskMember"
+                chooseLabel="Выбрать"
+                uploadLabel="Загрузить"
+                cancelLabel="Отменить"
                 maxFileSize="1000000" 
                 mode="advanced">
                 <ng-template #empty>
