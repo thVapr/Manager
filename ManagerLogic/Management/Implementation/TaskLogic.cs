@@ -123,6 +123,15 @@ public class TaskLogic(
             {
                 return false;
             }
+
+            if (string.CompareOrdinal(task.Path, model.Path) != 0)
+            {
+                var newPath = model.Path!.Split("-").ToList();
+                if (newPath.All(pathItem => pathItem != model.Status.ToString()))
+                {
+                    model.Status = 0;
+                }
+            }
         }
 
         return await repository.UpdateEntity(new TaskDataModel
