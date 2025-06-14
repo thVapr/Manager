@@ -18,10 +18,8 @@ public class MemberController(
     IAuthentication authentication)
     : ControllerBase
 {
-    private readonly IPartLogic _partLogic = partLogic;
-
     [HttpGet]
-    [Route("get")]
+    [Route("{memberId}")]
     public async Task<IActionResult> GetMember(string memberId)
     {
         return Ok(await memberLogic.GetEntityById(Guid.Parse(memberId)));
@@ -29,12 +27,12 @@ public class MemberController(
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
     [HttpGet]
-    [Route("get_members")]
+    [Route("available")]
     public async Task<IActionResult> GetAvailableMembersPart(string? partId)
     {
         var adminIds = await authentication.GetAdminIds();
         var members = await memberLogic.GetAvailableMembers(Guid.Parse(partId!));
-        var part = await _partLogic.GetEntityById(Guid.Parse(partId!));
+        var part = await partLogic.GetEntityById(Guid.Parse(partId!));
         
         if (part.Level == 0)
         {
@@ -69,12 +67,12 @@ public class MemberController(
     }
 
     [HttpGet]
-    [Route("get_member_profile")]
-    public async Task<IActionResult> GetMemberProfile(string id)
+    [Route("{memberId}/profile")]
+    public async Task<IActionResult> GetMemberProfile(string memberId)
     {
-        var member = await memberLogic.GetEntityById(Guid.Parse(id));
+        var member = await memberLogic.GetEntityById(Guid.Parse(memberId));
         
-        if (member.Id != id)
+        if (member.Id != memberId)
             return BadRequest(); 
         
         var user = await authentication.GetUserById(Guid.Parse(member.Id!));
@@ -95,7 +93,7 @@ public class MemberController(
     }
 
     [HttpPost]
-    [Route("create")]
+    [Route("")]
     public async Task<IActionResult> CreateMember(MemberModel model)
     {
         if (await memberLogic.CreateEntity(model))
@@ -104,7 +102,7 @@ public class MemberController(
     }
 
     [HttpPut]
-    [Route("update")]
+    [Route("")]
     public async Task<IActionResult> UpdateMember(MemberModel model)
     {
         if (await memberLogic.UpdateEntity(model))

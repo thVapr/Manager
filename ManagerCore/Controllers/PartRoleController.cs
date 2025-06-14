@@ -8,45 +8,46 @@ using Microsoft.AspNetCore.Authorization;
 namespace ManagerCore.Controllers;
 
 [ApiController]
-[Route("/api/parts/roles")]
+[Route("/api/parts/{partId}/roles")]
 [Authorize]
 public class PartRoleController(IPartLogic partLogic) : ControllerBase
 {
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [HttpPost]
-    [Route("add_role")]
-    public async Task<IActionResult> AddRoleToPart([FromBody] AddToPartModel model)
+    [Route("")]
+    public async Task<IActionResult> AddRoleToPart(string partId, [FromBody] AddToPartModel model)
     {
-        if (await partLogic.AddRoleToPart(Guid.Parse(model.PartId!), model.Name, model.Description ?? string.Empty))
+        if (await partLogic.AddRoleToPart(Guid.Parse(partId), model.Name!, model.Description ?? string.Empty))
             return Ok(true);
         return BadRequest();
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
     [HttpPost]
-    [Route("add_member")]
-    public async Task<IActionResult> AddMemberToRoleInPart([FromBody] PartMemberRoleRequest model)
+    [Route("{roleId}/members/{memberId}")]
+    public async Task<IActionResult> AddMemberToRoleInPart(string partId, string roleId, string memberId)
     {
         if (await partLogic
-                .AddMemberToRole(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!), Guid.Parse(model.RoleId!)))
+                .AddMemberToRole(Guid.Parse(partId),
+                    Guid.Parse(memberId), Guid.Parse(roleId)))
             return Ok(true);
         return BadRequest();
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
-    [HttpPost]
-    [Route("remove_member")]
-    public async Task<IActionResult> RemoveMemberFromRoleInPart([FromBody] PartMemberRoleRequest model)
+    [HttpDelete]
+    [Route("{roleId}/members/{memberId}")]
+    public async Task<IActionResult> RemoveMemberFromRoleInPart(string partId, string roleId, string memberId)
     {
         if (await partLogic
-                .RemoveMemberFromRole(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!), Guid.Parse(model.RoleId!)))
+                .RemoveMemberFromRole(Guid.Parse(partId), Guid.Parse(memberId), Guid.Parse(roleId)))
             return Ok(true);
         return BadRequest();
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
-    [Route("get_roles")]
+    [Route("")]
     public async Task<IActionResult> GetRoles(string partId)
     {
         var roles = await partLogic.GetPartRoles(Guid.Parse(partId));
@@ -57,7 +58,7 @@ public class PartRoleController(IPartLogic partLogic) : ControllerBase
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
-    [Route("get_member_roles")]
+    [Route("members/{memberId}")]
     public async Task<IActionResult> GetMemberRoles(string partId, string memberId)
     {
         var roles = await partLogic.GetPartMemberRoles(Guid.Parse(partId), Guid.Parse(memberId));
@@ -67,11 +68,11 @@ public class PartRoleController(IPartLogic partLogic) : ControllerBase
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
-    [HttpPost]
-    [Route("remove_role")]
-    public async Task<IActionResult> RemoveRoleFromPart([FromBody] AddToPartModel model)
+    [HttpDelete]
+    [Route("{roleId}")]
+    public async Task<IActionResult> RemoveRoleFromPart(string partId, string roleId)
     {
-        if (await partLogic.RemoveRoleFromPart(Guid.Parse(model.PartId), Guid.Parse(model.EntityId!)))
+        if (await partLogic.RemoveRoleFromPart(Guid.Parse(partId), Guid.Parse(roleId)))
             return Ok();
         return BadRequest();
     }

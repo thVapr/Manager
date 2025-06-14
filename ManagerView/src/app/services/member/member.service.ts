@@ -16,15 +16,15 @@ export class MemberService {
               private partService : PartService) { }
 
   getMemberById(id : string): Observable<Member> {
-    return this.http.get<Member>(`${this.apiUrl}/get_member_profile?id=${id}`);
+    return this.http.get<Member>(`${this.apiUrl}/${id}/profile`);
   }
 
   addMember(id : string, firstName? : string, lastName? : string, patronymic? : string) : Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/create`, {id, firstName, lastName, patronymic});
+    return this.http.post<any>(`${this.apiUrl}/`, {id, firstName, lastName, patronymic});
   }
 
   updateMember(id : string, firstName? : string, lastName? : string, patronymic? : string, messengerId? : string) : Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/update`, {id, firstName, lastName, patronymic,messengerId});
+    return this.http.put<any>(`${this.apiUrl}/`, {id, firstName, lastName, patronymic,messengerId});
   }
 
   isCurrentMember(employeeId : string | undefined) {
@@ -42,6 +42,6 @@ export class MemberService {
   getAvailableMembers() : Observable<Member[]> {
     const partId = this.partService.getPartId();
 
-    return this.http.get<Member[]>(`${this.apiUrl}/get_members?partId=${partId}`);
+    return this.http.get<Member[]>(`${this.apiUrl}/available?partId=${partId}`);
   }
 }

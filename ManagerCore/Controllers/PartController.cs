@@ -14,16 +14,9 @@ namespace ManagerCore.Controllers;
 [Authorize]
 public class PartController(IPartLogic partLogic) : ControllerBase
 {
-    [HttpGet]
-    [Route("get_privileges")]
-    public async Task<IActionResult> GetPrivileges(Guid memberId, Guid partId)
-    {
-        return Ok(await partLogic.GetPrivileges(memberId, partId));
-    }
-
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
-    [Route("get_part_statuses")]
+    [Route("{partId}/statuses")]
     public async Task<IActionResult> GetPartTaskStatuses(Guid partId)
     {
         return Ok(await partLogic.GetPartTaskStatuses(partId));
@@ -31,7 +24,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader, true])]
     [HttpPost]
-    [Route("statuses/create")]
+    [Route("{partId}/statuses")]
     public async Task<IActionResult> CreatePartTaskStatus([FromBody] PartTaskStatusModel model)
     {
         if (await partLogic.AddPartTaskStatus(model))
@@ -41,7 +34,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
     [HttpPut]
-    [Route("statuses/update")]
+    [Route("{partId}/statuses/{partTaskStatusId}")]
     public async Task<IActionResult> UpdatePartTaskStatus([FromBody] PartTaskStatusModel model)
     {
         if (await partLogic.ChangePartTaskStatus(model))
@@ -51,7 +44,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
     [HttpDelete]
-    [Route("statuses/remove")]
+    [Route("{partId}/statuses/{partTaskStatusId}")]
     public async Task<IActionResult> RemovePartTaskStatus(string partId, string partTaskStatusId)
     {
         if (await partLogic.RemovePartTaskStatus(Guid.Parse(partId), Guid.Parse(partTaskStatusId)))
@@ -60,15 +53,33 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     }
     
     [HttpGet]
-    [Route("check_privileges")]
+    [Route("{partId}/privileges/{memberId}")]
+    public async Task<IActionResult> GetPrivileges(Guid memberId, Guid partId)
+    {
+        return Ok(await partLogic.GetPrivileges(memberId, partId));
+    }
+    
+    [HttpGet]
+    [Route("{partId}/privileges/{userId}/check")]
     public async Task<IActionResult> CheckPrivileges(Guid userId, Guid partId, int privilege)
     {
         var isMemberHasPrivilege = await partLogic.IsUserHasPrivileges(userId, partId, privilege);
         return Ok(isMemberHasPrivilege);
     }
     
+    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
+    [HttpPost]
+    [Route("{partId}/privileges/{memberId}")]
+    public async Task<IActionResult> ChangePrivilege([FromBody] PrivilegeChangeRequest request, string partId, string memberId)
+    {
+        if (await partLogic.ChangePrivilege(Guid.Parse(memberId), Guid.Parse(partId), request.Privilege))
+            return Ok();
+
+        return BadRequest();
+    }
+    
     [HttpGet]
-    [Route("all_accessible")]
+    [Route("accessible")]
     public async Task<IActionResult> GetAll()
     {
         if (User.IsInRole(RoleConstants.Admin))
@@ -79,7 +90,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpPost]
-    [Route("update_hierarchy")]
+    [Route("hierarchy")]
     public async Task<IActionResult> UpdateHierarchy(List<PartModel> models)
     {
         return Ok(await partLogic.UpdateHierarchy(models));
@@ -87,7 +98,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
-    [Route("all")]
+    [Route("{partId}/all")]
     public async Task<IActionResult> GetAll(string partId)
     {
         return Ok(await partLogic.GetEntitiesById(Guid.Parse(partId)));
@@ -95,14 +106,14 @@ public class PartController(IPartLogic partLogic) : ControllerBase
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
     [HttpGet]
-    [Route("get")]
+    [Route("{partId}")]
     public async Task<IActionResult> GetModel(string partId)
     {
         return Ok(await partLogic.GetEntityById(Guid.Parse(partId)));
     }
     
     [HttpGet]
-    [Route("get_types")]
+    [Route("types")]
     public async Task<IActionResult> GetTypes()
     {
         return Ok(await partLogic.GetPartTypes());
@@ -110,7 +121,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader, true])]
     [HttpPost]
-    [Route("create")]
+    [Route("")]
     public async Task<IActionResult> CreateModel(PartModel model)
     {
         var userId = User.FindFirst("id")?.Value;
@@ -119,34 +130,23 @@ public class PartController(IPartLogic partLogic) : ControllerBase
         return BadRequest();
     }
     
-    [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
-    [HttpPost]
-    [Route("change_privilege")]
-    public async Task<IActionResult> ChangePrivilege([FromBody] PrivilegeChangeRequest request)
-    {
-        if (await partLogic.ChangePrivilege(Guid.Parse(request.MemberId), Guid.Parse(request.PartId), request.Privilege))
-            return Ok();
-
-        return BadRequest();
-    }
-
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
     [HttpPost]
-    [Route("add")]
-    public async Task<IActionResult> AddMemberToPart([FromBody] PartMembersModel model)
+    [Route("{partId}/members/")]
+    public async Task<IActionResult> AddMemberToPart(string partId, [FromBody] PartMembersModel model)
     {
-        if (await partLogic.AddToEntity(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.AddToEntity(Guid.Parse(partId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Control])]
-    [HttpPost]
-    [Route("remove")]
-    public async Task<IActionResult> RemoveMemberFromPart([FromBody] PartMembersModel model)
+    [HttpDelete]
+    [Route("{partId}/members/{memberId}")]
+    public async Task<IActionResult> RemoveMemberFromPart(string partId, string memberId)
     {
-        if (await partLogic.RemoveFromEntity(Guid.Parse(model.PartId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.RemoveFromEntity(Guid.Parse(partId!), Guid.Parse(memberId!)))
             return Ok();
 
         return BadRequest();
@@ -154,7 +154,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
     [HttpPut]
-    [Route("update")]
+    [Route("")]
     public async Task<IActionResult> UpdatePart([FromBody] PartModel model)
     {
         if (await partLogic.UpdateEntity(model))
@@ -164,7 +164,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
     [HttpPost]
-    [Route("link")]
+    [Route("{masterId}/links")]
     public async Task<IActionResult> LinkParts(string masterId, string slaveId)
     {
         if (await partLogic.LinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
@@ -173,8 +173,8 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Leader])]
-    [HttpPost]
-    [Route("move")]
+    [HttpDelete]
+    [Route("{masterId}/links")]
     public async Task<IActionResult> MovePart(string masterId, string slaveId)
     {
         if (await partLogic.UnlinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
