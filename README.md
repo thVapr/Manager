@@ -1,6 +1,8 @@
-# Manager
+# :bar_chart: Project Management System (Graduation project)
 
-## Running notes
+![image](https://github.com/user-attachments/assets/91d2bc52-e318-4dd6-a8e1-6671db32fa49)
+
+## :running: Running notes
 
 docker run --name manager `
     -p 5432:5432 `
@@ -22,7 +24,7 @@ docker run `
     -e "MINIO_ROOT_PASSWORD=password" `
     quay.io/minio/minio server /data --console-address ":9001"
 
-## Secrets
+## :key: Secrets
 
 dotnet user-secrets init
 
@@ -31,6 +33,9 @@ dotnet user-secrets set "ManagerAuth" "Host=localhost;Port=5432;Database=manager
 dotnet user-secrets set "ManagerData" "Host=localhost;Port=5432;Database=manager_data;Username=postgres;Password=password"
 
 dotnet user-secrets set "StorageAccessKey" "user"
+
 dotnet user-secrets set "StorageSecretKey" "password"
+
 dotnet user-secrets set "TelegramBotToken" ""
+
 dotnet user-secrets set "TokenSecretKey" "nullreference0ee22bbnullreference"
