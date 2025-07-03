@@ -1,5 +1,7 @@
 # :bar_chart: Project Management System (Graduation project)
 
+[![ASP.NET](https://img.shields.io/badge/ASP.NET_Core-512BD4?logo=dotnet&logoColor=fff)](#) [![EntityFramework](https://img.shields.io/badge/EntityFramework_Core-512BD4?logo=dotnet&logoColor=fff)](#) [![Postgres](https://img.shields.io/badge/Postgres-%23316192.svg?logo=postgresql&logoColor=white)](#) [![Angular](https://img.shields.io/badge/Angular-%23DD0031.svg?logo=angular&logoColor=white)](#) [![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=fff)](#) [![PrimeNG](https://img.shields.io/badge/PrimeNG-%23DD0031.svg?logo=PrimeNG&logoColor=white)](#) [![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?logo=chartdotjs&logoColor=fff)](#) [![Quill.js](https://img.shields.io/badge/Quill.js-714B67)](#) [![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?logo=telegram&logoColor=white)](#) [![MinIO](https://img.shields.io/badge/MinIO-black?logo=minio&logoColor=fff)](#)
+
 ![image](https://github.com/user-attachments/assets/91d2bc52-e318-4dd6-a8e1-6671db32fa49)
 
 ## :running: Running notes
