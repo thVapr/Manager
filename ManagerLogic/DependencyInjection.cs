@@ -5,6 +5,7 @@ using ManagerData.Management.Implementation;
 using ManagerLogic.Authentication;
 using ManagerLogic.Background;
 using ManagerLogic.Management;
+using ManagerLogic.Management.Implementation;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;

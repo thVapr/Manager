@@ -2,18 +2,16 @@
 
 public interface IManagementLogic<T>
 {
-    Task<T> GetEntityById(Guid id);
-    Task<ICollection<T>> GetEntities();
-    Task<ICollection<T>> GetEntitiesById(Guid id);
+    Task<bool> Create(T model);
+    Task<T> GetById(Guid id);
+    Task<ICollection<T>> GetAll();
+    Task<ICollection<T>> GetManyById(Guid id);
+    Task<ICollection<T>> GetByQuery(string query, Guid id);
+    Task<bool> Update(T model);
+    Task<bool> Delete(Guid id);
 
-    Task<bool> CreateEntity(T model);
-    Task<bool> UpdateEntity(T model);
-    Task<bool> AddToEntity(Guid destinationId, Guid sourceId);
-    Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId);
-    Task<bool> LinkEntities(Guid masterId, Guid slaveId);
-    Task<bool> UnlinkEntities(Guid masterId, Guid slaveId);
-    
-    Task<ICollection<T>> GetEntitiesByQuery(string query, Guid id);
-
-    Task<bool> DeleteEntity(Guid id);
+    Task<bool> AddTo(Guid destinationId, Guid sourceId);
+    Task<bool> RemoveFrom(Guid destinationId, Guid sourceId);
+    Task<bool> AddLink(Guid masterId, Guid slaveId);
+    Task<bool> RemoveLink(Guid masterId, Guid slaveId);
 }

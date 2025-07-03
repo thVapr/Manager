@@ -7,7 +7,7 @@ namespace ManagerData.Management.Implementation;
 
 public class MemberRepository(MainDbContext database, ILogger<MemberRepository> logger) : IMemberRepository
 {
-    public async Task<bool> CreateEntity(MemberDataModel model)
+    public async Task<bool> Create(MemberDataModel model)
     {
         try
         {
@@ -23,24 +23,24 @@ public class MemberRepository(MainDbContext database, ILogger<MemberRepository> 
         }
     }
 
-    public async Task<bool> CreateEntity(Guid id, MemberDataModel model)
+    public async Task<bool> Create(Guid id, MemberDataModel model)
     {
         model.Id = id;
         
-        return await CreateEntity(model);
+        return await Create(model);
     }
 
-    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public Task<bool> AddTo(Guid destinationId, Guid sourceId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> RemoveFromEntity(Guid firstId, Guid secondId)
+    public Task<bool> RemoveFrom(Guid firstId, Guid secondId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> AddLink(Guid masterId, Guid slaveId)
     {
         try
         {
@@ -67,12 +67,12 @@ public class MemberRepository(MainDbContext database, ILogger<MemberRepository> 
         }
     }
 
-    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> RemoveLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<MemberDataModel> GetEntityById(Guid id)
+    public async Task<MemberDataModel> GetById(Guid id)
     {
         try
         {
@@ -86,12 +86,12 @@ public class MemberRepository(MainDbContext database, ILogger<MemberRepository> 
         }
     }
 
-    public Task<IEnumerable<MemberDataModel>?> GetEntities()
+    public Task<IEnumerable<MemberDataModel>?> GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<MemberDataModel>?> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<MemberDataModel>?> GetManyById(Guid id)
     {
         try
         {
@@ -113,7 +113,7 @@ public class MemberRepository(MainDbContext database, ILogger<MemberRepository> 
         }
     }
 
-    public async Task<bool> UpdateEntity(MemberDataModel model)
+    public async Task<bool> Update(MemberDataModel model)
     {
         try
         {
@@ -139,7 +139,7 @@ public class MemberRepository(MainDbContext database, ILogger<MemberRepository> 
         }
     }
     
-    public async Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> Delete(Guid id)
     {
         try
         {

@@ -4,7 +4,7 @@ using ManagerData.Management;
 using ManagerLogic.Background;
 using ManagerLogic.Models;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class TaskMessageLogic(
     ITaskMessageRepository repository,

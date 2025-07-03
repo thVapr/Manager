@@ -10,7 +10,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
 {
     private static readonly int[] SourceTypeArray = [1,2,3];
 
-    public async Task<bool> CreateEntity(PartDataModel model)
+    public async Task<bool> Create(PartDataModel model)
     {
         try
         {
@@ -86,7 +86,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         ];
     }
     
-    public async Task<bool> CreateEntity(Guid masterPartId, PartDataModel model)
+    public async Task<bool> Create(Guid masterPartId, PartDataModel model)
     {
         try
         {
@@ -95,11 +95,11 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
             if (existingPart != null) 
                 return false;
 
-            await CreateEntity(model);
+            await Create(model);
 
             if (masterPartId != Guid.Empty)
             {
-                await LinkEntities(masterPartId, model.Id);
+                await AddLink(masterPartId, model.Id);
             }
             await database.SaveChangesAsync();
 
@@ -112,7 +112,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> AddTo(Guid destinationId, Guid sourceId)
     {
         try
         {
@@ -136,7 +136,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> RemoveFrom(Guid destinationId, Guid sourceId)
     {
         try
         {
@@ -159,7 +159,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> AddLink(Guid masterId, Guid slaveId)
     {
         try
         {
@@ -183,7 +183,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> RemoveLink(Guid masterId, Guid slaveId)
     {
         try
         {
@@ -203,7 +203,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<PartDataModel> GetEntityById(Guid id)
+    public async Task<PartDataModel> GetById(Guid id)
     {
         try
         {
@@ -216,7 +216,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<IEnumerable<PartDataModel>?> GetEntities()
+    public async Task<IEnumerable<PartDataModel>?> GetAll()
     {
         try
         {
@@ -228,7 +228,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<IEnumerable<PartDataModel>?> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<PartDataModel>?> GetManyById(Guid id)
     {
         try
         {
@@ -245,7 +245,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
 
-    public async Task<bool> UpdateEntity(PartDataModel model)
+    public async Task<bool> Update(PartDataModel model)
     {
         try
         {
@@ -274,7 +274,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
         }
     }
     
-    public async Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> Delete(Guid id)
     {
         try
         {
@@ -335,7 +335,7 @@ public class PartRepository(MainDbContext database, ILogger<PartRepository> logg
                     .Where(m => m.Id == userId).FirstOrDefaultAsync();
                 if (member == null)
                     return false;
-                await AddToEntity(partId, member.Id);
+                await AddTo(partId, member.Id);
             }
             partMember = await database.PartMembers
                 .Where(pm => pm.PartId == partId && pm.MemberId == userId)

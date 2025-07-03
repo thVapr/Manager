@@ -1,33 +1,32 @@
-﻿using ManagerLogic.Models;
-using ManagerData.DataModels;
+﻿using ManagerData.DataModels;
 using ManagerData.Management;
-
+using ManagerLogic.Models;
 using PartType = ManagerLogic.Models.PartType;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class PartLogic(IPartRepository repository, IRoleRepository roleRepository, IPathHelper pathHelper) : IPartLogic
 {
-    public async Task<PartModel> GetEntityById(Guid id)
+    public async Task<PartModel> GetById(Guid id)
     {
-        var entity = await repository.GetEntityById(id);
+        var entity = await repository.GetById(id);
 
         if (entity.Id == Guid.Empty) return new PartModel();
 
         return ConvertDataModelToLogic(entity);
     }
 
-    public async Task<ICollection<PartModel>> GetEntities()
+    public async Task<ICollection<PartModel>> GetAll()
     {
-        var entity = await repository.GetEntities();
+        var entity = await repository.GetAll();
         
         return entity!.Where(e => e.Level == 0)
             .Select(ConvertDataModelToLogic).ToList();
     }
 
-    public async Task<ICollection<PartModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<PartModel>> GetManyById(Guid id)
     {
-        var entities = await repository.GetEntitiesById(id);
+        var entities = await repository.GetManyById(id);
         var result = new List<PartModel>();
 
         if (entities == null) return result;
@@ -40,7 +39,7 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
         return result;
     }
 
-    public async Task<bool> CreateEntity(PartModel model)
+    public async Task<bool> Create(PartModel model)
     {
         var entity = new PartDataModel
         {
@@ -53,14 +52,14 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
 
         if (model.MainPartId.HasValue)
         {
-            return await repository.CreateEntity((Guid)model.MainPartId, entity);
+            return await repository.Create((Guid)model.MainPartId, entity);
         }
-        return await repository.CreateEntity(entity);
+        return await repository.Create(entity);
     }
 
-    public async Task<bool> UpdateEntity(PartModel model)
+    public async Task<bool> Update(PartModel model)
     {
-        return await repository.UpdateEntity(new PartDataModel
+        return await repository.Update(new PartDataModel
         {
             Id = Guid.Parse(model.Id!),
             Name = model.Name!,
@@ -68,34 +67,34 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
         });
     }
 
-    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> AddTo(Guid destinationId, Guid sourceId)
     {
-        return await repository.AddToEntity(destinationId, sourceId);
+        return await repository.AddTo(destinationId, sourceId);
     }
 
-    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> RemoveFrom(Guid destinationId, Guid sourceId)
     {
-        return await repository.RemoveFromEntity(destinationId, sourceId);
+        return await repository.RemoveFrom(destinationId, sourceId);
     }
 
-    public async Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> AddLink(Guid masterId, Guid slaveId)
     {
-        return await repository.LinkEntities(masterId, slaveId);
+        return await repository.AddLink(masterId, slaveId);
     }
 
-    public async Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public async Task<bool> RemoveLink(Guid masterId, Guid slaveId)
     {
-        return await repository.UnlinkEntities(masterId, slaveId);
+        return await repository.RemoveLink(masterId, slaveId);
     }
 
-    public Task<ICollection<PartModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<ICollection<PartModel>> GetByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> Delete(Guid id)
     {
-        return await repository.DeleteEntity(id);
+        return await repository.Delete(id);
     }
 
     public async Task<bool> AddRoleToPart(Guid partId, string name, string description)
@@ -176,12 +175,12 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
         };
 
         var isEntityCreated = model.MainPartId.HasValue 
-            ? await repository.CreateEntity((Guid)model.MainPartId, entity)
-            : await repository.CreateEntity(entity);
+            ? await repository.Create((Guid)model.MainPartId, entity)
+            : await repository.Create(entity);
         if (!isEntityCreated) 
             return false;
         
-        var part = await repository.GetEntityById(id);
+        var part = await repository.GetById(id);
         return await ChangePrivilege(userId, part.Id, (int)AccessLevel.Leader);
     }
 
@@ -194,7 +193,7 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
                 await UpdateOneNode(part);
             }
         }
-        await repository.UpdateEntity(new PartDataModel
+        await repository.Update(new PartDataModel
         {
             Id = Guid.Parse(model.Id!),
             MainPartId = model.MainPartId,
@@ -204,7 +203,7 @@ public class PartLogic(IPartRepository repository, IRoleRepository roleRepositor
     
     public async Task<ICollection<PartModel>> GetAllAccessibleParts(Guid userId)
     {
-        var parts = await repository.GetEntities();
+        var parts = await repository.GetAll();
         var result = new List<PartModel>();
         var minimumLevel = int.MaxValue;
         foreach (var part in parts!)

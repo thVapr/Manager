@@ -1,8 +1,8 @@
-﻿using ManagerLogic.Models;
-using ManagerData.DataModels;
+﻿using ManagerData.DataModels;
 using ManagerData.Management;
+using ManagerLogic.Models;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class TaskTypeLogic(ITaskTypeRepository repository) : ITaskTypeLogic
 {

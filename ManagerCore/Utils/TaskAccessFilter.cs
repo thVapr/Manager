@@ -21,7 +21,7 @@ public class TaskAccessFilter(
             var taskId = FilterHelper.GetTaskId(context);
             if (!taskId.HasValue || taskId == Guid.Empty)
                 return;
-            var task = await taskLogic.GetEntityById(taskId.Value);
+            var task = await taskLogic.GetById(taskId.Value);
             var partId = task.PartId;
             if (userId != task.CreatorId && partId.HasValue)
             {

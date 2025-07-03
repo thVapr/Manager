@@ -22,7 +22,7 @@ public class MemberController(
     [Route("{memberId}")]
     public async Task<IActionResult> GetMember(string memberId)
     {
-        return Ok(await memberLogic.GetEntityById(Guid.Parse(memberId)));
+        return Ok(await memberLogic.GetById(Guid.Parse(memberId)));
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [5])]
@@ -32,7 +32,7 @@ public class MemberController(
     {
         var adminIds = await authentication.GetAdminIds();
         var members = await memberLogic.GetAvailableMembers(Guid.Parse(partId!));
-        var part = await partLogic.GetEntityById(Guid.Parse(partId!));
+        var part = await partLogic.GetById(Guid.Parse(partId!));
         
         if (part.Level == 0)
         {
@@ -51,7 +51,7 @@ public class MemberController(
     public async Task<IActionResult> GetAll(string partId)
     {
         var adminIds = await authentication.GetAdminIds();
-        var employees = await memberLogic.GetEntitiesById(Guid.Parse(partId));
+        var employees = await memberLogic.GetManyById(Guid.Parse(partId));
 
         return Ok(employees.Where(e => !adminIds.Contains(e.Id)));
     }
@@ -70,7 +70,7 @@ public class MemberController(
     [Route("{memberId}/profile")]
     public async Task<IActionResult> GetMemberProfile(string memberId)
     {
-        var member = await memberLogic.GetEntityById(Guid.Parse(memberId));
+        var member = await memberLogic.GetById(Guid.Parse(memberId));
         
         if (member.Id != memberId)
             return BadRequest(); 
@@ -96,7 +96,7 @@ public class MemberController(
     [Route("")]
     public async Task<IActionResult> CreateMember(MemberModel model)
     {
-        if (await memberLogic.CreateEntity(model))
+        if (await memberLogic.Create(model))
             return Ok();
         return BadRequest();
     }
@@ -105,7 +105,7 @@ public class MemberController(
     [Route("")]
     public async Task<IActionResult> UpdateMember(MemberModel model)
     {
-        if (await memberLogic.UpdateEntity(model))
+        if (await memberLogic.Update(model))
             return Ok();
         return BadRequest();
     }

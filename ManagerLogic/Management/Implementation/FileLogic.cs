@@ -5,7 +5,7 @@ using ManagerLogic.Background;
 using ManagerLogic.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class FileLogic(
     IFileRepository fileRepository, 

@@ -1,18 +1,18 @@
 ﻿using ManagerData.Management;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class PathHelper(ITaskRepository taskRepository) : IPathHelper
 {
     public async Task CleanTaskPaths(Guid partId, int pathOrder)
     {
-        var tasks = await taskRepository.GetEntitiesById(partId);
+        var tasks = await taskRepository.GetManyById(partId);
         foreach (var task in tasks!)
         {
             var nodes = ExtractNodesFromPath(task.Path!);
             nodes.Remove(pathOrder);
             task.Path = ConvertNodesToPath(nodes);
-            await taskRepository.UpdateEntity(task);
+            await taskRepository.Update(task);
         }
     }
     private List<int> ExtractNodesFromPath(string path)

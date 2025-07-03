@@ -83,7 +83,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         if (User.IsInRole(RoleConstants.Admin))
-            return Ok(await partLogic.GetEntities());
+            return Ok(await partLogic.GetAll());
         var userId = User.FindFirst("id")?.Value;
         return Ok(await partLogic.GetAllAccessibleParts(Guid.Parse(userId!)));
     }
@@ -101,7 +101,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{partId}/all")]
     public async Task<IActionResult> GetAll(string partId)
     {
-        return Ok(await partLogic.GetEntitiesById(Guid.Parse(partId)));
+        return Ok(await partLogic.GetManyById(Guid.Parse(partId)));
     }
 
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
@@ -109,7 +109,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{partId}")]
     public async Task<IActionResult> GetModel(string partId)
     {
-        return Ok(await partLogic.GetEntityById(Guid.Parse(partId)));
+        return Ok(await partLogic.GetById(Guid.Parse(partId)));
     }
     
     [HttpGet]
@@ -135,7 +135,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{partId}/members/")]
     public async Task<IActionResult> AddMemberToPart(string partId, [FromBody] PartMembersModel model)
     {
-        if (await partLogic.AddToEntity(Guid.Parse(partId!), Guid.Parse(model.MemberId!)))
+        if (await partLogic.AddTo(Guid.Parse(partId!), Guid.Parse(model.MemberId!)))
             return Ok();
 
         return BadRequest();
@@ -146,7 +146,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{partId}/members/{memberId}")]
     public async Task<IActionResult> RemoveMemberFromPart(string partId, string memberId)
     {
-        if (await partLogic.RemoveFromEntity(Guid.Parse(partId!), Guid.Parse(memberId!)))
+        if (await partLogic.RemoveFrom(Guid.Parse(partId!), Guid.Parse(memberId!)))
             return Ok();
 
         return BadRequest();
@@ -157,7 +157,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("")]
     public async Task<IActionResult> UpdatePart([FromBody] PartModel model)
     {
-        if (await partLogic.UpdateEntity(model))
+        if (await partLogic.Update(model))
             return Ok();
         return BadRequest();
     }
@@ -167,7 +167,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{masterId}/links")]
     public async Task<IActionResult> LinkParts(string masterId, string slaveId)
     {
-        if (await partLogic.LinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
+        if (await partLogic.AddLink(Guid.Parse(masterId), Guid.Parse(slaveId)))
             return Ok();
         return BadRequest();
     }
@@ -177,7 +177,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{masterId}/links")]
     public async Task<IActionResult> MovePart(string masterId, string slaveId)
     {
-        if (await partLogic.UnlinkEntities(Guid.Parse(masterId), Guid.Parse(slaveId)))
+        if (await partLogic.RemoveLink(Guid.Parse(masterId), Guid.Parse(slaveId)))
             return Ok();
         return BadRequest();
     }
@@ -187,7 +187,7 @@ public class PartController(IPartLogic partLogic) : ControllerBase
     [Route("{partId}")]
     public async Task<IActionResult> DeletePart(string partId)
     {
-        if (await partLogic.DeleteEntity(Guid.Parse(partId)))
+        if (await partLogic.Delete(Guid.Parse(partId)))
             return Ok();
         return BadRequest();
     }

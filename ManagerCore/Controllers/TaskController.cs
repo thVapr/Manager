@@ -19,7 +19,7 @@ public class TaskController(
     [HttpGet]
     public async Task<IActionResult> GetTask(string taskId, string partId)
     {
-        return Ok(await taskLogic.GetEntityById(Guid.Parse(taskId)));
+        return Ok(await taskLogic.GetById(Guid.Parse(taskId)));
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Read])]
@@ -27,7 +27,7 @@ public class TaskController(
     [Route("all")]
     public async Task<IActionResult> GetModels(string partId)
     {
-        return Ok((await taskLogic.GetEntitiesById(Guid.Parse(partId))));
+        return Ok((await taskLogic.GetManyById(Guid.Parse(partId))));
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Take])]
@@ -51,14 +51,14 @@ public class TaskController(
     [Route("search")]
     public async Task<IActionResult> SearchTasks(string query, string partId)
     {
-        return Ok(await taskLogic.GetEntitiesByQuery(query, Guid.Parse(partId)));
+        return Ok(await taskLogic.GetByQuery(query, Guid.Parse(partId)));
     }
     
     [TypeFilter(typeof(PartAccessFilter), Arguments = [(int)AccessLevel.Create])]
     [HttpPost]
     public async Task<IActionResult> CreateTask(TaskModel model, string partId)
     {
-        if (await taskLogic.CreateEntity(model))
+        if (await taskLogic.Create(model))
             return Ok();
         return BadRequest();
     }
@@ -69,7 +69,7 @@ public class TaskController(
     [Route("{taskId}")]
     public async Task<IActionResult> ChangeTaskStatus([FromBody] ChangeTaskStatusModel model, string taskId, string partId)
     {
-        var task = await taskLogic.GetEntityById(Guid.Parse(partId));
+        var task = await taskLogic.GetById(Guid.Parse(partId));
         if (task.PartId != null && task.PartId == Guid.Parse(partId))
             return Forbid();
         return Ok(
@@ -114,10 +114,10 @@ public class TaskController(
     [Route("{taskId}")]
     public async Task<IActionResult> DeleteTask(string partId, string taskId)
     {
-        var task = await taskLogic.GetEntityById(Guid.Parse(taskId));
+        var task = await taskLogic.GetById(Guid.Parse(taskId));
         if (task.PartId != null && task.PartId != Guid.Parse(partId))
             Forbid($"У вас нет прав для доступа к задаче с id: {taskId}");
-        if (await taskLogic.DeleteEntity(Guid.Parse(taskId)))
+        if (await taskLogic.Delete(Guid.Parse(taskId)))
             return Ok();
         return BadRequest();
     }

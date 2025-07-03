@@ -1,11 +1,11 @@
-﻿using ManagerLogic.Models;
-using ManagerData.Constants;
+﻿using ManagerData.Constants;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Background;
+using ManagerLogic.Models;
 using Microsoft.AspNetCore.SignalR;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class TaskLogic(
     ITaskRepository repository,
@@ -16,15 +16,15 @@ public class TaskLogic(
     IHubContext<UpdateHub> hubContext
     ) : ITaskLogic
 {
-    public async Task<TaskModel> GetEntityById(Guid id)
+    public async Task<TaskModel> GetById(Guid id)
     {
-        var task = await repository.GetEntityById(id);
+        var task = await repository.GetById(id);
         return ConvertToLogicModel(task!);
     }
 
-    public async Task<ICollection<TaskModel>> GetEntities()
+    public async Task<ICollection<TaskModel>> GetAll()
     {
-        var entities = await repository.GetEntities();
+        var entities = await repository.GetAll();
 
         if (entities == null) 
             return [];
@@ -32,16 +32,16 @@ public class TaskLogic(
         return entities.Select(task => ConvertToLogicModel(task!)).ToList();
     }
 
-    public async Task<ICollection<TaskModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<TaskModel>> GetManyById(Guid id)
     {
-        var tasks = await repository.GetEntitiesById(id);
+        var tasks = await repository.GetManyById(id);
 
         if (tasks == null) return [];
 
         return tasks.Select(task => ConvertToLogicModel(task!)).ToList();
     }
 
-    public async Task<bool> CreateEntity(TaskModel model)
+    public async Task<bool> Create(TaskModel model)
     {
         var entity = new TaskDataModel
         {
@@ -71,7 +71,7 @@ public class TaskLogic(
             entity.Path = string.Join("-", statuses);
         }
         
-        var isTaskCreated = await repository.CreateEntity((Guid)model.PartId!, entity);
+        var isTaskCreated = await repository.Create((Guid)model.PartId!, entity);
         if (isTaskCreated)
         {
             await historyRepository.Create(new TaskHistory
@@ -104,7 +104,7 @@ public class TaskLogic(
         return isTaskCreated;
     }
 
-    public async Task<bool> UpdateEntity(TaskModel model)
+    public async Task<bool> Update(TaskModel model)
     {
         if (model.Status == 111)
         {
@@ -117,7 +117,7 @@ public class TaskLogic(
         }
         else
         {
-            var task = await repository.GetEntityById(Guid.Parse(model.Id!));
+            var task = await repository.GetById(Guid.Parse(model.Id!));
             var path = task.Path.Split("-").ToList();
             if (task.Status != model.Status && path.All(pathItem => pathItem != model.Status.ToString()))
             {
@@ -134,7 +134,7 @@ public class TaskLogic(
             }
         }
 
-        return await repository.UpdateEntity(new TaskDataModel
+        return await repository.Update(new TaskDataModel
         {
             Id = Guid.Parse(model.Id ?? ""),
             Name = model.Name!,
@@ -152,29 +152,29 @@ public class TaskLogic(
         });
     }
 
-    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public Task<bool> AddTo(Guid destinationId, Guid sourceId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    public Task<bool> RemoveFrom(Guid destinationId, Guid sourceId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> AddLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> RemoveLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ICollection<TaskModel>> GetEntitiesByQuery(string query, Guid id)
+    public async Task<ICollection<TaskModel>> GetByQuery(string query, Guid id)
     {
-        var entities = await GetEntitiesById(id);
+        var entities = await GetManyById(id);
 
         var queries = query.ToLower().Split(' ');
 
@@ -186,9 +186,9 @@ public class TaskLogic(
             ).ToList();
     }
 
-    public async Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> Delete(Guid id)
     {
-        return await repository.DeleteEntity(id);
+        return await repository.Delete(id);
     }
 
     public async Task<ICollection<TaskHistoryModel>> GetTaskHistory(Guid taskId)
@@ -217,7 +217,7 @@ public class TaskLogic(
                 {
                     if (!memberCache.TryGetValue(history.InitiatorId, out var initiator))
                     {
-                        initiator = await memberLogic.GetEntityById(Guid.Parse(history.InitiatorId));
+                        initiator = await memberLogic.GetById(Guid.Parse(history.InitiatorId));
                         memberCache[history.InitiatorId] = initiator;
                     }
                     history.Initiator = initiator;
@@ -227,7 +227,7 @@ public class TaskLogic(
                 {
                     if (!memberCache.TryGetValue(history.TargetMemberId, out var targetMember))
                     {
-                        targetMember = await memberLogic.GetEntityById(Guid.Parse(history.TargetMemberId));
+                        targetMember = await memberLogic.GetById(Guid.Parse(history.TargetMemberId));
                         memberCache[history.TargetMemberId] = targetMember;
                     }
                     history.TargetMember = targetMember;
@@ -248,12 +248,12 @@ public class TaskLogic(
         var taskId = Guid.Parse(taskModel.Id!);
         var savedAvailableMembers = await GetAvailableMembersForTask(partId, taskId, true);
         var rawStatuses = (await partLogic.GetPartTaskStatuses(partId));
-        var savedTask = await GetEntityById(Guid.Parse(taskModel.Id!));
+        var savedTask = await GetById(Guid.Parse(taskModel.Id!));
         
-        var isEntityUpdated = await UpdateEntity(taskModel);
+        var isEntityUpdated = await Update(taskModel);
         if (isEntityUpdated && historyModel is not null && !string.IsNullOrEmpty(historyModel.InitiatorId))
         {
-            var task = await GetEntityById(Guid.Parse(taskModel.Id!));
+            var task = await GetById(Guid.Parse(taskModel.Id!));
             if (task.Status != savedTask.Status)
             {
                 var historyId = Guid.NewGuid();
@@ -276,7 +276,7 @@ public class TaskLogic(
 
         if (isEntityUpdated)
         {
-            var partMembers = await memberLogic.GetEntitiesById(partId);
+            var partMembers = await memberLogic.GetManyById(partId);
             foreach (var member in partMembers)
             {
                 await hubContext.Clients.User(member.Id!).SendAsync("ReceiveUpdate");
@@ -287,7 +287,7 @@ public class TaskLogic(
 
     public async Task<bool> AddMemberToTask(Guid initiatorId, Guid memberId, Guid taskId, int groupId)
     {
-        var task = await repository.GetEntityById(taskId);
+        var task = await repository.GetById(taskId);
         var statuses = 
             (await partLogic.GetPartTaskStatuses(task.PartId ?? Guid.Empty))
             .Select(status => status.Order);
@@ -316,7 +316,7 @@ public class TaskLogic(
             }
         }
         
-        var isMemberAddedToTask = await repository.AddToEntity(memberId, taskId);
+        var isMemberAddedToTask = await repository.AddTo(memberId, taskId);
 
         if (isMemberAddedToTask)
         {
@@ -359,7 +359,7 @@ public class TaskLogic(
 
     public async Task<bool> RemoveMemberFromTask(Guid initiatorId, Guid memberId, Guid taskId)
     {
-        var isMemberRemoved = await repository.RemoveFromEntity(memberId, taskId);
+        var isMemberRemoved = await repository.RemoveFrom(memberId, taskId);
         if (isMemberRemoved && initiatorId != Guid.Empty)
         {
             var historyId = Guid.NewGuid();
@@ -400,7 +400,7 @@ public class TaskLogic(
     public async Task<bool> ChangeTaskStatus(HistoryModel historyModel, Guid taskId, bool forward)
     {
         //TODO: Нужно это разобрать на отдельные методы
-        var task = await repository.GetEntityById(taskId);
+        var task = await repository.GetById(taskId);
         var partId = task.PartId ?? Guid.Empty;
         var savedAvailableMembers = await GetAvailableMembersForTask(partId, taskId, true);
         
@@ -445,7 +445,7 @@ public class TaskLogic(
         var sourceStatus = task.Status;
         task.Status = nodes[targetIndex];
         
-        var isEntityUpdated = await UpdateEntity(ConvertToLogicModel(task));
+        var isEntityUpdated = await Update(ConvertToLogicModel(task));
         
         if (isEntityUpdated && !string.IsNullOrEmpty(historyModel.InitiatorId))
         {
@@ -552,7 +552,7 @@ public class TaskLogic(
     {
         var roles = await partLogic.GetPartMemberRoles(partId, memberId);
         var statuses = await partLogic.GetPartTaskStatuses(partId);
-        var tasks = await GetEntitiesById(partId);
+        var tasks = await GetManyById(partId);
         
         var availableTasks = new List<TaskModel>();
         foreach (var task in tasks)
@@ -591,7 +591,7 @@ public class TaskLogic(
 
     public async Task<ICollection<MemberModel>> GetAvailableMembersForTask(Guid partId, Guid taskId, bool includeExecutors = false)
     {
-        var task = await GetEntityById(taskId);
+        var task = await GetById(taskId);
         var statuses = await partLogic.GetPartTaskStatuses(partId);
         var members = (await memberLogic.GetMembersFromPart(partId));
         var taskMembers = await GetTaskMembers(Guid.Parse(task.Id!));
@@ -602,7 +602,7 @@ public class TaskLogic(
             if ((includeExecutors || taskMembers.All(taskMember => taskMember.Id != member.Id)) 
                 && await HasAccessToTask(Guid.Parse(member.Id!), partId, task, statuses))
             {
-                availableMembers.Add(await memberLogic.GetEntityById(Guid.Parse(member.Id!)));
+                availableMembers.Add(await memberLogic.GetById(Guid.Parse(member.Id!)));
             }
         }
 
@@ -657,7 +657,7 @@ public class TaskLogic(
         
         foreach (var memberId in membersIds)
         {
-            var member = await memberLogic.GetEntityById(memberId);
+            var member = await memberLogic.GetById(memberId);
             memberCollection.Add(member);
         }
         return memberCollection;

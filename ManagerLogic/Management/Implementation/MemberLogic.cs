@@ -1,16 +1,15 @@
-﻿
-using ManagerData.Authentication;
+﻿using ManagerData.Authentication;
 using ManagerData.DataModels;
 using ManagerData.Management;
 using ManagerLogic.Models;
 
-namespace ManagerLogic.Management;
+namespace ManagerLogic.Management.Implementation;
 
 public class MemberLogic(IMemberRepository repository, IAuthenticationRepository authenticationRepository) : IMemberLogic
 {
-    public async Task<MemberModel> GetEntityById(Guid id)
+    public async Task<MemberModel> GetById(Guid id)
     {
-        var entity = await repository.GetEntityById(id);
+        var entity = await repository.GetById(id);
 
         return new MemberModel
         {
@@ -21,14 +20,14 @@ public class MemberLogic(IMemberRepository repository, IAuthenticationRepository
         };
     }
 
-    public Task<ICollection<MemberModel>> GetEntities()
+    public Task<ICollection<MemberModel>> GetAll()
     {
         throw new NotImplementedException();
     }
 
-    public async Task<ICollection<MemberModel>> GetEntitiesById(Guid id)
+    public async Task<ICollection<MemberModel>> GetManyById(Guid id)
     { 
-        var members = await repository.GetEntitiesById(id);
+        var members = await repository.GetManyById(id);
 
         return members!.Select(e => new MemberModel
         {
@@ -39,7 +38,7 @@ public class MemberLogic(IMemberRepository repository, IAuthenticationRepository
         }).ToList();
     }
 
-    public async Task<bool> CreateEntity(MemberModel model)
+    public async Task<bool> Create(MemberModel model)
     {
         if (model.Id == null) return false;
 
@@ -61,10 +60,10 @@ public class MemberLogic(IMemberRepository repository, IAuthenticationRepository
             }
         }
 
-        return await repository.CreateEntity(entity);
+        return await repository.Create(entity);
     }
 
-    public async Task<bool> UpdateEntity(MemberModel model)
+    public async Task<bool> Update(MemberModel model)
     {
         if (model.MessengerId != null)
         {
@@ -76,7 +75,7 @@ public class MemberLogic(IMemberRepository repository, IAuthenticationRepository
             }
         }
         
-        return await repository.UpdateEntity(new MemberDataModel
+        return await repository.Update(new MemberDataModel
         {
             Id = Guid.Parse(model.Id!),
             
@@ -86,32 +85,32 @@ public class MemberLogic(IMemberRepository repository, IAuthenticationRepository
         });
     }
 
-    public Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public Task<bool> AddTo(Guid destinationId, Guid sourceId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    public Task<bool> RemoveFrom(Guid destinationId, Guid sourceId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> AddLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> RemoveLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<ICollection<MemberModel>> GetEntitiesByQuery(string query, Guid id)
+    public Task<ICollection<MemberModel>> GetByQuery(string query, Guid id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<bool> DeleteEntity(Guid id)
+    public Task<bool> Delete(Guid id)
     {
         throw new NotImplementedException();
     }

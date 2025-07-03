@@ -7,7 +7,7 @@ namespace ManagerData.Management.Implementation;
 
 public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> logger) : ITaskRepository
 {
-    public async Task<bool> CreateEntity(TaskDataModel model)
+    public async Task<bool> Create(TaskDataModel model)
     {
         try
         {
@@ -23,9 +23,9 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<bool> CreateEntity(Guid id, TaskDataModel model)
+    public async Task<bool> Create(Guid id, TaskDataModel model)
     {
-        if (!await CreateEntity(model)) return false;
+        if (!await Create(model)) return false;
         try
         {
             var part = database.Parts.FirstOrDefault(p => p.Id == id);
@@ -47,7 +47,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<bool> AddToEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> AddTo(Guid destinationId, Guid sourceId)
     {
         try
         {
@@ -69,7 +69,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<bool> RemoveFromEntity(Guid destinationId, Guid sourceId)
+    public async Task<bool> RemoveFrom(Guid destinationId, Guid sourceId)
     {
         try
         {
@@ -91,17 +91,17 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public Task<bool> LinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> AddLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
     
-    public Task<bool> UnlinkEntities(Guid masterId, Guid slaveId)
+    public Task<bool> RemoveLink(Guid masterId, Guid slaveId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<TaskDataModel> GetEntityById(Guid id)
+    public async Task<TaskDataModel> GetById(Guid id)
     {
         try
         {
@@ -116,7 +116,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<IEnumerable<TaskDataModel>?> GetEntities()
+    public async Task<IEnumerable<TaskDataModel>?> GetAll()
     {
         try
         {
@@ -129,7 +129,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<IEnumerable<TaskDataModel>?> GetEntitiesById(Guid id)
+    public async Task<IEnumerable<TaskDataModel>?> GetManyById(Guid id)
     {
         try
         {
@@ -149,7 +149,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<bool> UpdateEntity(TaskDataModel model)
+    public async Task<bool> Update(TaskDataModel model)
     {
         try
         {
@@ -189,7 +189,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
         }
     }
 
-    public async Task<bool> DeleteEntity(Guid id)
+    public async Task<bool> Delete(Guid id)
     {
         try
         {
@@ -213,7 +213,7 @@ public class TaskRepository(MainDbContext database,  ILogger<TaskRepository> log
     {
         try
         {
-            var entities = await GetEntitiesById(projectId);
+            var entities = await GetManyById(projectId);
 
             var tasksIds = await database.TaskMembers
                 .Select(et => et.TaskId)
