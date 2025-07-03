@@ -1,6 +1,8 @@
-﻿namespace ManagerCore.Models;
+﻿using ManagerLogic.Models;
 
-public class PartMemberRoleRequest
+namespace ManagerCore.Models;
+
+public class PartMemberRoleRequest : IPartAllocationModel
 {
     public string PartId { get; set; }
     public string MemberId { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace ManagerLogic.Models;
 
-public class PartTaskStatusModel : BaseModel
+public class PartTaskStatusModel : BaseModel, IPartAllocationModel
 {
     public int? GlobalStatus { get; set; }
     public int? Order { get; set; }

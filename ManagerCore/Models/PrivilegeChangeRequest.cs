@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ManagerLogic.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ManagerCore.Models;
 
-public class PrivilegeChangeRequest
+public class PrivilegeChangeRequest : IPartAllocationModel
 {
     [Required(ErrorMessage = "MemberId is required")]
     public string MemberId { get; set; }

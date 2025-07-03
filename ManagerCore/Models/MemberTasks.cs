@@ -1,6 +1,8 @@
-﻿namespace ManagerCore.Models;
+﻿using ManagerLogic.Models;
 
-public class MemberTasks
+namespace ManagerCore.Models;
+
+public class MemberTasks : IPartAllocationModel
 {
     public string? MemberId { get; set; }
     public string? TaskId { get; set; }

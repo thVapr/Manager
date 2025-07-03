@@ -35,18 +35,14 @@ public static class FilterHelper
     
     public static List<Guid> GetPartIds(ActionExecutingContext context)
     {
-        var partId = ((((((((context.ActionArguments.TryGetValue("partId", out var id) 
+        var partId = ((((context.ActionArguments.TryGetValue("partId", out var id)
                ? id : null)
            ?? (context.ActionArguments.TryGetValue("masterId", out id)
                ? id : null)
             ?? context.ActionArguments.Values.OfType<PartModel>().FirstOrDefault()?.MainPartId)
-            ?? context.ActionArguments.Values.OfType<PartTaskStatusModel>().FirstOrDefault()?.PartId)
+            ?? context.ActionArguments.Values.OfType<UpdateTaskRequest>().FirstOrDefault()?.Task.PartId)
             ?? context.ActionArguments.Values.OfType<TaskModel>().FirstOrDefault()?.PartId)
-            ?? context.ActionArguments.Values.OfType<PrivilegeChangeRequest>().FirstOrDefault()?.PartId)
-            ?? context.ActionArguments.Values.OfType<MemberTasks>().FirstOrDefault()?.PartId)
-            ?? context.ActionArguments.Values.OfType<AddToPartModel>().FirstOrDefault()?.PartId) 
-            ?? context.ActionArguments.Values.OfType<PartMemberRoleRequest>().FirstOrDefault()?.PartId)
-            ?? context.ActionArguments.Values.OfType<UpdateTaskRequest>().FirstOrDefault()?.Task.PartId;
+            ?? context.ActionArguments.Values.OfType<IPartAllocationModel>().FirstOrDefault()?.PartId;
         
         var list = new List<string>();
         if (partId != null)

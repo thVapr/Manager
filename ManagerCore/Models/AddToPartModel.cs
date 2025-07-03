@@ -1,6 +1,8 @@
-﻿namespace ManagerCore.Models;
+﻿using ManagerLogic.Models;
 
-public class AddToPartModel
+namespace ManagerCore.Models;
+
+public class AddToPartModel : IPartAllocationModel
 {
     public string? EntityId { get; set; }
     public string PartId { get; set; }
