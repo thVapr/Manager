@@ -35,7 +35,7 @@ public static class FilterHelper
     
     public static List<Guid> GetPartIds(ActionExecutingContext context)
     {
-        var partId = ((((context.ActionArguments.TryGetValue("partId", out var id)
+        var partId = ((((((((context.ActionArguments.TryGetValue("partId", out var id) 
                ? id : null)
            ?? (context.ActionArguments.TryGetValue("masterId", out id)
                ? id : null)
